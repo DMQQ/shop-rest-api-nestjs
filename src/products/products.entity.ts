@@ -1,3 +1,4 @@
+import { RatingsEntity } from "src/ratings/ratings.entity";
 import { UploadEntity } from "src/upload/upload.entity";
 import {
   Column,
@@ -27,4 +28,8 @@ export class ProductsEntity {
   @OneToMany(() => UploadEntity, (img) => img.prod_id)
   @JoinColumn({ name: "img_id" })
   img_id: UploadEntity[];
+
+  @OneToMany(() => RatingsEntity, (rating) => rating.prod_id)
+  @JoinColumn({ name: "rating_id" })
+  rating_id: RatingsEntity[];
 }

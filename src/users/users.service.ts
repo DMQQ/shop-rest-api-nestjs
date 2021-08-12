@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { UsersEntity } from "./users.entity";
 
 import { hash, compare } from "bcrypt";
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 
 const KEY = "dhbada8d##!%aaad778464";
 
@@ -32,5 +32,9 @@ export class UsersService {
 
   createUser(email: string, hashedPassword: string): Promise<any> {
     return this.userRepository.save({ email, password: hashedPassword });
+  }
+
+  verifyToken(token: string): any {
+    return verify(token, KEY);
   }
 }
