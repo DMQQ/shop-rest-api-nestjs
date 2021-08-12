@@ -13,4 +13,8 @@ export class UploadService {
   uploadProps(prod_id: number, img_name: string): Promise<any> {
     return this.uploadRepository.insert({ name: img_name, prod_id });
   }
+
+  getImagesToProducts(prod_id: number): Promise<UploadEntity[]> {
+    return this.uploadRepository.find({ prod_id });
+  }
 }

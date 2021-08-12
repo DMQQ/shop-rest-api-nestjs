@@ -14,5 +14,6 @@ import { UploadService } from "./upload.service";
   ],
   providers: [UploadService],
   controllers: [FilesController],
+  exports: [UploadService],
 })
 export class UploadModule {}

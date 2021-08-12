@@ -24,7 +24,7 @@ export class RatingsEntity {
   @Column({ type: "varchar" })
   title: string;
 
-  @OneToOne(() => ProductsEntity)
+  @OneToOne(() => ProductsEntity, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn({ name: "prod_id" })
   prod_id: number;
 

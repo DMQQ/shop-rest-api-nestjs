@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CartModule } from "src/cart/cart.module";
@@ -9,6 +9,7 @@ import { UploadModule } from "src/upload/upload.module";
 
 import { UsersModule } from "src/users/users.module";
 import { WorkersModule } from "src/workers/workers.module";
+import { AppMiddleware } from "./middleware/app.middleware";
 
 @Module({
   imports: [
@@ -22,4 +23,11 @@ import { WorkersModule } from "src/workers/workers.module";
     RatingsModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AppMiddleware)
+      .exclude("/auth/login", "/auth/register")
+      .forRoutes("*");
+  }
+}

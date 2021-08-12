@@ -14,4 +14,9 @@ export class ProductsController {
   getProductsByCategory(@Param("category") category: string) {
     return this.productsService.getByCategory(category);
   }
+
+  @Get("/:id")
+  getById(@Param("id") id: number) {
+    return this.productsService.getById(id);
+  }
 }

@@ -17,4 +17,11 @@ export class ProductsService {
   getByCategory(category: string) {
     return this.productsRepository.find({ category });
   }
+
+  getById(id: number) {
+    return this.productsRepository.findOne({
+      relations: ["img_id", "rating_id"],
+      where: { prod_id: id },
+    });
+  }
 }

@@ -13,7 +13,7 @@ export class RatingsController {
   }
 
   @Post("/add")
-  createRating(@Body() props: any, @Req() req: Request | any) {
+  createRating(@Body() props: RatingsDto, @Req() req: Request | any) {
     // to add review user need to purchase product
     // history_id goes from history
     // prod_id goes from history
