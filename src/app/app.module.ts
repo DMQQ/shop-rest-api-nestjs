@@ -8,14 +8,12 @@ import { RatingsModule } from "src/ratings/ratings.module";
 import { UploadModule } from "src/upload/upload.module";
 
 import { UsersModule } from "src/users/users.module";
-import { WorkersModule } from "src/workers/workers.module";
 import { AppMiddleware } from "./middleware/app.middleware";
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
     UsersModule,
-    WorkersModule,
     HistoryModule,
     CartModule,
     ProductsModule,

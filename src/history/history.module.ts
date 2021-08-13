@@ -8,5 +8,6 @@ import { HistoryService } from "./history.service";
   imports: [TypeOrmModule.forFeature([HistoryEntity])],
   providers: [HistoryService],
   controllers: [HistoryController],
+  exports: [HistoryService],
 })
 export class HistoryModule {}
