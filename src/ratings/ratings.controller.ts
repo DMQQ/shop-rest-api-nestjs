@@ -4,7 +4,7 @@ import { RatingsService } from "./ratings.service";
 import { Request, Response } from "express";
 import { HistoryService } from "src/history/history.service";
 
-interface IRequest extends Request {
+export interface IRequest extends Request {
   user_id: number;
 }
 

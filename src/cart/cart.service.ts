@@ -28,4 +28,9 @@ export class CartService {
     //@ts-ignore
     return this.cartRepository.insert({ user_id, prod_id });
   }
+
+  removeFromCart(cart_id: number, user_id: number) {
+    //@ts-ignore
+    return this.cartRepository.delete({ cart_id, user_id });
+  }
 }

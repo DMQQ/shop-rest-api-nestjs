@@ -1,6 +1,16 @@
-import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  Res,
+} from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { Request, Response } from "express";
+import { IRequest } from "src/ratings/ratings.controller";
 
 @Controller("cart")
 export class CartController {
@@ -31,5 +41,24 @@ export class CartController {
         });
       }
     });
+  }
+
+  @Delete(":cart_id")
+  removeFromCart(
+    @Param("cart_id") cart_id: number,
+    @Req() req: IRequest,
+    @Res() response: Response,
+  ) {
+    const { user_id } = req;
+    this.cartService
+      .removeFromCart(cart_id, user_id)
+      .then((res) => {
+        if (res.affected > 0) {
+          response.status(200).send({ status: "Deleted", code: 200 });
+        }
+      })
+      .catch((err) => {
+        response.status(400).send({ error: err.message, code: 400 });
+      });
   }
 }
