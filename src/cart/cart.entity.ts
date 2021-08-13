@@ -1,4 +1,5 @@
 import { ProductsEntity } from "src/products/products.entity";
+import { UploadEntity } from "src/upload/upload.entity";
 
 import {
   Entity,
@@ -6,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   Column,
+  OneToMany,
 } from "typeorm";
 
 @Entity("cart")
@@ -19,4 +21,8 @@ export class CartEntity {
   @ManyToOne(() => ProductsEntity, (prod) => prod.prod_id)
   @JoinColumn({ name: "prod_id" })
   prod_id: ProductsEntity[];
+
+  @OneToMany(() => UploadEntity, (type) => type.prod_id)
+  @JoinColumn({ name: "img_id" })
+  img_id: number;
 }

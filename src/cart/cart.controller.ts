@@ -10,6 +10,8 @@ export class CartController {
   async getCart(@Req() req: Request | any) {
     const { user_id } = req;
 
+    // brak zdjęć, do poprawy
+
     return this.cartService.getUsersCart(user_id);
   }
 
