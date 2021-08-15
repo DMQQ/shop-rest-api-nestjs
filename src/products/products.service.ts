@@ -24,4 +24,18 @@ export class ProductsService {
       where: { prod_id: id },
     });
   }
+
+  createProduct({
+    description,
+    price,
+    category,
+    expiration_date,
+  }: any): Promise<any> {
+    return this.productsRepository.save({
+      description,
+      price,
+      category,
+      expiration_date,
+    });
+  }
 }

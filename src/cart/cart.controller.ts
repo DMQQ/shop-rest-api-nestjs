@@ -20,8 +20,6 @@ export class CartController {
   async getCart(@Req() req: Request | any) {
     const { user_id } = req;
 
-    // brak zdjęć, do poprawy
-
     return this.cartService.getUsersCart(user_id);
   }
 
@@ -35,11 +33,15 @@ export class CartController {
 
     this.cartService.addToCart(user_id, prod_id).then(({ raw }) => {
       if (raw && raw.affectedRows > 0) {
-        res.send({
+        return res.status(201).send({
           status: "Added",
           code: 201,
         });
       }
+      res.status(400).send({
+        status: "Add to cart failed",
+        code: 400,
+      });
     });
   }
 

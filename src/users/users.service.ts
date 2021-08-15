@@ -34,7 +34,7 @@ export class UsersService {
     return this.userRepository.save({ email, password: hashedPassword });
   }
 
-  verifyToken(token: string): any {
-    return verify(token, KEY);
+  verifyToken(token: string, callback: (err: any, decoded: any) => void): any {
+    return verify(token, KEY, callback);
   }
 }

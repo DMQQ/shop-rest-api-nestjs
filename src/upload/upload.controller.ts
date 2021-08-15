@@ -28,9 +28,13 @@ export class FilesController {
     @Res() response: Response,
   ) {
     if (file) {
-      console.log(file);
-      this.uploadService.uploadProps(id, file.filename).then(() => {
-        response.status(201).send({ filename: file.filename });
+      this.uploadService.uploadProps(id, file.filename).then(({ raw }) => {
+        if (raw.affected > 0) {
+          return response.status(201).send({ filename: file.filename });
+        }
+        response
+          .status(400)
+          .send({ message: "Cannot upload image to database" });
       });
     }
   }

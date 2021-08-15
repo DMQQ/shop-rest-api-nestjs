@@ -1,5 +1,7 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Res } from "@nestjs/common";
+import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
+import { Response } from "express";
 
 @Controller("products")
 export class ProductsController {
@@ -18,5 +20,20 @@ export class ProductsController {
   @Get("/:id")
   getById(@Param("id") id: number) {
     return this.productsService.getById(id);
+  }
+
+  @Post("create/product")
+  createProduct(@Body() props: ProductsDto, @Res() response: Response) {
+    this.productsService
+      .createProduct(props)
+      .then(({ raw }) => {
+        if (raw.affected > 0) {
+          return response
+            .status(201)
+            .send({ message: "Product created", code: 201 });
+        }
+        response.status(400).send({ message: "Failed to create product" });
+      })
+      .catch((err) => console.log(err));
   }
 }
