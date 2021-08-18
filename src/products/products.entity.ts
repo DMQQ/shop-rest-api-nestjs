@@ -17,6 +17,9 @@ export class ProductsEntity {
   price: number;
 
   @Column({ type: "varchar" })
+  title: string;
+
+  @Column({ type: "varchar" })
   expiration_date: string;
 
   @Column({ type: "varchar" })

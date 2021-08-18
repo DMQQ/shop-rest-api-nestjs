@@ -16,4 +16,8 @@ export class ProductsDto {
   @IsString()
   @IsNotEmpty()
   category: string;
+
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 }

@@ -12,12 +12,25 @@ export class ProductsController {
     return this.productsService.getAll();
   }
 
-  @Get(":category")
+  @Get("/price=:low&:high")
+  async getProductsByPriceRange(
+    @Param("low") low: number,
+    @Param("high") high: number,
+  ) {
+    return this.productsService.getByPriceRange(low, high);
+  }
+
+  @Get("searched=:text")
+  getBySearchTitleOrDescription(@Param("text") text: string) {
+    return this.productsService.getByTitleOrDesc(text);
+  }
+
+  @Get("/category=:category")
   getProductsByCategory(@Param("category") category: string) {
     return this.productsService.getByCategory(category);
   }
 
-  @Get("/:id")
+  @Get("/id=:id")
   getById(@Param("id") id: number) {
     return this.productsService.getById(id);
   }
