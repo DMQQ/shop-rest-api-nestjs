@@ -9,12 +9,10 @@ export class UsersController {
 
   @Post("login")
   login(@Body() props: UserDto, @Res() res: Response) {
-    // add input validation
-
     const { email, password } = props;
 
     this.userService.findMatch(email).then(async (result) => {
-      if (result !== undefined) {
+      if (typeof result !== "undefined") {
         this.userService
           .comparePasswords(result.password, password)
           .then((isPasswordCorrect) => {
@@ -25,6 +23,8 @@ export class UsersController {
               });
               res.status(200).send({
                 token,
+                name: result.email,
+                user_id: result.id,
                 status: "verified",
               });
             } else {

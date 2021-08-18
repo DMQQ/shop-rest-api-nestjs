@@ -47,6 +47,9 @@ export class ProductsController {
         }
         response.status(400).send({ message: "Failed to create product" });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => response.send({
+        message:err.message,
+        code:400
+      }));
   }
 }
