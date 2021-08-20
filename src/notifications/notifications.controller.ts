@@ -9,8 +9,5 @@ export class NotificationsController {
   @Post("/upload-token")
   uploadToken(@Body() props: NotificationsDto, @Req() req: any) {
     const { user_id } = req;
-    this.notifiService
-      .pushTokenToDataBase(props.token, user_id)
-      .then((result) => console.log(result));
   }
 }
