@@ -2,10 +2,17 @@ import { Body, Controller, Post, Res } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
+import { NotificationsService } from "src/notifications/notifications.service";
+import Expo from "expo-server-sdk";
+
+const expo = new Expo();
 
 @Controller("auth")
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private notifyService: NotificationsService,
+  ) {}
 
   @Post("login")
   login(@Body() props: UserDto, @Res() res: Response) {
@@ -21,6 +28,7 @@ export class UsersController {
                 email: result.email,
                 id: result.id,
               });
+
               res.status(200).send({
                 token,
                 name: result.email,
@@ -43,6 +51,8 @@ export class UsersController {
     });
   }
 
+  // create welcome message for new users
+
   @Post("register")
   register(@Body() props: UserDto, @Res() response: Response) {
     const { email, password } = props;
@@ -52,7 +62,15 @@ export class UsersController {
         const hashed = await this.userService.createHashedPassword(password);
         if (hashed) {
           this.userService.createUser(email, hashed).then((result) => {
-            console.log(res);
+            this.notifyService.findUsersToken(result.insertId).then((r) => {
+              expo.sendPushNotificationsAsync([
+                {
+                  to: r.token,
+                  title: `Welcome ${email}`,
+                  body: "promo code for new customers: 213769420",
+                },
+              ]);
+            });
 
             const token = this.userService.createToken({
               email,

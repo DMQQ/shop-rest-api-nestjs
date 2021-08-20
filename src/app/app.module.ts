@@ -27,7 +27,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AppMiddleware)
-      .exclude("/auth/login", "/auth/register")
+      .exclude("/auth/login", "/auth/register", "/upload/images=:img")
       .forRoutes("*");
   }
 }

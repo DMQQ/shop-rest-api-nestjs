@@ -13,16 +13,12 @@ export class NotificationsSchedule {
   handleCron() {
     this.notifyService.findUsersToken(5).then(async (res) => {
       if (res) {
-        const date = new Date().toLocaleDateString();
-        const hour = new Date().getHours();
-        const minutes = new Date().getMinutes();
-
         const ticket = await expo.sendPushNotificationsAsync([
           {
             to: res.token,
-            data: { data: { data: "Hi" } },
-            body: `${date} ${hour} ${minutes}`,
-            title: "Hi mate",
+            data: { data: { data: "Hello user" } },
+            body: `If you see this message it means my app is working`,
+            title: "Hi user",
           },
         ]);
         console.log(ticket);

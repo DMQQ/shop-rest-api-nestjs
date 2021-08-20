@@ -28,18 +28,15 @@ export class FilesController {
     @Res() response: Response,
   ) {
     if (file) {
-      this.uploadService.uploadProps(id, file.filename).then(({ raw }) => {
-        if (raw.affected > 0) {
+      this.uploadService.uploadProps(id, file.filename).then((res) => {
+        if (res) {
           return response.status(201).send({ filename: file.filename });
         }
-        response
-          .status(400)
-          .send({ message: "Cannot upload image to database" });
       });
     }
   }
 
-  @Get(":img")
+  @Get("images=:img")
   getUploadedFile(@Param("img") img: string, @Res() res: Response) {
     return res.sendFile(img, { root: "./images" });
   }
