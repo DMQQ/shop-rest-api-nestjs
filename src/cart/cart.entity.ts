@@ -25,4 +25,7 @@ export class CartEntity {
   @OneToMany(() => UploadEntity, (type) => type.prod_id)
   @JoinColumn({ name: "img_id" })
   img_id: number;
+
+  @Column({ type: "int", default: 1 })
+  ammount?: number;
 }

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, Interval } from "@nestjs/schedule";
 import Expo from "expo-server-sdk";
 import { NotificationsService } from "./notifications.service";
 
@@ -9,7 +9,7 @@ const expo = new Expo();
 export class NotificationsSchedule {
   constructor(private notifyService: NotificationsService) {}
 
-  @Cron("50 * * * * *")
+  @Interval(1000 * 60 * 60)
   handleCron() {
     this.notifyService.findUsersToken(5).then(async (res) => {
       if (res) {
