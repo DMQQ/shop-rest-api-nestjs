@@ -1,5 +1,6 @@
 // for later
 
+import { UploadEntity } from "src/upload/upload.entity";
 import { UsersEntity } from "src/users/users.entity";
 import {
   Column,
@@ -7,7 +8,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { ProductsEntity } from "./products.entity";
@@ -27,7 +27,11 @@ export class SearchHistoryEntity {
   @Column("varchar")
   date: string;
 
-  /*  @OneToMany(() => ProductsEntity, (type) => type.prod_id)
+  @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
   @JoinColumn({ name: "prod_id" })
-  prod_id: ProductsEntity[]; */
+  prod_id: ProductsEntity[];
+
+  @OneToMany(() => UploadEntity, (type) => type.prod_id)
+  @JoinColumn({ name: "img_id" })
+  img_id: number;
 }

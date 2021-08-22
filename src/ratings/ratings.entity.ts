@@ -1,5 +1,5 @@
 import { HistoryEntity } from "src/history/history.entity";
-import { ProductsEntity } from "src/products/products.entity";
+import { ProductsEntity } from "../products/Entities/products.entity";
 import { UsersEntity } from "src/users/users.entity";
 import {
   Column,

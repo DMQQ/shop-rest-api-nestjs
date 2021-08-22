@@ -32,9 +32,15 @@ export class ProductsController {
 
     return this.productsService.getByTitleOrDesc(text).then((result) => {
       if (result.length > 0) {
-        this.productsService.pushSearchHistory(user_id, text);
+        this.productsService.pushSearchHistory(
+          user_id,
+          text,
+          result[0]?.prod_id,
+        );
 
         response.status(OK).send(result);
+      } else {
+        response.status(OK).send([]);
       }
     });
   }
@@ -49,11 +55,7 @@ export class ProductsController {
   getSearchedProducts(@Req() req: any) {
     const { user_id } = req;
 
-    this.productsService.getSearchHistory(user_id).then((res) => {
-      console.log(res);
-    });
-
-    //  this.getBySearchTitleOrDescription()
+    return this.productsService.getSearchHistoryProduct(user_id);
   }
 
   @Get("/category=:category")
@@ -66,8 +68,10 @@ export class ProductsController {
     return this.productsService.getById(id);
   }
 
-  @Get("/most-searched")
-  getMostSearched() {}
+  @Get("/good-rated")
+  getMostSearched() {
+    return this.productsService.getGoodRated();
+  }
 
   @Post("create/product")
   createProduct(@Body() props: ProductsDto, @Res() response: Response) {

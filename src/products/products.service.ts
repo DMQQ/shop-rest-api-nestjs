@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, Like } from "typeorm";
-import { ProductsEntity } from "./products.entity";
-import { SearchHistoryEntity } from "./searchHistory.entity";
+import { Repository, MoreThanOrEqual, Like, MoreThan } from "typeorm";
+import { MostSearchedEntity } from "./Entities/mostSearched.entity";
+import { ProductsEntity } from "./Entities/products.entity";
+import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
 
 @Injectable()
 export class ProductsService {
@@ -12,6 +13,9 @@ export class ProductsService {
 
     @InjectRepository(SearchHistoryEntity)
     private searchRepository: Repository<SearchHistoryEntity>,
+
+    @InjectRepository(MostSearchedEntity)
+    private mostRepository: Repository<MostSearchedEntity>,
   ) {}
 
   getAll() {
@@ -74,7 +78,11 @@ export class ProductsService {
     });
   }
 
-  pushSearchHistory(user_id: number, word: string): Promise<any> {
+  pushSearchHistory(
+    user_id: number,
+    word: string,
+    prod_id: number,
+  ): Promise<any> {
     const date = new Date();
     const day = date.getDate();
     const month =
@@ -83,13 +91,47 @@ export class ProductsService {
         : date.getMonth() + 1;
     const year = date.getFullYear();
     const fullTime = `${day}.${month}.${year}`;
-    return this.searchRepository.insert({ user_id, word, date: fullTime });
+    return this.searchRepository.insert({
+      user_id,
+      word,
+      date: fullTime,
+      //@ts-ignore
+      prod_id,
+    });
   }
 
   getSearchHistory(user_id: number): Promise<SearchHistoryEntity[]> {
     return this.searchRepository.find({
-      relations: ["prod_id"],
       where: [{ user_id }],
     });
+  }
+  getSearchHistoryProduct(user_id: number): any {
+    return this.searchRepository
+      .find({
+        relations: ["prod_id", "img_id"],
+        where: [{ user_id }],
+      })
+      .then((res) => {
+        return res.map((el) => ({ ...el.prod_id, img_id: el.img_id }));
+      });
+  }
+
+  async getGoodRated() {
+    return this.productsRepository
+      .find({ relations: ["img_id", "rating_id"] })
+      .then((res) => {
+        const output = res.filter((el) => {
+          const mapedRatings = el.rating_id.map(({ rating }) => rating);
+          const N = mapedRatings.length;
+          const avg =
+            N > 1 ? mapedRatings.reduce((a, b) => a + b) / N : mapedRatings[0];
+
+          if (avg > 3) {
+            return el;
+          }
+        });
+
+        return output;
+      });
   }
 }
