@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Param, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, Res } from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
+import { BAD, CREATED, OK } from "src/constants/codes";
+import { FAILED_CREATE, SUCCESS_CREATE } from "src/constants/responses";
 
 @Controller("products")
 export class ProductsController {
@@ -21,8 +23,37 @@ export class ProductsController {
   }
 
   @Get("searched=:text")
-  getBySearchTitleOrDescription(@Param("text") text: string) {
-    return this.productsService.getByTitleOrDesc(text);
+  async getBySearchTitleOrDescription(
+    @Param("text") text: string,
+    @Req() req: any,
+    @Res() response: Response,
+  ) {
+    const { user_id } = req;
+
+    return this.productsService.getByTitleOrDesc(text).then((result) => {
+      if (result.length > 0) {
+        this.productsService.pushSearchHistory(user_id, text);
+
+        response.status(OK).send(result);
+      }
+    });
+  }
+
+  @Get("search-history")
+  getSearchHistory(@Req() req: any) {
+    const { user_id } = req;
+    return this.productsService.getSearchHistory(user_id);
+  }
+
+  @Get("searched-products")
+  getSearchedProducts(@Req() req: any) {
+    const { user_id } = req;
+
+    this.productsService.getSearchHistory(user_id).then((res) => {
+      console.log(res);
+    });
+
+    //  this.getBySearchTitleOrDescription()
   }
 
   @Get("/category=:category")
@@ -35,21 +66,28 @@ export class ProductsController {
     return this.productsService.getById(id);
   }
 
+  @Get("/most-searched")
+  getMostSearched() {}
+
   @Post("create/product")
   createProduct(@Body() props: ProductsDto, @Res() response: Response) {
     this.productsService
       .createProduct(props)
       .then(({ raw }) => {
-        if (raw.affected > 0) {
+        if (raw.affectedRows > 0) {
           return response
-            .status(201)
-            .send({ message: "Product created", code: 201 });
+            .status(CREATED)
+            .send({ message: SUCCESS_CREATE, code: CREATED });
+        } else {
+          console.log("why fai");
+          response.status(400).send({ message: FAILED_CREATE });
         }
-        response.status(400).send({ message: "Failed to create product" });
       })
-      .catch((err) => response.send({
-        message:err.message,
-        code:400
-      }));
+      .catch((err) =>
+        response.status(BAD).send({
+          message: err.message,
+          code: BAD,
+        }),
+      );
   }
 }

@@ -2,12 +2,16 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, MoreThanOrEqual, Like } from "typeorm";
 import { ProductsEntity } from "./products.entity";
+import { SearchHistoryEntity } from "./searchHistory.entity";
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(ProductsEntity)
     private productsRepository: Repository<ProductsEntity>,
+
+    @InjectRepository(SearchHistoryEntity)
+    private searchRepository: Repository<SearchHistoryEntity>,
   ) {}
 
   getAll() {
@@ -51,7 +55,7 @@ export class ProductsService {
     expiration_date,
     title,
   }: any): Promise<any> {
-    return this.productsRepository.save({
+    return this.productsRepository.insert({
       description,
       price,
       category,
@@ -60,13 +64,32 @@ export class ProductsService {
     });
   }
 
-  getByTitleOrDesc(input: string) {
+  getByTitleOrDesc(input: string): Promise<ProductsEntity[]> {
     return this.productsRepository.find({
       relations: ["img_id", "rating_id"],
       where: [
         { title: Like(`%${input}%`) },
         { description: Like(`%${input}%`) },
       ],
+    });
+  }
+
+  pushSearchHistory(user_id: number, word: string): Promise<any> {
+    const date = new Date();
+    const day = date.getDate();
+    const month =
+      date.getMonth() + 1 < 10
+        ? `0${date.getMonth() + 1}`
+        : date.getMonth() + 1;
+    const year = date.getFullYear();
+    const fullTime = `${day}.${month}.${year}`;
+    return this.searchRepository.insert({ user_id, word, date: fullTime });
+  }
+
+  getSearchHistory(user_id: number): Promise<SearchHistoryEntity[]> {
+    return this.searchRepository.find({
+      relations: ["prod_id"],
+      where: [{ user_id }],
     });
   }
 }

@@ -22,7 +22,7 @@ export class ProductsEntity {
   @Column({ type: "varchar" })
   expiration_date: string;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "text" })
   description: string;
 
   @Column({ type: "varchar" })
