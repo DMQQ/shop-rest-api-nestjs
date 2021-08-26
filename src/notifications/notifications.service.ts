@@ -17,4 +17,8 @@ export class NotificationsService {
   findUsersToken(user_id: number) {
     return this.notifyRepository.findOne({ user_id });
   }
+
+  getTokens() {
+    return this.notifyRepository.find({ where: [{ enabled: true }] });
+  }
 }

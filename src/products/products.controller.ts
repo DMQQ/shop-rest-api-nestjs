@@ -4,10 +4,15 @@ import { ProductsService } from "./products.service";
 import { Response } from "express";
 import { BAD, CREATED, OK } from "src/constants/codes";
 import { FAILED_CREATE, SUCCESS_CREATE } from "src/constants/responses";
+import { NotificationsService } from "src/notifications/notifications.service";
+import { expo, NewProductNotification } from "src/notifications/methods";
 
 @Controller("products")
 export class ProductsController {
-  constructor(private productsService: ProductsService) {}
+  constructor(
+    private productsService: ProductsService,
+    private notifyService: NotificationsService,
+  ) {}
 
   @Get()
   getAllProducts() {
@@ -38,10 +43,9 @@ export class ProductsController {
           result[0]?.prod_id,
         );
 
-        response.status(OK).send(result);
-      } else {
-        response.status(OK).send([]);
+        return response.status(OK).send(result);
       }
+      response.status(OK).send([]);
     });
   }
 
@@ -79,11 +83,20 @@ export class ProductsController {
       .createProduct(props)
       .then(({ raw }) => {
         if (raw.affectedRows > 0) {
+          this.notifyService
+            .getTokens()
+            .then((res) => {
+              return res.map(({ token }) => token);
+            })
+            .then((tokens) => {
+              expo.sendPushNotificationsAsync(
+                NewProductNotification(tokens, props.title),
+              );
+            });
           return response
             .status(CREATED)
             .send({ message: SUCCESS_CREATE, code: CREATED });
         } else {
-          console.log("why fai");
           response.status(400).send({ message: FAILED_CREATE });
         }
       })

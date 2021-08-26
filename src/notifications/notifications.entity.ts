@@ -10,4 +10,7 @@ export class NotificationsEntity {
 
   @Column("varchar")
   token: string;
+
+  @Column("boolean", { default: false })
+  enabled: boolean;
 }

@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { UsersEntity } from "./users.entity";
-
 import { hash, compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
 
@@ -27,7 +26,7 @@ export class UsersService {
   }
 
   createToken(body: { email: string; id: number }): string {
-    return sign(body, KEY, { expiresIn: "72h" });
+    return sign(body, KEY, { expiresIn: "200h" });
   }
 
   createUser(email: string, hashedPassword: string): Promise<any> {

@@ -5,6 +5,7 @@ import { ProductsEntity } from "./Entities/products.entity";
 import { ProductsService } from "./products.service";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
 import { MostSearchedEntity } from "./Entities/mostSearched.entity";
+import { NotificationsModule } from "src/notifications/notifications.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MostSearchedEntity } from "./Entities/mostSearched.entity";
       SearchHistoryEntity,
       MostSearchedEntity,
     ]),
+    NotificationsModule,
   ],
   providers: [ProductsService],
   controllers: [ProductsController],
