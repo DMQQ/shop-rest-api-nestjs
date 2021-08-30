@@ -2,12 +2,16 @@ import { Body, Controller, Get, Param, Post, Req, Res } from "@nestjs/common";
 import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Request, Response } from "express";
+import { CartService } from "src/cart/cart.service";
 
-@Controller("history")
+@Controller("payments")
 export class HistoryController {
-  constructor(private historyService: HistoryService) {}
+  constructor(
+    private historyService: HistoryService,
+    private cartService: CartService,
+  ) {}
 
-  @Get(":user_id")
+  @Get("/history/:user_id")
   getYourPurchaseHistory(@Param("user_id") id: number) {
     this.historyService.getHistory(id);
   }
@@ -24,22 +28,16 @@ export class HistoryController {
     const day = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
-    const fullTime = `${day}.${month}.${year}`;
+    const fullTime = `${year}-${month}-${day}`;
 
-    const data = {
-      date: fullTime,
-      user_id,
-      prod_id,
-      status: "finished",
-    };
-
-    this.historyService.addHistory(data).then((response) => {
-      console.log(response);
-
-      res.send({
-        status: "finished",
-        code: 201,
+    this.historyService
+      .addHistory(prod_id, { user_id, date: fullTime })
+      .then(async (result) => {
+        if (result === "finished") {
+          await this.cartService.removeAllRelatedToUser(user_id);
+          return res.send({ message: "Success", code: 201 });
+        }
+        res.send({ message: "Failed", code: 400 });
       });
-    });
   }
 }

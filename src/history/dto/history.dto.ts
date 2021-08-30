@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsArray } from "class-validator";
 
 export class HistoryDto {
-  @IsNumber()
+  @IsArray()
   @IsNotEmpty()
-  prod_id: number;
+  prod_id: number[];
 }

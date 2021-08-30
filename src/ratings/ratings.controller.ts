@@ -31,9 +31,9 @@ export class RatingsController {
 
     this.historyService
       .getUsersHistoryByProductId(user_id, prod_id)
-      .then((result) => {
+      .then(async (result) => {
         if (result.length > 0) {
-          this.ratingsService
+          return this.ratingsService
             .addReview({
               rating,
               title,
@@ -52,6 +52,9 @@ export class RatingsController {
             })
             .catch((err) => console.log(err));
         }
+        response.status(400).send({
+          message: "Sorry but you have to buy to be able to review",
+        });
       });
   }
 }

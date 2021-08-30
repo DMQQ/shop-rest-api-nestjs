@@ -60,4 +60,12 @@ export class CartService {
   findOneProductInCart(cart_id: number): Promise<CartEntity> {
     return this.cartRepository.findOne({ cart_id });
   }
+
+  removeAllRelatedToUser(user_id: number) {
+    return this.cartRepository.delete({ user_id });
+  }
+
+  countUserProductsInCart(user_id: number): Promise<number> {
+    return this.cartRepository.count({ user_id });
+  }
 }

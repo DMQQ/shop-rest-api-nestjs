@@ -17,8 +17,24 @@ export class HistoryService {
     private historyRepository: Repository<HistoryEntity>,
   ) {}
 
-  addHistory(body: IHistory): Promise<any> {
-    return this.historyRepository.insert(body);
+  async addHistory(products: number[], { user_id, date }): Promise<string> {
+    let status = true;
+    products.forEach((id) => {
+      this.historyRepository
+        .insert({
+          user_id,
+          date,
+          prod_id: id,
+          status: "finished",
+        })
+        .then(({ raw }) => {
+          if (raw.affectedRows === 0) {
+            status = false;
+          }
+        });
+    });
+
+    return status ? "finished" : "failed";
   }
 
   getHistory(id: number) {

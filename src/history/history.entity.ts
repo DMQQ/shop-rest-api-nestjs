@@ -1,10 +1,10 @@
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { UsersEntity } from "src/users/users.entity";
+
 import {
   Column,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -13,11 +13,12 @@ export class HistoryEntity {
   @PrimaryGeneratedColumn()
   history_id: number;
 
-  @OneToOne(() => UsersEntity)
-  @JoinColumn({ name: "user_id" })
+  @Column("int")
   user_id: number;
 
-  @OneToOne(() => ProductsEntity, { onDelete: "CASCADE" })
+  @ManyToOne(() => ProductsEntity, (type) => type.prod_id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "prod_id" })
   prod_id: number;
 

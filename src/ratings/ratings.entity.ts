@@ -1,6 +1,5 @@
 import { HistoryEntity } from "src/history/history.entity";
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { UsersEntity } from "src/users/users.entity";
 import {
   Column,
   Entity,
@@ -14,8 +13,7 @@ export class RatingsEntity {
   @PrimaryGeneratedColumn()
   rating_id: number;
 
-  @OneToOne(() => UsersEntity)
-  @JoinColumn({ name: "user_id" })
+  @Column("int")
   user_id: number;
 
   @Column({ type: "int" })

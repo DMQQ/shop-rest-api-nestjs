@@ -30,4 +30,10 @@ export class NotificationsController {
       response.send({ status: 400, message: "token already exists" });
     });
   }
+
+  @Post("/settings")
+  notificationsSettings(@Body("enable") enable: boolean, @Req() req: any) {
+    const { user_id } = req;
+    this.notifiService.notificationsSettings(enable, user_id);
+  }
 }
