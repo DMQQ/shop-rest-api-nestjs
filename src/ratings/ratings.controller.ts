@@ -53,7 +53,7 @@ export class RatingsController {
             .catch((err) => console.log(err));
         }
         response.status(400).send({
-          message: "Sorry but you have to buy to be able to review",
+          message: "Sorry you have to buy first before add review",
         });
       });
   }

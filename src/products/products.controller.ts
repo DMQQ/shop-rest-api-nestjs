@@ -19,14 +19,6 @@ export class ProductsController {
     return this.productsService.getAll();
   }
 
-  @Get("/price=:low&:high")
-  async getProductsByPriceRange(
-    @Param("low") low: number,
-    @Param("high") high: number,
-  ) {
-    return this.productsService.getByPriceRange(low, high);
-  }
-
   @Get("searched=:text")
   async getBySearchTitleOrDescription(
     @Param("text") text: string,

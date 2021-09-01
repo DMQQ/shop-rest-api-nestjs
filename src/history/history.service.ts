@@ -38,7 +38,10 @@ export class HistoryService {
   }
 
   getHistory(id: number) {
-    return this.historyRepository.find({ user_id: id });
+    return this.historyRepository.find({
+      where: [{ user_id: id }],
+      relations: ["prod_id", "img_id"],
+    });
   }
 
   getUsersHistoryByProductId(

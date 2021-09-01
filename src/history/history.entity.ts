@@ -1,4 +1,5 @@
 import { ProductsEntity } from "../products/Entities/products.entity";
+import { UploadEntity } from "src/upload/upload.entity";
 
 import {
   Column,
@@ -6,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from "typeorm";
 
 @Entity("purchase_history")
@@ -27,4 +29,8 @@ export class HistoryEntity {
 
   @Column({ type: "varchar", length: 10 })
   status: string;
+
+  @OneToMany(() => UploadEntity, (type) => type.prod_id)
+  @JoinColumn({ name: "img_id" })
+  img_id: number;
 }

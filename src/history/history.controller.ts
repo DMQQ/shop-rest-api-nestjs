@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
 import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Request, Response } from "express";
@@ -11,9 +11,10 @@ export class HistoryController {
     private cartService: CartService,
   ) {}
 
-  @Get("/history/:user_id")
-  getYourPurchaseHistory(@Param("user_id") id: number) {
-    this.historyService.getHistory(id);
+  @Get("/history")
+  getYourPurchaseHistory(@Req() req: any) {
+    const { user_id: id } = req;
+    return this.historyService.getHistory(id);
   }
 
   @Post("/purchase")

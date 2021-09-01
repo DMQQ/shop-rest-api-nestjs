@@ -58,7 +58,7 @@ export class UsersController {
     const { email, password } = props;
 
     this.userService.findMatch(email).then(async (res) => {
-      if (res === undefined) {
+      if (typeof res === "undefined") {
         const hashed = await this.userService.createHashedPassword(password);
         if (hashed) {
           this.userService.createUser(email, hashed).then((result) => {
@@ -80,6 +80,8 @@ export class UsersController {
             response.status(201).send({
               status: 201,
               token,
+              user_id: result.raw.insertId,
+              name: email,
             });
           });
         }
