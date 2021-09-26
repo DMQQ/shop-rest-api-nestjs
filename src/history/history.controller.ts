@@ -12,9 +12,22 @@ export class HistoryController {
   ) {}
 
   @Get("/history")
-  getYourPurchaseHistory(@Req() req: any) {
+  async getYourPurchaseHistory(@Req() req: any, @Res() response: Response) {
     const { user_id: id } = req;
-    return this.historyService.getHistory(id);
+    return this.historyService.getHistory(id).then((result) => {
+      const output = [];
+
+      result.forEach((prod: any) => {
+        output.push({
+          img_id: prod.img_id,
+          history_id: prod.history_id,
+          date: prod.date,
+          status: prod.status,
+          ...prod.prod_id,
+        });
+      });
+      response.send(output);
+    });
   }
 
   @Post("/purchase")
