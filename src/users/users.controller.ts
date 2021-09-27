@@ -4,6 +4,7 @@ import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
 import { NotificationsService } from "src/notifications/notifications.service";
 import Expo from "expo-server-sdk";
+import { BAD, CREATED } from "src/constants/codes";
 
 const expo = new Expo();
 
@@ -51,8 +52,6 @@ export class UsersController {
     });
   }
 
-  // create welcome message for new users
-
   @Post("register")
   register(@Body() props: UserDto, @Res() response: Response) {
     const { email, password } = props;
@@ -77,8 +76,8 @@ export class UsersController {
               id: result.id,
             });
 
-            response.status(201).send({
-              status: 201,
+            response.status(CREATED).send({
+              status: CREATED,
               token,
               user_id: result.raw.insertId,
               name: email,
@@ -86,8 +85,8 @@ export class UsersController {
           });
         }
       } else {
-        response.status(400).send({
-          status: 400,
+        response.status(BAD).send({
+          status: BAD,
           message: "Account with that email already exists",
         });
       }

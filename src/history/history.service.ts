@@ -3,13 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 
-interface IHistory {
-  user_id: number;
-  prod_id: number;
-  date: string;
-  status: string;
-}
-
 @Injectable()
 export class HistoryService {
   constructor(
@@ -37,9 +30,9 @@ export class HistoryService {
     return status ? "finished" : "failed";
   }
 
-  getHistory(id: number) {
+  getHistory(id: number): Promise<any> {
     return this.historyRepository.find({
-      where: [{ user_id: id }],
+      where: { user_id: id },
       relations: ["prod_id", "img_id"],
     });
   }

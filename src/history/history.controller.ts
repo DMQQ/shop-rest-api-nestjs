@@ -4,6 +4,10 @@ import { HistoryService } from "./history.service";
 import { Request, Response } from "express";
 import { CartService } from "src/cart/cart.service";
 
+interface RequestExtend extends Request {
+  user_id: number;
+}
+
 @Controller("payments")
 export class HistoryController {
   constructor(
@@ -12,18 +16,21 @@ export class HistoryController {
   ) {}
 
   @Get("/history")
-  async getYourPurchaseHistory(@Req() req: any, @Res() response: Response) {
+  async getYourPurchaseHistory(
+    @Req() req: RequestExtend,
+    @Res() response: Response,
+  ) {
     const { user_id: id } = req;
     return this.historyService.getHistory(id).then((result) => {
       const output = [];
 
       result.forEach((prod: any) => {
         output.push({
+          ...prod.prod_id,
           img_id: prod.img_id,
           history_id: prod.history_id,
           date: prod.date,
           status: prod.status,
-          ...prod.prod_id,
         });
       });
       response.send(output);
