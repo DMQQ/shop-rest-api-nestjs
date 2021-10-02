@@ -3,27 +3,27 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
+  Query,
   Req,
   Res,
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { IRequest } from "src/ratings/ratings.controller";
+import { BAD, CREATED, OK } from "src/constants/codes";
 
 @Controller("cart")
 export class CartController {
   constructor(private cartService: CartService) {}
 
   @Get()
-  async getCart(@Req() req: Request | any) {
+  async getCart(@Req() req: any) {
     const { user_id } = req;
-
     return this.cartService.getUsersCart(user_id);
   }
 
-  @Post("/add-to-cart")
+  @Post()
   addToCart(
     @Body("prod_id") prod_id: number,
     @Req() req: IRequest,
@@ -52,8 +52,8 @@ export class CartController {
         }
         this.cartService.incrementAmmount(user_id, prod_id).then((result) => {
           if (result.affected > 0) {
-            res.send({
-              code: 201,
+            res.status(CREATED).send({
+              code: CREATED,
               status: "Added",
             });
           }
@@ -61,26 +61,24 @@ export class CartController {
       });
   }
 
-  @Delete(":cart_id")
-  removeFromCart(@Param("cart_id") cart_id: number, @Res() response: Response) {
-    this.cartService.findOneProductInCart(cart_id).then(async (oneProduct) => {
-      if (oneProduct.ammount > 1) {
+  @Delete()
+  removeFromCart(@Query("id") cart_id: number, @Res() response: Response) {
+    this.cartService.findOneProductInCart(cart_id).then(async ({ ammount }) => {
+      if (ammount > 1) {
         return this.cartService
-          .decreaseAmmount(cart_id, oneProduct.ammount)
-          .then((passed) => {
-            if (passed.affected > 0) {
-              return response
-                .status(200)
-                .send({ code: 200, status: "Deleted" });
+          .decreaseAmmount(cart_id, ammount)
+          .then(({ affected }) => {
+            if (affected > 0) {
+              return response.status(OK).send({ code: OK, status: "Deleted" });
             }
-            response.status(400).send({ code: 400, status: "Failed" });
+            response.status(BAD).send({ code: BAD, status: "Failed" });
           });
       }
-      this.cartService.removeFromCart(cart_id).then((res) => {
-        if (res.affected > 0) {
-          return response.send({ code: 200, status: "Deleted" });
+      this.cartService.removeFromCart(cart_id).then(({ affected }) => {
+        if (affected > 0) {
+          return response.send({ code: OK, status: "Deleted" });
         }
-        response.send({ code: 400, status: "Failed" });
+        response.send({ code: BAD, status: "Failed" });
       });
     });
   }

@@ -15,8 +15,8 @@ export class NotificationsSchedule {
           {
             to: res.token,
             data: { data: "Hello mate" },
-            body: `If you see this message it means my app is working`,
-            title: "Hi Bro",
+            body: `Backend Status OK`,
+            title: "React Native shop application",
           },
         ]);
         console.log(ticket);
@@ -25,5 +25,16 @@ export class NotificationsSchedule {
   }
 
   @Cron("* * 12 * * *")
-  cartReminder() {}
+  cartReminder() {
+    this.notifyService.getTokens().then(async (tokens) => {
+      const messages = tokens.map(({ token }) => ({
+        to: token,
+        title: "Check your cart mate",
+        body: "You left your cart alone",
+      }));
+      const ticket = await expo.sendPushNotificationsAsync(messages);
+
+      console.log(ticket);
+    });
+  }
 }
