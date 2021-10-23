@@ -60,20 +60,22 @@ export class UsersController {
       if (typeof res === "undefined") {
         const hashed = await this.userService.createHashedPassword(password);
         if (hashed) {
-          this.userService.createUser(email, hashed).then((result) => {
-            this.notifyService.findUsersToken(result.insertId).then((r) => {
-              expo.sendPushNotificationsAsync([
-                {
-                  to: r.token,
-                  title: `Welcome ${email}`,
-                  body: "promo code for new customers: 213769420",
-                },
-              ]);
+          this.userService.createUser(email, hashed).then(async (result) => {
+            this.notifyService.findUsersToken(result.raw.insertId).then((r) => {
+              if (typeof r !== "undefined") {
+                expo.sendPushNotificationsAsync([
+                  {
+                    to: r.token,
+                    title: `Welcome ${email}`,
+                    body: "promo code for new customers: 213769420",
+                  },
+                ]);
+              }
             });
 
             const token = this.userService.createToken({
               email,
-              id: result.id,
+              id: result.raw.insertId,
             });
 
             response.status(CREATED).send({
@@ -89,6 +91,20 @@ export class UsersController {
           status: BAD,
           message: "Account with that email already exists",
         });
+      }
+    });
+  }
+
+  @Post("token")
+  validateToken(@Body("token") token: string, @Res() response: Response) {
+    if (!token) return;
+
+    this.userService.verifyToken(token, (err, decoded) => {
+      if (err) {
+        response.status(400).send({ error: "Token invalid" });
+      }
+      if (decoded) {
+        response.send({ message: "Valid" });
       }
     });
   }

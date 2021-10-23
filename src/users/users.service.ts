@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { InsertResult, Repository } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { hash, compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
@@ -29,8 +29,8 @@ export class UsersService {
     return sign(body, KEY, { expiresIn: "200h" });
   }
 
-  createUser(email: string, hashedPassword: string): Promise<any> {
-    return this.userRepository.save({ email, password: hashedPassword });
+  createUser(email: string, hashedPassword: string): Promise<InsertResult> {
+    return this.userRepository.insert({ email, password: hashedPassword });
   }
 
   verifyToken(token: string, callback: (err: any, decoded: any) => void): any {

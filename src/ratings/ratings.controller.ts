@@ -50,7 +50,9 @@ export class RatingsController {
                 });
               }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              response.status(400).send({message:"Failed",error:err})
+            });
         }
         response.status(400).send({
           message: "Sorry you have to buy first before add review",
