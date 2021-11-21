@@ -25,7 +25,7 @@ export class UsersService {
     return hash(password, 10).then((hash: string) => hash);
   }
 
-  createToken(body: { email: string; id: number }): string {
+  createToken(body: { email?: string; id: number }): string {
     return sign(body, KEY, { expiresIn: "200h" });
   }
 

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, MoreThanOrEqual, Like, MoreThan } from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { MostSearchedEntity } from "./Entities/mostSearched.entity";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
@@ -81,7 +82,7 @@ export class ProductsService {
   pushSearchHistory(
     user_id: number,
     word: string,
-    prod_id: number,
+    prod_id: QueryDeepPartialEntity<ProductsEntity[]>,
   ): Promise<any> {
     const date = new Date();
     const day = date.getDate();
@@ -95,7 +96,6 @@ export class ProductsService {
       user_id,
       word,
       date: fullTime,
-      //@ts-ignore
       prod_id,
     });
   }
@@ -110,6 +110,7 @@ export class ProductsService {
       .find({
         relations: ["prod_id", "img_id"],
         where: [{ user_id }],
+        order: { date: "ASC" },
       })
       .then((res) => {
         return res.map((el) => ({ ...el.prod_id, img_id: el.img_id }));

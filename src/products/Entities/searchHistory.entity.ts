@@ -10,6 +10,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { ProductsEntity } from "./products.entity";
 
 @Entity("search_history")
@@ -29,7 +30,7 @@ export class SearchHistoryEntity {
 
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
   @JoinColumn({ name: "prod_id" })
-  prod_id: ProductsEntity[];
+  prod_id: QueryDeepPartialEntity<ProductsEntity[]>;
 
   @OneToMany(() => UploadEntity, (type) => type.prod_id)
   @JoinColumn({ name: "img_id" })

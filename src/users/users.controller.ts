@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Body, Controller, Post, Req, Res } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
 import { NotificationsService } from "src/notifications/notifications.service";
 import Expo from "expo-server-sdk";
 import { BAD, CREATED } from "src/constants/codes";
+import { IRequest } from "src/ratings/ratings.controller";
 
 const expo = new Expo();
 
@@ -96,16 +97,8 @@ export class UsersController {
   }
 
   @Post("token")
-  validateToken(@Body("token") token: string, @Res() response: Response) {
-    if (!token) return;
-
-    this.userService.verifyToken(token, (err, decoded) => {
-      if (err) {
-        response.status(400).send({ error: "Token invalid" });
-      }
-      if (decoded) {
-        response.send({ message: "Valid" });
-      }
-    });
+  validateToken(@Req() request: IRequest, @Res() response: Response) {
+    const token = this.userService.createToken({ id: request.user_id });
+    return response.send({ token, id: request.user_id });
   }
 }

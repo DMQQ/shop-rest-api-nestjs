@@ -6,6 +6,7 @@ import { BAD, CREATED, OK } from "src/constants/codes";
 import { FAILED_CREATE, SUCCESS_CREATE } from "src/constants/responses";
 import { NotificationsService } from "src/notifications/notifications.service";
 import { expo, NewProductNotification } from "src/notifications/methods";
+import { RequestExtend } from "src/@types/types";
 
 @Controller("products")
 export class ProductsController {
@@ -22,18 +23,12 @@ export class ProductsController {
   @Get("searched=:text")
   async getBySearchTitleOrDescription(
     @Param("text") text: string,
-    @Req() req: any,
+    @Req() { user_id }: RequestExtend,
     @Res() response: Response,
   ) {
-    const { user_id } = req;
-
-    return this.productsService.getByTitleOrDesc(text).then((result) => {
-      if (result.length > 0) {
-        this.productsService.pushSearchHistory(
-          user_id,
-          text,
-          result[0]?.prod_id,
-        );
+    return this.productsService.getByTitleOrDesc(text).then(([result]: any) => {
+      if (typeof result !== "undefined") {
+        this.productsService.pushSearchHistory(user_id, text, result.prod_id);
 
         return response.status(OK).send(result);
       }
@@ -42,15 +37,12 @@ export class ProductsController {
   }
 
   @Get("search-history")
-  getSearchHistory(@Req() req: any) {
-    const { user_id } = req;
+  getSearchHistory(@Req() { user_id }: RequestExtend) {
     return this.productsService.getSearchHistory(user_id);
   }
 
   @Get("searched-products")
-  getSearchedProducts(@Req() req: any) {
-    const { user_id } = req;
-
+  getSearchedProducts(@Req() { user_id }: RequestExtend) {
     return this.productsService.getSearchHistoryProduct(user_id);
   }
 

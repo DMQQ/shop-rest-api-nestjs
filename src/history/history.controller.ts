@@ -33,18 +33,16 @@ export class HistoryController {
           status: prod.status,
         });
       });
-      response.send(output);
+      response.send(output.reverse());
     });
   }
 
   @Post("/purchase")
   createPurchaseHistory(
-    @Body() props: HistoryDto,
-    @Req() req: Request | any,
+    @Body() { prod_id }: HistoryDto,
+    @Req() { user_id }: RequestExtend,
     @Res() res: Response,
   ) {
-    const { prod_id } = props;
-    const { user_id } = req;
     const date = new Date();
     const day = date.getDate();
     const month = date.getMonth() + 1;
