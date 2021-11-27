@@ -26,10 +26,10 @@ export class ProductsController {
     @Req() { user_id }: RequestExtend,
     @Res() response: Response,
   ) {
-    return this.productsService.getByTitleOrDesc(text).then(([result]: any) => {
+    return this.productsService.getByTitleOrDesc(text).then((result) => {
       if (typeof result !== "undefined") {
-        this.productsService.pushSearchHistory(user_id, text, result.prod_id);
-
+        const [one] = result;
+        this.productsService.pushSearchHistory(user_id, text, one.prod_id);
         return response.status(OK).send(result);
       }
       response.status(OK).send([]);

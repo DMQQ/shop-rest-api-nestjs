@@ -37,4 +37,7 @@ export class NotificationsSchedule {
       console.log(ticket);
     });
   }
+
+  @Cron("10 * * * * *")
+  test() {}
 }

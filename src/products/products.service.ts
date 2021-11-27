@@ -20,7 +20,10 @@ export class ProductsService {
   ) {}
 
   getAll() {
-    return this.productsRepository.find({ relations: ["img_id", "rating_id"] });
+    return this.productsRepository.find({
+      relations: ["img_id", "rating_id"],
+      order: { prod_id: "DESC" },
+    });
   }
 
   getByCategory(category: string) {
@@ -79,11 +82,7 @@ export class ProductsService {
     });
   }
 
-  pushSearchHistory(
-    user_id: number,
-    word: string,
-    prod_id: QueryDeepPartialEntity<ProductsEntity[]>,
-  ): Promise<any> {
+  pushSearchHistory(user_id: number, word: string, prod_id: any): Promise<any> {
     const date = new Date();
     const day = date.getDate();
     const month =
@@ -102,7 +101,7 @@ export class ProductsService {
 
   getSearchHistory(user_id: number): Promise<SearchHistoryEntity[]> {
     return this.searchRepository.find({
-      where: [{ user_id }],
+      where: { user_id },
     });
   }
   getSearchHistoryProduct(user_id: number): any {
@@ -110,7 +109,6 @@ export class ProductsService {
       .find({
         relations: ["prod_id", "img_id"],
         where: [{ user_id }],
-        order: { date: "ASC" },
       })
       .then((res) => {
         return res.map((el) => ({ ...el.prod_id, img_id: el.img_id }));
