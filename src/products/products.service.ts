@@ -21,8 +21,10 @@ export class ProductsService {
 
   getAll() {
     return this.productsRepository.find({
-      relations: ["img_id", "rating_id"],
+      select: ["prod_id", "price", "img_id", "title"],
+      relations: ["img_id"],
       order: { prod_id: "DESC" },
+      cache: true,
     });
   }
 
@@ -74,6 +76,7 @@ export class ProductsService {
 
   getByTitleOrDesc(input: string): Promise<ProductsEntity[]> {
     return this.productsRepository.find({
+      select: ["prod_id", "price", "img_id", "title"],
       relations: ["img_id", "rating_id"],
       where: [
         { title: Like(`%${input}%`) },
@@ -111,7 +114,7 @@ export class ProductsService {
         where: [{ user_id }],
       })
       .then((res) => {
-        return res.map((el) => ({ ...el.prod_id, img_id: el.img_id }));
+        return res.map(({ prod_id, img_id }) => ({ ...prod_id, img_id }));
       });
   }
 
