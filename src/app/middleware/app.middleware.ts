@@ -24,7 +24,7 @@ export class AppMiddleware implements NestMiddleware {
         }
       });
     } else {
-      res.send({
+      res.status(400).send({
         status: 400,
         message: "no token provided",
       });

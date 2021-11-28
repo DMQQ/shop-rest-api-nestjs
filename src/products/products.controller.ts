@@ -61,7 +61,7 @@ export class ProductsController {
     return this.productsService.getGoodRated();
   }
 
-  @Post("create/product")
+  @Post("/create")
   createProduct(@Body() props: ProductsDto, @Res() response: Response) {
     this.productsService
       .createProduct(props)

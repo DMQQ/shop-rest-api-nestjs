@@ -25,4 +25,18 @@ export class NotificationsService {
   notificationsSettings(value: boolean, user_id: number): Promise<any> {
     return this.notifyRepository.update({ user_id }, { enabled: value });
   }
+
+  getUserStatus(user_id: number) {
+    return this.notifyRepository.findOne({
+      select: ["enabled"],
+      where: { user_id },
+    });
+  }
+
+  getUserToken(user_id: number) {
+    return this.notifyRepository.findOne({
+      select: ["token"],
+      where: { user_id },
+    });
+  }
 }

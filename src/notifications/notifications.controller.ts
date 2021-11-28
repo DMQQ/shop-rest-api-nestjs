@@ -1,7 +1,8 @@
-import { Body, Controller, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, Post, Req, Res, Get } from "@nestjs/common";
 import { NotificationsDto } from "./dto/notifications.dto";
 import { NotificationsService } from "./notifications.service";
 import { Response } from "express";
+import { RequestExtend } from "src/@types/types";
 
 @Controller("notifications")
 export class NotificationsController {
@@ -10,11 +11,9 @@ export class NotificationsController {
   @Post("/upload-token")
   async uploadToken(
     @Body() props: NotificationsDto,
-    @Req() req: any,
+    @Req() { user_id }: RequestExtend,
     @Res() response: Response,
   ) {
-    const { user_id } = req;
-
     this.notifiService.findUsersToken(user_id).then(async (res) => {
       if (typeof res === "undefined") {
         return this.notifiService
@@ -32,8 +31,15 @@ export class NotificationsController {
   }
 
   @Post("/settings")
-  notificationsSettings(@Body("enable") enable: boolean, @Req() req: any) {
-    const { user_id } = req;
+  notificationsSettings(
+    @Body("enable") enable: boolean,
+    @Req() { user_id }: RequestExtend,
+  ) {
     this.notifiService.notificationsSettings(enable, user_id);
+  }
+
+  @Get("/status")
+  getUserNotificationStatus(@Req() { user_id }: RequestExtend) {
+    return this.notifiService.getUserStatus(user_id);
   }
 }

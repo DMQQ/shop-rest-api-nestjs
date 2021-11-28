@@ -7,9 +7,9 @@ import { expo } from "./methods";
 export class NotificationsSchedule {
   constructor(private notifyService: NotificationsService) {}
 
-  @Interval(1000 * 60 * 5)
+  @Interval(1000 * 60 * 15)
   interval() {
-    this.notifyService.findUsersToken(5).then(async (res) => {
+    this.notifyService.findUsersToken(1).then(async (res) => {
       if (res) {
         const ticket = await expo.sendPushNotificationsAsync([
           {
