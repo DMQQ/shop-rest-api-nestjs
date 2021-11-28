@@ -3,6 +3,8 @@ import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Request, Response } from "express";
 import { CartService } from "src/cart/cart.service";
+import { NotificationsService } from "src/notifications/notifications.service";
+import { expo } from "src/notifications/methods";
 
 interface RequestExtend extends Request {
   user_id: number;
@@ -13,14 +15,14 @@ export class HistoryController {
   constructor(
     private historyService: HistoryService,
     private cartService: CartService,
+    private notifyService: NotificationsService,
   ) {}
 
   @Get("/history")
   async getYourPurchaseHistory(
-    @Req() req: RequestExtend,
+    @Req() { user_id: id }: RequestExtend,
     @Res() response: Response,
   ) {
-    const { user_id: id } = req;
     return this.historyService.getHistory(id).then((result) => {
       const output = [];
 
@@ -53,10 +55,24 @@ export class HistoryController {
       .addHistory(prod_id, { user_id, date: fullTime })
       .then(async (result) => {
         if (result === "finished") {
-          await this.cartService.removeAllRelatedToUser(user_id);
+          try {
+            await this.cartService.removeAllRelatedToUser(user_id);
+
+            this.notifyService.getUserToken(user_id).then(async ({ token }) => {
+              const res = await expo.sendPushNotificationsAsync([
+                {
+                  to: token,
+                  sound: "default",
+                  body: `You have bought ${prod_id.length} products`,
+                  title: "Thank you for purchase",
+                },
+              ]);
+              console.log(res);
+            });
+          } catch (error) {}
           return res.send({ message: "Success", code: 201 });
         }
-        res.send({ message: "Failed", code: 400 });
+        res.status(400).send({ message: "Failed", code: 400 });
       });
   }
 }
