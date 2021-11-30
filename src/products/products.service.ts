@@ -28,9 +28,20 @@ export class ProductsService {
     });
   }
 
+  async getCategories() {
+    return this.productsRepository
+      .find({
+        select: ["category"],
+      })
+      .then((response) => [
+        ...new Set(response.map(({ category }) => category)),
+      ]);
+  }
+
   getByCategory(category: string) {
     return this.productsRepository.find({
-      where: [{ category }],
+      select: ["prod_id", "price", "img_id", "title"],
+      where: { category },
       relations: ["img_id", "rating_id"],
     });
   }

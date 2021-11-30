@@ -20,6 +20,11 @@ export class ProductsController {
     return this.productsService.getAll();
   }
 
+  @Get("categories")
+  getCategories() {
+    return this.productsService.getCategories();
+  }
+
   @Get("searched=:text")
   async getBySearchTitleOrDescription(
     @Param("text") text: string,
