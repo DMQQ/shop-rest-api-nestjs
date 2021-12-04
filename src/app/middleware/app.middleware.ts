@@ -14,9 +14,9 @@ export class AppMiddleware implements NestMiddleware {
     const token = req.headers["token"];
 
     if (typeof token === "string") {
-      this.usersService.verifyToken(token, (err, decoded) => {
+      this.usersService.verifyToken<{ id: number }>(token, (err, decoded) => {
         if (err) {
-          res.status(401).send({ message: "Token expired", code: 403 });
+          return res.status(403).send({ message: "Token expired", code: 403 });
         }
         if (decoded) {
           req.user_id = decoded.id;

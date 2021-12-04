@@ -23,8 +23,8 @@ export class NotificationsSchedule {
       }
     });
   }
-
-  @Cron("* * 12 * * *")
+  // doesnt work correctly
+  /*  @Cron("* * 12 * * *")
   cartReminder() {
     this.notifyService.getTokens().then(async (tokens) => {
       const messages = tokens.map(({ token }) => ({
@@ -36,8 +36,5 @@ export class NotificationsSchedule {
 
       console.log(ticket);
     });
-  }
-
-  @Cron("10 * * * * *")
-  test() {}
+  } */
 }

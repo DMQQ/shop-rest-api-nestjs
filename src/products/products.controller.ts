@@ -84,7 +84,7 @@ export class ProductsController {
             });
           return response
             .status(CREATED)
-            .send({ message: SUCCESS_CREATE, code: CREATED });
+            .send({ message: SUCCESS_CREATE, code: CREATED, id: raw.insertId });
         } else {
           response.status(400).send({ message: FAILED_CREATE });
         }

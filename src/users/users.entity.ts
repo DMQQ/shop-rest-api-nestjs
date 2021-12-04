@@ -1,4 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+
+enum UserEnum {
+  user = "user",
+  seller = "seller",
+  developer = "developer",
+}
 
 @Entity("users")
 export class UsersEntity {
@@ -10,4 +21,25 @@ export class UsersEntity {
 
   @Column({ type: "varchar", length: 60 })
   password: string;
+
+  @Column({ type: "enum", default: UserEnum.user, enum: UserEnum })
+  user_type: UserEnum;
+
+  @Column({ type: "boolean", default: true }) // False later
+  activated: boolean;
+
+  @Column({ type: "varchar", nullable: true, length: "60" })
+  name: string;
+
+  @Column({ type: "varchar", nullable: true, length: "60" })
+  surname: string;
+
+  @Column({ type: "varchar", nullable: true, length: "60" })
+  adress: string;
+
+  @Column({ type: "varchar", length: "9", nullable: true })
+  phone_number: string;
+
+  @CreateDateColumn()
+  joined_at: Date;
 }
