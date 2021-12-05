@@ -1,9 +1,11 @@
 import { RatingsEntity } from "src/ratings/ratings.entity";
 import { UploadEntity } from "src/upload/upload.entity";
+import { UsersEntity } from "src/users/users.entity";
 import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -15,6 +17,9 @@ export class ProductsEntity {
 
   @Column({ type: "decimal" })
   price: number;
+
+  @Column({ type: "decimal", nullable: true })
+  discount_price: number;
 
   @Column({ type: "varchar" })
   title: string;
@@ -28,11 +33,17 @@ export class ProductsEntity {
   @Column({ type: "varchar" })
   category: string;
 
-  @OneToMany(() => UploadEntity, (img) => img.prod_id)
+  @OneToMany(() => UploadEntity, (img) => img.prod_id, { onDelete: "CASCADE" })
   @JoinColumn({ name: "img_id" })
   img_id: UploadEntity[];
 
-  @OneToMany(() => RatingsEntity, (rating) => rating.prod_id)
+  @OneToMany(() => RatingsEntity, (rating) => rating.prod_id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "rating_id" })
   rating_id: RatingsEntity[];
+
+  @ManyToOne(() => UsersEntity, (type) => type.id)
+  @JoinColumn({ name: "vendor" })
+  vendor: string;
 }

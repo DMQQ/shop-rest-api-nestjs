@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import RemoveObjectFields from "src/functions/RemoveObjectFields";
 import { Repository, MoreThanOrEqual, Like, MoreThan } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { MostSearchedEntity } from "./Entities/mostSearched.entity";
@@ -46,11 +47,23 @@ export class ProductsService {
     });
   }
 
-  getById(id: number) {
-    return this.productsRepository.findOne({
-      relations: ["img_id", "rating_id"],
-      where: { prod_id: id },
-    });
+  async getById(id: number) {
+    return this.productsRepository
+      .findOne({
+        relations: ["img_id", "rating_id", "vendor"],
+        where: { prod_id: id },
+      })
+      .then((response) => {
+        return {
+          ...response,
+          vendor: RemoveObjectFields(response.vendor, [
+            "password",
+            "user_type",
+            "activated",
+            "adress",
+          ]),
+        };
+      });
   }
 
   async getByPriceRange(start: number, end: number): Promise<ProductsEntity[]> {
