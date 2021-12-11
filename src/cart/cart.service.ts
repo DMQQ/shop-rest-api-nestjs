@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { DeleteResult, InsertResult, Repository, UpdateResult } from "typeorm";
 import { CartEntity } from "./cart.entity";
 
 @Injectable()
@@ -29,30 +29,36 @@ export class CartService {
         return arr;
       });
   }
-  addToCart(user_id: number, prod_id: number): Promise<any> {
-    //@ts-ignore
+  addToCart(user_id: number, prod_id: any): Promise<InsertResult> {
     return this.cartRepository.insert({ user_id, prod_id });
   }
 
-  findSameProductInCart(user_id: number, prod_id: number): Promise<CartEntity> {
-    //@ts-ignore
+  findSameProductInCart(user_id: number, prod_id: any): Promise<CartEntity> {
     return this.cartRepository.findOne({ user_id, prod_id });
   }
 
-  async incrementAmmount(user_id: number, prod_id: number) {
-    return this.findSameProductInCart(user_id, prod_id).then((res) => {
-      return this.cartRepository.update(
-        { cart_id: res.cart_id },
-        { ammount: res.ammount + 1 },
-      );
-    });
+  async incrementAmmount(
+    user_id: number,
+    prod_id: number,
+  ): Promise<UpdateResult> {
+    return this.findSameProductInCart(user_id, prod_id).then(
+      ({ cart_id, ammount }) => {
+        return this.cartRepository.update(
+          { cart_id: cart_id },
+          { ammount: ammount + 1 },
+        );
+      },
+    );
   }
 
-  async decreaseAmmount(cart_id: number, ammount: number) {
+  async decreaseAmmount(
+    cart_id: number,
+    ammount: number,
+  ): Promise<UpdateResult> {
     return this.cartRepository.update({ cart_id }, { ammount: ammount - 1 });
   }
 
-  removeFromCart(cart_id: number) {
+  removeFromCart(cart_id: number): Promise<DeleteResult> {
     //@ts-ignore
     return this.cartRepository.delete({ cart_id });
   }
@@ -61,7 +67,7 @@ export class CartService {
     return this.cartRepository.findOne({ cart_id });
   }
 
-  removeAllRelatedToUser(user_id: number) {
+  removeAllRelatedToUser(user_id: number): Promise<DeleteResult> {
     return this.cartRepository.delete({ user_id });
   }
 

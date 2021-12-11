@@ -1,9 +1,8 @@
-// for later
-
 import { UploadEntity } from "src/upload/upload.entity";
 import { UsersEntity } from "src/users/users.entity";
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -25,8 +24,9 @@ export class SearchHistoryEntity {
   @Column("varchar")
   word: string;
 
-  @Column("varchar")
-  date: string;
+  @CreateDateColumn()
+  @Column({ name: "date", insert: true })
+  date: Date;
 
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
   @JoinColumn({ name: "prod_id" })

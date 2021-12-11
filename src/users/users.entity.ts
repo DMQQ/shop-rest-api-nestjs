@@ -41,5 +41,9 @@ export class UsersEntity {
   phone_number: string;
 
   @CreateDateColumn()
+  @Column({ name: "joined_at", insert: true })
   joined_at: Date;
+
+  @CreateDateColumn()
+  last_active: Date;
 }

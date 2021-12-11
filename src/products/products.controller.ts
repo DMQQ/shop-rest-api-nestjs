@@ -33,8 +33,10 @@ export class ProductsController {
   ) {
     return this.productsService.getByTitleOrDesc(text).then((result) => {
       if (typeof result !== "undefined") {
-        const [one] = result;
-        this.productsService.pushSearchHistory(user_id, text, one.prod_id);
+        if (result.length > 0) {
+          const [one] = result as any;
+          this.productsService.pushSearchHistory(user_id, text, one.prod_id);
+        }
         return response.status(OK).send(result);
       }
       response.status(OK).send([]);
@@ -74,9 +76,7 @@ export class ProductsController {
         if (raw.affectedRows > 0) {
           this.notifyService
             .getTokens()
-            .then((res) => {
-              return res.map(({ token }) => token);
-            })
+            .then((res) => res.map(({ token }) => token))
             .then((tokens) => {
               expo.sendPushNotificationsAsync(
                 NewProductNotification(tokens, props.title),

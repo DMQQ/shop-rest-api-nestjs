@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import RemoveObjectFields from "src/functions/RemoveObjectFields";
-import { Repository, MoreThanOrEqual, Like, MoreThan } from "typeorm";
+import { Repository, MoreThanOrEqual, Like, InsertResult } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
-import { MostSearchedEntity } from "./Entities/mostSearched.entity";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
 
@@ -15,9 +14,6 @@ export class ProductsService {
 
     @InjectRepository(SearchHistoryEntity)
     private searchRepository: Repository<SearchHistoryEntity>,
-
-    @InjectRepository(MostSearchedEntity)
-    private mostRepository: Repository<MostSearchedEntity>,
   ) {}
 
   getAll() {
@@ -29,7 +25,7 @@ export class ProductsService {
     });
   }
 
-  async getCategories() {
+  async getCategories(): Promise<string[]> {
     return this.productsRepository
       .find({
         select: ["category"],
@@ -88,7 +84,7 @@ export class ProductsService {
     category,
     expiration_date,
     title,
-  }: any): Promise<any> {
+  }: any): Promise<InsertResult> {
     return this.productsRepository.insert({
       description,
       price,
@@ -109,20 +105,16 @@ export class ProductsService {
     });
   }
 
-  pushSearchHistory(user_id: number, word: string, prod_id: any): Promise<any> {
-    const date = new Date();
-    const day = date.getDate();
-    const month =
-      date.getMonth() + 1 < 10
-        ? `0${date.getMonth() + 1}`
-        : date.getMonth() + 1;
-    const year = date.getFullYear();
-    const fullTime = `${day}.${month}.${year}`;
+  pushSearchHistory(
+    user_id: number,
+    word: string,
+    prod_id: QueryDeepPartialEntity<ProductsEntity[]>,
+  ): Promise<InsertResult> {
     return this.searchRepository.insert({
       user_id,
       word,
-      date: fullTime,
       prod_id,
+      date: new Date(),
     });
   }
 
@@ -131,7 +123,7 @@ export class ProductsService {
       where: { user_id },
     });
   }
-  getSearchHistoryProduct(user_id: number): any {
+  async getSearchHistoryProduct(user_id: number): Promise<any> {
     return this.searchRepository
       .find({
         relations: ["prod_id", "img_id"],
@@ -142,7 +134,7 @@ export class ProductsService {
       });
   }
 
-  async getGoodRated() {
+  async getGoodRated(): Promise<ProductsEntity[]> {
     return this.productsRepository
       .find({ relations: ["img_id", "rating_id"] })
       .then((res) => {

@@ -5,7 +5,7 @@ import { UserDto } from "./dto/user.dto";
 import { NotificationsService } from "src/notifications/notifications.service";
 import Expo from "expo-server-sdk";
 import { BAD, CREATED } from "src/constants/codes";
-import { IRequest } from "src/ratings/ratings.controller";
+import { RequestExtend } from "src/@types/types";
 
 const expo = new Expo();
 
@@ -21,8 +21,8 @@ export class UsersController {
     const { email, password } = props;
 
     this.userService.findMatch(email).then(async (result) => {
-      if (typeof result !== "undefined") {
-        this.userService
+      if (typeof result !== "undefined")
+        return this.userService
           .comparePasswords(result.password, password)
           .then((isPasswordCorrect) => {
             if (isPasswordCorrect) {
@@ -31,25 +31,23 @@ export class UsersController {
                 id: result.id,
               });
 
-              res.status(200).send({
+              return res.status(200).send({
                 token,
                 name: result.email,
                 user_id: result.id,
                 status: "verified",
               });
-            } else {
-              res.status(400).send({
-                status: 400,
-                message: "Invalid password",
-              });
             }
+            res.status(400).send({
+              status: 400,
+              message: "Invalid password",
+            });
           });
-      } else {
-        res.status(404).send({
-          status: 404,
-          message: "User not found",
-        });
-      }
+
+      res.status(404).send({
+        status: 404,
+        message: "User not found",
+      });
     });
   }
 
@@ -68,7 +66,7 @@ export class UsersController {
                   {
                     to: r.token,
                     title: `Welcome ${email}`,
-                    body: "promo code for new customers: 213769420",
+                    body: "Promo code for new customers: 213769420",
                   },
                 ]);
               }
@@ -97,7 +95,7 @@ export class UsersController {
   }
 
   @Post("token")
-  validateToken(@Req() request: IRequest, @Res() response: Response) {
+  validateToken(@Req() request: RequestExtend, @Res() response: Response) {
     const token = this.userService.createToken({ id: request.user_id });
     return response.send({ token, id: request.user_id });
   }
