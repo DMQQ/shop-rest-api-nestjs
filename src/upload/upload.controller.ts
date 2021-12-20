@@ -7,10 +7,13 @@ import {
   Get,
   Param,
 } from "@nestjs/common";
-import { Express } from "express";
+import { Express, response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadService } from "./upload.service";
 import { Response } from "express";
+import { createReadStream } from "fs";
+
+import { join } from "path";
 
 @Controller("upload")
 export class FilesController {
@@ -38,6 +41,10 @@ export class FilesController {
 
   @Get("images=:img")
   getUploadedFile(@Param("img") img: string, @Res() res: Response) {
-    return res.sendFile(img, { root: "./images" });
+    const file = createReadStream(join(process.cwd(), `./images/${img}`)).on(
+      "error",
+      () => response.status(404).send("not found"),
+    );
+    return file.pipe(res);
   }
 }

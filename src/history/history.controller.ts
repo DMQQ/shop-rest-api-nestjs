@@ -24,18 +24,15 @@ export class HistoryController {
     @Res() response: Response,
   ) {
     return this.historyService.getHistory(id).then((result) => {
-      const output = [];
-
-      result.forEach((prod: any) => {
-        output.push({
+      return response.send(
+        result.map((prod: any) => ({
           ...prod.prod_id,
           img_id: prod.img_id,
           history_id: prod.history_id,
           date: prod.date,
           status: prod.status,
-        });
-      });
-      response.send(output.reverse());
+        })),
+      );
     });
   }
 
@@ -69,8 +66,12 @@ export class HistoryController {
               ]);
               console.log(res);
             });
-          } catch (error) {}
-          return res.send({ message: "Success", code: 201 });
+          } catch (error) {
+            res
+              .status(400)
+              .send({ message: "Request Failed, try again", code: 400 });
+          }
+          return res.status(201).send({ message: "Success", code: 201 });
         }
         res.status(400).send({ message: "Failed", code: 400 });
       });
