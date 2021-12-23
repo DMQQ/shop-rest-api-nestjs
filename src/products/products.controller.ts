@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
@@ -7,17 +16,24 @@ import { FAILED_CREATE, SUCCESS_CREATE } from "src/constants/responses";
 import { NotificationsService } from "src/notifications/notifications.service";
 import { expo, NewProductNotification } from "src/notifications/methods";
 import { RequestExtend } from "src/@types/types";
+import { RatingsService } from "src/ratings/ratings.service";
 
 @Controller("products")
 export class ProductsController {
   constructor(
     private productsService: ProductsService,
     private notifyService: NotificationsService,
+    private ratingsService: RatingsService,
   ) {}
 
   @Get()
-  getAllProducts() {
-    return this.productsService.getAll();
+  async getAllProducts(@Query("skip") skip: number, @Res() response: Response) {
+    return this.productsService.getAll(skip).then(([products, ammount]) => {
+      response.send({
+        hasMore: +skip + 5 < ammount,
+        results: products,
+      });
+    });
   }
 
   @Get("categories")
@@ -49,8 +65,18 @@ export class ProductsController {
   }
 
   @Get("searched-products")
-  getSearchedProducts(@Req() { user_id }: RequestExtend) {
-    return this.productsService.getSearchHistoryProduct(user_id);
+  async getSearchedProducts(
+    @Req() { user_id }: RequestExtend,
+    @Query("skip") skip: number,
+  ) {
+    return this.productsService
+      .getSearchHistoryProduct(user_id, skip)
+      .then(([products, ammount]) => {
+        return {
+          hasMore: +skip + 5 < ammount,
+          results: products,
+        };
+      });
   }
 
   @Get("/category=:category")
@@ -64,8 +90,15 @@ export class ProductsController {
   }
 
   @Get("/good-rated")
-  getMostSearched() {
-    return this.productsService.getGoodRated();
+  async getMostSearched(@Query("skip") skip: number) {
+    return this.ratingsService
+      .findRatedMoreThanThree(skip)
+      .then(([products, ammount]) => {
+        return {
+          hasMore: +skip + 5 < ammount,
+          results: products,
+        };
+      });
   }
 
   @Post("/create")

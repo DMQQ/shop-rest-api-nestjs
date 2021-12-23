@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { MoreThan, Repository } from "typeorm";
 import { RatingsEntity } from "./ratings.entity";
 
 interface IAddReviewProps {
@@ -24,5 +24,18 @@ export class RatingsService {
   }
   getAll() {
     return this.ratingsRepository.find();
+  }
+
+  async findRatedMoreThanThree(skip: number = 0) {
+    return this.ratingsRepository
+      .findAndCount({
+        where: { rating: MoreThan(3) },
+        relations: ["prod_id", "prod_id.img_id"],
+        skip: skip,
+        take: 5,
+      })
+      .then(([products, ammount]) => {
+        return [products.map(({ prod_id }) => prod_id), ammount];
+      });
   }
 }

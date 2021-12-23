@@ -14,5 +14,6 @@ import { HistoryModule } from "src/history/history.module";
   ],
   providers: [RatingsService],
   controllers: [RatingsController],
+  exports: [RatingsService],
 })
 export class RatingsModule {}

@@ -16,12 +16,13 @@ export class ProductsService {
     private searchRepository: Repository<SearchHistoryEntity>,
   ) {}
 
-  getAll() {
-    return this.productsRepository.find({
+  getAll(skip: number = 0) {
+    return this.productsRepository.findAndCount({
       select: ["prod_id", "price", "img_id", "title"],
       relations: ["img_id"],
       order: { prod_id: "DESC" },
-      cache: true,
+      skip,
+      take: 5,
     });
   }
 
@@ -123,33 +124,19 @@ export class ProductsService {
       where: { user_id },
     });
   }
-  async getSearchHistoryProduct(user_id: number): Promise<any> {
+  async getSearchHistoryProduct(user_id: number, skip: number): Promise<any[]> {
     return this.searchRepository
-      .find({
+      .findAndCount({
         relations: ["prod_id", "img_id"],
-        where: [{ user_id }],
+        where: { user_id },
+        skip,
+        take: 5,
       })
-      .then((res) => {
-        return res.map(({ prod_id, img_id }) => ({ ...prod_id, img_id }));
-      });
-  }
-
-  async getGoodRated(): Promise<ProductsEntity[]> {
-    return this.productsRepository
-      .find({ relations: ["img_id", "rating_id"] })
-      .then((res) => {
-        const output = res.filter((el) => {
-          const mapedRatings = el.rating_id.map(({ rating }) => rating);
-          const N = mapedRatings.length;
-          const avg =
-            N > 1 ? mapedRatings.reduce((a, b) => a + b) / N : mapedRatings[0];
-
-          if (avg > 3) {
-            return el;
-          }
-        });
-
-        return output;
+      .then(([res, ammount]) => {
+        return [
+          res.map(({ prod_id, img_id }) => ({ ...prod_id, img_id })),
+          ammount,
+        ];
       });
   }
 }
