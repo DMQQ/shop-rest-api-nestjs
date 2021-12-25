@@ -5,32 +5,28 @@ import {
   Get,
   Post,
   Query,
-  Req,
   Res,
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { Response } from "express";
-import { IRequest } from "src/ratings/ratings.controller";
 import { BAD, CREATED, OK } from "src/constants/codes";
+import User from "src/decorators/User";
 
 @Controller("cart")
 export class CartController {
   constructor(private cartService: CartService) {}
 
   @Get()
-  async getCart(@Req() req: any) {
-    const { user_id } = req;
+  async getCart(@User() user_id: number) {
     return this.cartService.getUsersCart(user_id);
   }
 
   @Post()
   addToCart(
     @Body("prod_id") prod_id: number,
-    @Req() req: IRequest,
+    @User() user_id: number,
     @Res() res: Response,
   ) {
-    const { user_id } = req;
-
     this.cartService
       .findSameProductInCart(user_id, prod_id)
       .then(async (sameList) => {

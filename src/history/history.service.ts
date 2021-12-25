@@ -10,7 +10,10 @@ export class HistoryService {
     private historyRepository: Repository<HistoryEntity>,
   ) {}
 
-  async addHistory(products: number[], { user_id, date }): Promise<string> {
+  async addHistory(
+    products: number[],
+    { user_id, date },
+  ): Promise<"finished" | "failed"> {
     let status = true;
     products.forEach((id) => {
       this.historyRepository
@@ -30,7 +33,7 @@ export class HistoryService {
     return status ? "finished" : "failed";
   }
 
-  getHistory(id: number): Promise<any> {
+  getHistory(id: number): Promise<HistoryEntity[]> {
     return this.historyRepository.find({
       where: { user_id: id },
       relations: ["prod_id", "img_id"],

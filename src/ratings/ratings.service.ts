@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { MoreThan, Repository } from "typeorm";
+import { InsertResult, MoreThan, Repository } from "typeorm";
 import { RatingsEntity } from "./ratings.entity";
 
-interface IAddReviewProps {
+interface AddReviewProps {
   rating: number;
   title: string;
   description: string;
@@ -19,7 +19,7 @@ export class RatingsService {
     private ratingsRepository: Repository<RatingsEntity>,
   ) {}
 
-  addReview(body: IAddReviewProps): Promise<any> {
+  addReview(body: AddReviewProps): Promise<InsertResult> {
     return this.ratingsRepository.insert(body);
   }
   getAll() {

@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  Req,
-  Res,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Res } from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
@@ -15,8 +6,8 @@ import { BAD, CREATED, OK } from "src/constants/codes";
 import { FAILED_CREATE, SUCCESS_CREATE } from "src/constants/responses";
 import { NotificationsService } from "src/notifications/notifications.service";
 import { expo, NewProductNotification } from "src/notifications/methods";
-import { RequestExtend } from "src/@types/types";
 import { RatingsService } from "src/ratings/ratings.service";
+import User from "src/decorators/User";
 
 @Controller("products")
 export class ProductsController {
@@ -44,7 +35,7 @@ export class ProductsController {
   @Get("searched=:text")
   async getBySearchTitleOrDescription(
     @Param("text") text: string,
-    @Req() { user_id }: RequestExtend,
+    @User() user_id: number,
     @Res() response: Response,
   ) {
     return this.productsService.getByTitleOrDesc(text).then((result) => {
@@ -60,13 +51,13 @@ export class ProductsController {
   }
 
   @Get("search-history")
-  getSearchHistory(@Req() { user_id }: RequestExtend) {
+  getSearchHistory(@User() user_id: number) {
     return this.productsService.getSearchHistory(user_id);
   }
 
   @Get("searched-products")
   async getSearchedProducts(
-    @Req() { user_id }: RequestExtend,
+    @User() user_id: number,
     @Query("skip") skip: number,
   ) {
     return this.productsService
@@ -101,7 +92,7 @@ export class ProductsController {
       });
   }
 
-  @Post("/create")
+  @Post()
   createProduct(@Body() props: ProductsDto, @Res() response: Response) {
     this.productsService
       .createProduct(props)
@@ -117,7 +108,11 @@ export class ProductsController {
             });
           return response
             .status(CREATED)
-            .send({ message: SUCCESS_CREATE, code: CREATED, id: raw.insertId });
+            .send({
+              message: SUCCESS_CREATE,
+              StatusCode: CREATED,
+              id: raw.insertId,
+            });
         } else {
           response.status(400).send({ message: FAILED_CREATE });
         }

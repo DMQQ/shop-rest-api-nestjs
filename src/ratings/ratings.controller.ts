@@ -1,12 +1,9 @@
-import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Res } from "@nestjs/common";
 import { RatingsDto } from "./dto/ratings.dto";
 import { RatingsService } from "./ratings.service";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { HistoryService } from "src/history/history.service";
-
-export interface IRequest extends Request {
-  user_id: number;
-}
+import User from "src/decorators/User";
 
 @Controller("ratings")
 export class RatingsController {
@@ -20,30 +17,24 @@ export class RatingsController {
     return this.ratingsService.getAll();
   }
 
-  @Post("/add")
+  @Post()
   createRating(
     @Body() props: RatingsDto,
-    @Req() req: IRequest,
+    @User() user_id: number,
     @Res() response: Response,
   ) {
-    const { user_id } = req;
-    const { rating, title, description, prod_id } = props;
-
     this.historyService
-      .getUsersHistoryByProductId(user_id, prod_id)
-      .then(async (result) => {
-        if (result.length > 0) {
+      .getUsersHistoryByProductId(user_id, props.prod_id)
+      .then(async ([result]) => {
+        if (typeof result !== "undefined") {
           return this.ratingsService
             .addReview({
-              rating,
-              title,
-              description,
+              ...props,
               user_id,
-              history_id: result[0]?.history_id,
-              prod_id: prod_id,
+              history_id: result?.history_id,
             })
-            .then((res) => {
-              if (res.raw.affectedRows > 0) {
+            .then(({ raw }) => {
+              if (raw.affectedRows > 0) {
                 response.send({
                   status: "Created",
                   code: 201,
@@ -51,11 +42,11 @@ export class RatingsController {
               }
             })
             .catch((err) => {
-              response.status(400).send({message:"Failed",error:err})
+              response.status(400).send({ message: "Failed", error: err });
             });
         }
         response.status(400).send({
-          message: "Sorry you have to buy first before add review",
+          message: "Sorry you have to buy first before adding the review",
         });
       });
   }

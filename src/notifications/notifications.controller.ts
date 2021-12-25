@@ -1,8 +1,8 @@
-import { Body, Controller, Post, Req, Res, Get } from "@nestjs/common";
+import { Body, Controller, Post, Res, Get } from "@nestjs/common";
 import { NotificationsDto } from "./dto/notifications.dto";
 import { NotificationsService } from "./notifications.service";
 import { Response } from "express";
-import { RequestExtend } from "src/@types/types";
+import User from "src/decorators/User";
 
 @Controller("notifications")
 export class NotificationsController {
@@ -11,7 +11,7 @@ export class NotificationsController {
   @Post("/upload-token")
   async uploadToken(
     @Body() props: NotificationsDto,
-    @Req() { user_id }: RequestExtend,
+    @User() user_id: number,
     @Res() response: Response,
   ) {
     this.notifiService.findUsersToken(user_id).then(async (res) => {
@@ -26,20 +26,20 @@ export class NotificationsController {
             }
           });
       }
-      response.send({ status: 400, message: "token already exists" });
+      response.send({ message: "token already exists" });
     });
   }
 
   @Post("/settings")
   notificationsSettings(
     @Body("enable") enable: boolean,
-    @Req() { user_id }: RequestExtend,
+    @User() user_id: number,
   ) {
     this.notifiService.notificationsSettings(enable, user_id);
   }
 
   @Get("/status")
-  getUserNotificationStatus(@Req() { user_id }: RequestExtend) {
+  getUserNotificationStatus(@User() user_id: number) {
     return this.notifiService.getUserStatus(user_id);
   }
 }
