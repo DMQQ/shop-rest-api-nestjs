@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Res, Get } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  Get,
+  ParseBoolPipe,
+} from "@nestjs/common";
 import { NotificationsDto } from "./dto/notifications.dto";
 import { NotificationsService } from "./notifications.service";
 import { Response } from "express";
@@ -32,7 +39,7 @@ export class NotificationsController {
 
   @Post("/settings")
   notificationsSettings(
-    @Body("enable") enable: boolean,
+    @Body("enable", ParseBoolPipe) enable: boolean,
     @User() user_id: number,
   ) {
     this.notifiService.notificationsSettings(enable, user_id);

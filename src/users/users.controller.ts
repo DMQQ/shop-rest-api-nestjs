@@ -6,6 +6,7 @@ import { NotificationsService } from "src/notifications/notifications.service";
 import Expo from "expo-server-sdk";
 import { BAD, CREATED } from "src/constants/codes";
 import { RequestExtend } from "src/@types/types";
+import User from "src/decorators/User";
 
 const expo = new Expo();
 
@@ -17,9 +18,7 @@ export class UsersController {
   ) {}
 
   @Post("login")
-  login(@Body() props: UserDto, @Res() res: Response) {
-    const { email, password } = props;
-
+  login(@Body() { email, password }: UserDto, @Res() res: Response) {
     this.userService.findMatch(email).then(async (result) => {
       if (typeof result !== "undefined")
         return this.userService
@@ -52,9 +51,7 @@ export class UsersController {
   }
 
   @Post("register")
-  register(@Body() props: UserDto, @Res() response: Response) {
-    const { email, password } = props;
-
+  register(@Body() { email, password }: UserDto, @Res() response: Response) {
     this.userService.findMatch(email).then(async (res) => {
       if (typeof res === "undefined") {
         const hashed = await this.userService.createHashedPassword(password);
@@ -95,8 +92,8 @@ export class UsersController {
   }
 
   @Post("token")
-  validateToken(@Req() request: RequestExtend, @Res() response: Response) {
-    const token = this.userService.createToken({ id: request.user_id });
-    return response.send({ token, id: request.user_id });
+  validateToken(@User() user_id: number, @Res() response: Response) {
+    const token = this.userService.createToken({ id: user_id });
+    return response.send({ token, id: user_id });
   }
 }

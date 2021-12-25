@@ -1,22 +1,21 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
-import { Request, Response, NextFunction } from "express";
+import { HttpStatus, Injectable, NestMiddleware } from "@nestjs/common";
+import { Response, NextFunction } from "express";
+import { RequestExtend } from "src/@types/types";
 import { UsersService } from "src/users/users.service";
-
-interface IRequestUser extends Request {
-  user_id: number;
-}
 
 @Injectable()
 export class AppMiddleware implements NestMiddleware {
   constructor(private usersService: UsersService) {}
 
-  use(req: IRequestUser, res: Response, next: NextFunction) {
+  use(req: RequestExtend, res: Response, next: NextFunction) {
     const token = req.headers["token"];
 
     if (typeof token === "string") {
       this.usersService.verifyToken<{ id: number }>(token, (err, decoded) => {
         if (err) {
-          return res.status(403).send({ message: "Token expired", code: 403 });
+          return res
+            .status(HttpStatus.FORBIDDEN)
+            .send({ message: "Token expired", code: HttpStatus.FORBIDDEN });
         }
         if (decoded) {
           req.user_id = decoded.id;
@@ -24,8 +23,8 @@ export class AppMiddleware implements NestMiddleware {
         }
       });
     } else {
-      res.status(400).send({
-        status: 400,
+      res.status(HttpStatus.BAD_REQUEST).send({
+        status: HttpStatus.BAD_REQUEST,
         message: "no token provided",
       });
     }

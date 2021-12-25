@@ -35,7 +35,15 @@ export class RatingsService {
         take: 5,
       })
       .then(([products, ammount]) => {
-        return [products.map(({ prod_id }) => prod_id), ammount];
+        return [
+          products.map(({ prod_id }: any) => ({
+            prod_id: prod_id.prod_id,
+            price: prod_id.price,
+            title: prod_id.title,
+            img_id: prod_id.img_id,
+          })),
+          ammount,
+        ];
       });
   }
 }

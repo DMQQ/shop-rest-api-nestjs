@@ -6,6 +6,7 @@ import {
   Res,
   Get,
   Param,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { Express, response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -27,7 +28,7 @@ export class FilesController {
   )
   uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Param("prod_id") id: number,
+    @Param("prod_id", ParseIntPipe) id: number,
     @Res() response: Response,
   ) {
     if (file) {

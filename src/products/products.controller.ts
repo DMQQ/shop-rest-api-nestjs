@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Param,
+  Post,
+  Query,
+  Res,
+  HttpStatus,
+  ParseIntPipe,
+} from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
@@ -44,9 +55,9 @@ export class ProductsController {
           const [one] = result as any;
           this.productsService.pushSearchHistory(user_id, text, one.prod_id);
         }
-        return response.status(OK).send(result);
+        return response.status(HttpStatus.OK).send(result);
       }
-      response.status(OK).send([]);
+      response.status(HttpStatus.OK).send([]);
     });
   }
 
@@ -58,7 +69,7 @@ export class ProductsController {
   @Get("searched-products")
   async getSearchedProducts(
     @User() user_id: number,
-    @Query("skip") skip: number,
+    @Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number,
   ) {
     return this.productsService
       .getSearchHistoryProduct(user_id, skip)
@@ -70,18 +81,20 @@ export class ProductsController {
       });
   }
 
-  @Get("/category=:category")
+  @Get("/category/:category")
   getProductsByCategory(@Param("category") category: string) {
     return this.productsService.getByCategory(category);
   }
 
-  @Get("/id=:id")
-  getById(@Param("id") id: number) {
+  @Get("/product/:id")
+  getById(@Param("id", ParseIntPipe) id: number) {
     return this.productsService.getById(id);
   }
 
   @Get("/good-rated")
-  async getMostSearched(@Query("skip") skip: number) {
+  async getMostSearched(
+    @Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number,
+  ) {
     return this.ratingsService
       .findRatedMoreThanThree(skip)
       .then(([products, ammount]) => {
@@ -90,6 +103,11 @@ export class ProductsController {
           results: products,
         };
       });
+  }
+
+  @Get("/suggestions")
+  getProductSuggestions(@Query("q", new DefaultValuePipe("")) query: any) {
+    return this.productsService.getProductSuggestions(query);
   }
 
   @Post()
@@ -106,13 +124,11 @@ export class ProductsController {
                 NewProductNotification(tokens, props.title),
               );
             });
-          return response
-            .status(CREATED)
-            .send({
-              message: SUCCESS_CREATE,
-              StatusCode: CREATED,
-              id: raw.insertId,
-            });
+          return response.status(CREATED).send({
+            message: SUCCESS_CREATE,
+            StatusCode: CREATED,
+            id: raw.insertId,
+          });
         } else {
           response.status(400).send({ message: FAILED_CREATE });
         }

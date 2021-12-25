@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Post, Res } from "@nestjs/common";
 import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Response } from "express";
@@ -62,12 +62,19 @@ export class HistoryController {
             });
           } catch (error) {
             res
-              .status(400)
-              .send({ message: "Request Failed, try again", code: 400 });
+              .status(HttpStatus.BAD_REQUEST)
+              .send({
+                message: "Request Failed, try again",
+                code: HttpStatus.BAD_REQUEST,
+              });
           }
-          return res.status(201).send({ message: "Success", code: 201 });
+          return res
+            .status(HttpStatus.CREATED)
+            .send({ message: "Success", code: HttpStatus.CREATED });
         }
-        res.status(400).send({ message: "Failed", code: 400 });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .send({ message: "Failed", code: HttpStatus.BAD_REQUEST });
       });
   }
 }

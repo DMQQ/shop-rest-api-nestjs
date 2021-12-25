@@ -53,7 +53,7 @@ export class ProductsService {
       .then((response) => {
         return {
           ...response,
-          vendor: RemoveObjectFields(response.vendor, [
+          vendor: RemoveObjectFields(response?.vendor, [
             "password",
             "user_type",
             "activated",
@@ -137,6 +137,23 @@ export class ProductsService {
           res.map(({ prod_id, img_id }) => ({ ...prod_id, img_id })),
           ammount,
         ];
+      });
+  }
+
+  async getProductSuggestions(text: string = "") {
+    return this.productsRepository
+      .find({
+        select: ["prod_id", "img_id", "title"],
+        relations: ["img_id"],
+        where: { title: Like(`%${text}%`) },
+        take: 5,
+      })
+      .then((response) => {
+        return response.map((product) => ({
+          title: product.title,
+          prod_id: product.prod_id,
+          image: product?.img_id[0]?.name,
+        }));
       });
   }
 }

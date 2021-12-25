@@ -59,7 +59,6 @@ export class CartService {
   }
 
   removeFromCart(cart_id: number): Promise<DeleteResult> {
-    //@ts-ignore
     return this.cartRepository.delete({ cart_id });
   }
 
@@ -69,9 +68,5 @@ export class CartService {
 
   removeAllRelatedToUser(user_id: number): Promise<DeleteResult> {
     return this.cartRepository.delete({ user_id });
-  }
-
-  countUserProductsInCart(user_id: number): Promise<number> {
-    return this.cartRepository.count({ user_id });
   }
 }

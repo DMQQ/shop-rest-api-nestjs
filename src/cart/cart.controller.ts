@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  ParseIntPipe,
   Post,
   Query,
   Res,
@@ -23,7 +24,7 @@ export class CartController {
 
   @Post()
   addToCart(
-    @Body("prod_id") prod_id: number,
+    @Body("prod_id", ParseIntPipe) prod_id: number,
     @User() user_id: number,
     @Res() res: Response,
   ) {
@@ -58,7 +59,10 @@ export class CartController {
   }
 
   @Delete()
-  removeFromCart(@Query("id") cart_id: number, @Res() response: Response) {
+  removeFromCart(
+    @Query("id", ParseIntPipe) cart_id: number,
+    @Res() response: Response,
+  ) {
     this.cartService.findOneProductInCart(cart_id).then(async ({ ammount }) => {
       if (ammount > 1) {
         return this.cartService

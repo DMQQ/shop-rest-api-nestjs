@@ -12,7 +12,7 @@ export class HistoryService {
 
   async addHistory(
     products: number[],
-    { user_id, date },
+    { user_id, date }: { user_id: number; date: string },
   ): Promise<"finished" | "failed"> {
     let status = true;
     products.forEach((id) => {
