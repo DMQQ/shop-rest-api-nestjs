@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Cron, Interval } from "@nestjs/schedule";
+import { Interval } from "@nestjs/schedule";
 import { NotificationsService } from "./notifications.service";
 import { expo } from "./methods";
 

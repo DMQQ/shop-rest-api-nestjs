@@ -4,6 +4,7 @@ import RemoveObjectFields from "src/functions/RemoveObjectFields";
 import { Repository, MoreThanOrEqual, Like, InsertResult } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { ProductsEntity } from "./Entities/products.entity";
+import { SaleEntity } from "./Entities/sale.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
 
 @Injectable()
@@ -14,6 +15,9 @@ export class ProductsService {
 
     @InjectRepository(SearchHistoryEntity)
     private searchRepository: Repository<SearchHistoryEntity>,
+
+    @InjectRepository(SaleEntity)
+    private saleRepository: Repository<SaleEntity>,
   ) {}
 
   getAll(skip: number = 0) {
@@ -155,5 +159,31 @@ export class ProductsService {
           image: product?.img_id[0]?.name,
         }));
       });
+  }
+
+  async getDailySaleProduct(): Promise<any> {
+    return this.saleRepository
+      .find({
+        relations: ["prod_id", "prod_id.img_id"],
+        order: {
+          date: "DESC",
+        },
+        take: 1,
+      })
+      .then(([res]) => {
+        if (typeof res !== "undefined") {
+          return { hasMore: false, results: [res.prod_id] };
+        }
+      });
+  }
+
+  getProductsIds(): Promise<{ prod_id: number }[]> {
+    return this.productsRepository.find({
+      select: ["prod_id"],
+    });
+  }
+
+  setDailySaleProduct(id: any): Promise<InsertResult> {
+    return this.saleRepository.insert({ prod_id: id });
   }
 }
