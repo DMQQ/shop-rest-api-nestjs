@@ -26,6 +26,12 @@ export class RatingsService {
     return this.ratingsRepository.find();
   }
 
+  getUsersReviews(id: number): Promise<RatingsEntity[]> {
+    return this.ratingsRepository.find({
+      where: { user_id: id },
+    });
+  }
+
   async findRatedMoreThanThree(skip: number = 0) {
     return this.ratingsRepository
       .findAndCount({

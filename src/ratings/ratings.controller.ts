@@ -17,6 +17,11 @@ export class RatingsController {
     return this.ratingsService.getAll();
   }
 
+  @Get("/my")
+  getMyReviews(@User() id: number) {
+    return this.ratingsService.getUsersReviews(id);
+  }
+
   @Post()
   createRating(
     @Body() props: RatingsDto,
