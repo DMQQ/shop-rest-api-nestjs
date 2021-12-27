@@ -3,6 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  Column,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { ProductsEntity } from "./products.entity";
@@ -18,4 +19,7 @@ export class SaleEntity {
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
   @JoinColumn({ name: "prod_id" })
   prod_id: ProductsEntity;
+
+  @Column({ type: "varchar" })
+  type: string;
 }

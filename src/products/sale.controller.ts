@@ -6,7 +6,15 @@ export class SaleController {
   constructor(private productsService: ProductsService) {}
 
   @Get("/daily")
-  getDailySaleProduct() {
-    return this.productsService.getDailySaleProduct();
+  async getDailySaleProduct() {
+    return this.productsService.getDailySaleProduct().then((response) => {
+      return {
+        ...response,
+        results: response.results.map((prod) => ({
+          ...prod,
+          price: prod.price * 0.8, // 20% off
+        })),
+      };
+    });
   }
 }

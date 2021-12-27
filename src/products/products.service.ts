@@ -135,6 +135,9 @@ export class ProductsService {
         where: { user_id },
         skip,
         take: 5,
+        order: {
+          date: "DESC",
+        },
       })
       .then(([res, ammount]) => {
         return [
@@ -161,7 +164,10 @@ export class ProductsService {
       });
   }
 
-  async getDailySaleProduct(): Promise<any> {
+  async getDailySaleProduct(): Promise<{
+    hasMore: boolean;
+    results: ProductsEntity[];
+  }> {
     return this.saleRepository
       .find({
         relations: ["prod_id", "prod_id.img_id"],
