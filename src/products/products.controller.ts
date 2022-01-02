@@ -43,7 +43,7 @@ export class ProductsController {
     return this.productsService.getCategories();
   }
 
-  @Get("searched=:text")
+  @Get("search=:text")
   async getBySearchTitleOrDescription(
     @Param("text") text: string,
     @User() user_id: number,

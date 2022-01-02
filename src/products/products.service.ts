@@ -150,7 +150,7 @@ export class ProductsService {
   async getProductSuggestions(text: string = "") {
     return this.productsRepository
       .find({
-        select: ["prod_id", "img_id", "title"],
+        select: ["prod_id", "img_id", "title", "price"],
         relations: ["img_id"],
         where: { title: Like(`%${text}%`) },
         take: 5,
@@ -160,6 +160,7 @@ export class ProductsService {
           title: product.title,
           prod_id: product.prod_id,
           image: product?.img_id[0]?.name,
+          price: product.price,
         }));
       });
   }
