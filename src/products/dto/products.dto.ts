@@ -5,9 +5,7 @@ export class ProductsDto {
   @IsNotEmpty()
   price: number;
 
-  @IsString()
-  @IsNotEmpty()
-  expiration_date: string;
+  expiration_date?: string;
 
   @IsString()
   @IsNotEmpty()

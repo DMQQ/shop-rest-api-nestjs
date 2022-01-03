@@ -11,7 +11,7 @@ export class SaleSchedule {
     private readonly notifiService: NotificationsService,
   ) {}
 
-  @Interval(864_000_00) // 24h
+  // @Interval(864_000_00) // 24h
   setDailySale() {
     this.productsService.getProductsIds().then((ids) => {
       const N = ids.length;

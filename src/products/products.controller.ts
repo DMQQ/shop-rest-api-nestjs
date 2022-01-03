@@ -87,8 +87,20 @@ export class ProductsController {
   }
 
   @Get("/product/:id")
-  getById(@Param("id", ParseIntPipe) id: number) {
-    return this.productsService.getById(id);
+  async getById(
+    @Param("id", ParseIntPipe) id: number,
+    @User() user_id: number,
+  ) {
+    return this.productsService.getById(id).then((result) => {
+      if (typeof result !== "undefined") {
+        this.productsService.pushSearchHistory(
+          user_id,
+          "",
+          result.prod_id as any,
+        );
+      }
+      return result;
+    });
   }
 
   @Get("/good-rated")

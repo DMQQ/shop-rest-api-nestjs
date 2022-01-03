@@ -12,7 +12,7 @@ export class SaleController {
         ...response,
         results: response.results.map((prod) => ({
           ...prod,
-          price: prod.price * 0.8, // 20% off
+          price: (prod.price * 0.8).toFixed(2), // 20% off
         })),
       };
     });

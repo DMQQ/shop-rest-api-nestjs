@@ -94,7 +94,7 @@ export class ProductsService {
       description,
       price,
       category,
-      expiration_date,
+      expiration_date: new Date().toLocaleDateString(),
       title,
     });
   }
