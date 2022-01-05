@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  ParseIntPipe,
-  Post,
-  Query,
-  Res,
-} from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Post, Res } from "@nestjs/common";
 import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Response } from "express";
@@ -25,25 +16,26 @@ export class HistoryController {
   ) {}
 
   @Get("/history")
-  async getYourPurchaseHistory(
-    @User() id: number,
-    @Res() response: Response,
-    @Query("skip", ParseIntPipe) skip: number,
-  ) {
-    return this.historyService
-      .getHistory(id, skip)
-      .then(([result, ammount]) => {
-        return response.send({
-          hasMore: false, // +skip + 5 < ammount
-          results: result.map((prod: any) => ({
+  async getYourPurchaseHistory(@User() id: number, @Res() response: Response) {
+    return this.historyService.getHistory(id).then(([result, ammount]) => {
+      return response.send({
+        hasMore: false,
+        results: result.map((prod: any) => ({
+          product: {
             ...prod.prod_id,
             img_id: prod.img_id,
             history_id: prod.history_id,
             date: prod.date,
             status: prod.status,
-          })),
-        });
+          },
+          details: {
+            purchase_id: prod.history_id,
+            date: prod.date,
+            status: prod.status,
+          },
+        })),
       });
+    });
   }
 
   @Post("/purchase")

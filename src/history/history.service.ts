@@ -33,12 +33,11 @@ export class HistoryService {
     return status ? "finished" : "failed";
   }
 
-  getHistory(id: number, skip = 0): Promise<[HistoryEntity[], number]> {
+  getHistory(id: number): Promise<[HistoryEntity[], number]> {
     return this.historyRepository.findAndCount({
       where: { user_id: id },
       relations: ["prod_id", "img_id"],
-      skip,
-      take: 5,
+      order: { date: "DESC" },
     });
   }
 
