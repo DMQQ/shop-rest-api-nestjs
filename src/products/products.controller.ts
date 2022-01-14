@@ -9,6 +9,8 @@ import {
   Res,
   HttpStatus,
   ParseIntPipe,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
@@ -25,6 +27,7 @@ export class ProductsController {
   constructor(
     private productsService: ProductsService,
     private notifyService: NotificationsService,
+    @Inject(forwardRef(() => RatingsService))
     private ratingsService: RatingsService,
   ) {}
 

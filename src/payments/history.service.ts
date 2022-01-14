@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { ProductsEntity } from "src/products/Entities/products.entity";
 import { Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 
@@ -8,7 +9,20 @@ export class HistoryService {
   constructor(
     @InjectRepository(HistoryEntity)
     private historyRepository: Repository<HistoryEntity>,
+
+    @InjectRepository(ProductsEntity)
+    private productsRepository: Repository<ProductsEntity>,
   ) {}
+
+  async getTotalPriceOfSelectedProducts(ids: number[]) {
+    return this.productsRepository
+      .findByIds(ids, {
+        select: ["price"],
+      })
+      .then((values) => {
+        return values.map(({ price }) => +price).reduce((a, b) => a + b);
+      });
+  }
 
   async addHistory(
     products: number[],

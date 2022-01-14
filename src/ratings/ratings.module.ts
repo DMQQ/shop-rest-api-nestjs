@@ -4,7 +4,7 @@ import { RatingsController } from "./ratings.controller";
 import { RatingsEntity } from "./ratings.entity";
 import { RatingsService } from "./ratings.service";
 import { UsersModule } from "src/users/users.module";
-import { HistoryModule } from "src/history/history.module";
+import { HistoryModule } from "src/payments/history.module";
 
 @Module({
   imports: [

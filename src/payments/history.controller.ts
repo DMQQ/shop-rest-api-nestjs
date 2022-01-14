@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+} from "@nestjs/common";
 import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Response } from "express";
@@ -6,14 +14,22 @@ import { CartService } from "src/cart/cart.service";
 import { NotificationsService } from "src/notifications/notifications.service";
 import { expo } from "src/notifications/methods";
 import User from "src/decorators/User";
+import { Request } from "express";
+import Stripe from "stripe";
 
 @Controller("payments")
 export class HistoryController {
+  private stripe: Stripe;
   constructor(
     private historyService: HistoryService,
     private cartService: CartService,
     private notifyService: NotificationsService,
-  ) {}
+  ) {
+    this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
+      apiVersion: "2020-08-27",
+      typescript: true,
+    });
+  }
 
   @Get("/history")
   async getYourPurchaseHistory(@User() id: number, @Res() response: Response) {
@@ -36,6 +52,27 @@ export class HistoryController {
         })),
       });
     });
+  }
+
+  @Post("/create-payment-intent")
+  async createPayment(
+    @Body() { prod_id }: HistoryDto,
+    @Res() response: Response,
+  ) {
+    try {
+      const total = await this.historyService.getTotalPriceOfSelectedProducts(
+        prod_id,
+      );
+
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount: total * 100,
+        currency: "usd",
+      });
+
+      response.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    } catch (error) {}
   }
 
   @Post("/purchase")

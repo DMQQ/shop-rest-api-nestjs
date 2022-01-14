@@ -1,14 +1,23 @@
-import { Body, Controller, Get, Post, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  forwardRef,
+  Get,
+  Inject,
+  Post,
+  Res,
+} from "@nestjs/common";
 import { RatingsDto } from "./dto/ratings.dto";
 import { RatingsService } from "./ratings.service";
 import { Response } from "express";
-import { HistoryService } from "src/history/history.service";
+import { HistoryService } from "src/payments/history.service";
 import User from "src/decorators/User";
 
 @Controller("ratings")
 export class RatingsController {
   constructor(
     private ratingsService: RatingsService,
+    @Inject(forwardRef(() => HistoryService))
     private historyService: HistoryService,
   ) {}
 
