@@ -21,6 +21,10 @@ export class SaleSchedule {
       this.productsService
         .setDailySaleProduct(random)
         .then(() => {
+          this.productsService.getById(random).then(({ price }) => {
+            const discount = Number((price * 0.8).toFixed(2));
+            this.productsService.applyDiscount(random, discount);
+          });
           this.notifiService.getTokens().then((tokens) => {
             expo.sendPushNotificationsAsync(
               tokens.map(({ token }) => ({

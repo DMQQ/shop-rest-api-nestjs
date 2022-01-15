@@ -1,7 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import RemoveObjectFields from "src/functions/RemoveObjectFields";
-import { Repository, MoreThanOrEqual, Like, InsertResult } from "typeorm";
+import {
+  Repository,
+  MoreThanOrEqual,
+  Like,
+  InsertResult,
+  UpdateResult,
+} from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
@@ -192,5 +198,9 @@ export class ProductsService {
 
   setDailySaleProduct(id: any): Promise<InsertResult> {
     return this.saleRepository.insert({ prod_id: id });
+  }
+
+  applyDiscount(prod_id: number, discount: number): Promise<UpdateResult> {
+    return this.productsRepository.update({ prod_id }, { price: discount });
   }
 }

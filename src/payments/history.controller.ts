@@ -14,7 +14,6 @@ import { CartService } from "src/cart/cart.service";
 import { NotificationsService } from "src/notifications/notifications.service";
 import { expo } from "src/notifications/methods";
 import User from "src/decorators/User";
-import { Request } from "express";
 import Stripe from "stripe";
 
 @Controller("payments")

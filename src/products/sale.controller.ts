@@ -9,11 +9,10 @@ export class SaleController {
   async getDailySaleProduct() {
     return this.productsService.getDailySaleProduct().then((response) => {
       return {
-        ...response,
-        results: response.results.map((prod) => ({
-          ...prod,
-          price: (prod.price * 0.8).toFixed(2), // 20% off
-        })),
+        ...{
+          ...response.results[0],
+          price: (response.results[0].price * 0.8).toFixed(2),
+        },
       };
     });
   }
