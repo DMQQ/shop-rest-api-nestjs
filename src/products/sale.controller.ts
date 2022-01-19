@@ -8,12 +8,14 @@ export class SaleController {
   @Get("/daily")
   async getDailySaleProduct() {
     return this.productsService.getDailySaleProduct().then((response) => {
-      return {
-        ...{
-          ...response.results[0],
-          price: (response.results[0].price * 0.8).toFixed(2),
-        },
-      };
+      if (typeof response !== "undefined") {
+        return {
+          ...{
+            ...response.results,
+            price: (response.results.price * 0.8).toFixed(2),
+          },
+        };
+      }
     });
   }
 }

@@ -40,11 +40,11 @@ export class FilesController {
     }
   }
 
-  @Get("images=:img") // Cannot read property 'content-type' of undefined
+  @Get("images=:img")
   getUploadedFile(@Param("img") img: string, @Res() res: Response) {
     const file = createReadStream(join(process.cwd(), `./images/${img}`)).on(
       "error",
-      () => response.status(404).send("not found"),
+      (err) => console.warn(err),
     );
     return file.pipe(res);
   }

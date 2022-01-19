@@ -173,7 +173,7 @@ export class ProductsService {
 
   async getDailySaleProduct(): Promise<{
     hasMore: boolean;
-    results: ProductsEntity[];
+    results: ProductsEntity;
   }> {
     return this.saleRepository
       .find({
@@ -185,7 +185,7 @@ export class ProductsService {
       })
       .then(([res]) => {
         if (typeof res !== "undefined") {
-          return { hasMore: false, results: [res.prod_id] };
+          return { hasMore: false, results: res.prod_id };
         }
       });
   }
