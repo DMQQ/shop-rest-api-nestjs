@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { ProductsEntity } from "./products.entity";
 
-@Entity("daily-promotion")
+@Entity("daily_promotion")
 export class SaleEntity {
   @PrimaryGeneratedColumn()
   id: number;

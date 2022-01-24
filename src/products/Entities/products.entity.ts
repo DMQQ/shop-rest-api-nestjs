@@ -24,9 +24,6 @@ export class ProductsEntity {
   @Column({ type: "varchar" })
   title: string;
 
-  @Column({ type: "varchar" })
-  expiration_date: string;
-
   @Column({ type: "text" })
   description: string;
 
@@ -46,4 +43,10 @@ export class ProductsEntity {
   @ManyToOne(() => UsersEntity, (type) => type.id)
   @JoinColumn({ name: "vendor" })
   vendor: string;
+
+  @Column({ type: "varchar", length: "60" })
+  manufacturer: string;
+
+  @Column({ type: "int", default: 0 })
+  quantity: number;
 }

@@ -9,7 +9,7 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000, PORT, () =>
-    console.log( `[Server] Server runs on http://${PORT}:3000`),
+    console.log(`[Server] Server runs on http://${PORT}:3000`),
   );
 }
 bootstrap();

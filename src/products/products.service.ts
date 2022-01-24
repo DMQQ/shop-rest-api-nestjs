@@ -40,6 +40,7 @@ export class ProductsService {
     return this.productsRepository
       .find({
         select: ["category"],
+        cache: true,
       })
       .then((response) => [
         ...new Set(response.map(({ category }) => category)),
@@ -77,32 +78,19 @@ export class ProductsService {
     return this.productsRepository
       .find({
         relations: ["img_id", "rating_id"],
-        where: [{ price: MoreThanOrEqual(start) }],
+        where: { price: MoreThanOrEqual(start) },
       })
-      .then((res) => {
-        res.forEach((prop) => {
-          if (Number(prop.price) < end) {
-            return prop;
+      .then((res) =>
+        res.map((p) => {
+          if (p.price > end) {
+            return p;
           }
-        });
-        return res;
-      });
+        }),
+      );
   }
 
-  createProduct({
-    description,
-    price,
-    category,
-    expiration_date,
-    title,
-  }: any): Promise<InsertResult> {
-    return this.productsRepository.insert({
-      description,
-      price,
-      category,
-      expiration_date: new Date().toLocaleDateString(),
-      title,
-    });
+  createProduct(props: any): Promise<InsertResult> {
+    return this.productsRepository.insert(props);
   }
 
   getByTitleOrDesc(input: string): Promise<ProductsEntity[]> {

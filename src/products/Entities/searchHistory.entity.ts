@@ -28,7 +28,9 @@ export class SearchHistoryEntity {
   @Column({ name: "date", insert: true })
   date: Date;
 
-  @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
+  @ManyToOne(() => ProductsEntity, (type) => type.prod_id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "prod_id" })
   prod_id: QueryDeepPartialEntity<ProductsEntity[]>;
 

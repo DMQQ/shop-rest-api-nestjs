@@ -18,13 +18,13 @@ import Stripe from "stripe";
 
 @Controller("payments")
 export class HistoryController {
-  private stripe: Stripe;
+  #stripe: Stripe;
   constructor(
     private historyService: HistoryService,
     private cartService: CartService,
     private notifyService: NotificationsService,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
+    this.#stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
       apiVersion: "2020-08-27",
       typescript: true,
     });
@@ -32,7 +32,7 @@ export class HistoryController {
 
   @Get("/history")
   async getYourPurchaseHistory(@User() id: number, @Res() response: Response) {
-    return this.historyService.getHistory(id).then(([result, ammount]) => {
+    return this.historyService.getHistory(id).then(([result]) => {
       return response.send({
         hasMore: false,
         results: result.map((prod: any) => ({
@@ -63,7 +63,7 @@ export class HistoryController {
         prod_id,
       );
 
-      const paymentIntent = await this.stripe.paymentIntents.create({
+      const paymentIntent = await this.#stripe.paymentIntents.create({
         amount: total * 100,
         currency: "usd",
       });
@@ -80,28 +80,24 @@ export class HistoryController {
     @User() user_id: number,
     @Res() res: Response,
   ) {
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    const fullTime = `${year}.${month}.${day}`;
-
     this.historyService
-      .addHistory(prod_id, { user_id, date: fullTime })
+      .addHistory(prod_id, { user_id, date: new Date().toLocaleDateString() })
       .then(async (result) => {
         if (result === "finished") {
           try {
             await this.cartService.removeAllRelatedToUser(user_id);
 
             this.notifyService.getUserToken(user_id).then(async ({ token }) => {
-              await expo.sendPushNotificationsAsync([
-                {
-                  to: token,
-                  sound: "default",
-                  body: "❤ Purchase copy can be found in your mail box ❤",
-                  title: "❤ Thank you for purchase ❤",
-                },
-              ]);
+              if (token) {
+                await expo.sendPushNotificationsAsync([
+                  {
+                    to: token,
+                    sound: "default",
+                    body: "❤ Purchase copy can be found in your mail box ❤",
+                    title: "❤ Thank you for purchase ❤",
+                  },
+                ]);
+              }
             });
           } catch (error) {
             res.status(HttpStatus.BAD_REQUEST).send({

@@ -126,9 +126,13 @@ export class ProductsController {
   }
 
   @Post()
-  createProduct(@Body() props: ProductsDto, @Res() response: Response) {
+  createProduct(
+    @Body() props: ProductsDto,
+    @Res() response: Response,
+    @User() id: number,
+  ) {
     this.productsService
-      .createProduct(props)
+      .createProduct({ ...props, vendor: id })
       .then(({ raw }) => {
         if (raw.affectedRows > 0) {
           this.notifyService

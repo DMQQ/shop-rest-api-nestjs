@@ -12,7 +12,9 @@ export class MostSearchedEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
+  @ManyToOne(() => ProductsEntity, (type) => type.prod_id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "prod_id" })
   prod_id: number;
 

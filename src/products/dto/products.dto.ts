@@ -5,8 +5,6 @@ export class ProductsDto {
   @IsNotEmpty()
   price: number;
 
-  expiration_date?: string;
-
   @IsString()
   @IsNotEmpty()
   description: string;
@@ -18,4 +16,8 @@ export class ProductsDto {
   @IsString()
   @IsNotEmpty()
   title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  manufactor: string;
 }
