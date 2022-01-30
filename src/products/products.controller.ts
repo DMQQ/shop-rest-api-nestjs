@@ -12,7 +12,7 @@ import {
   Inject,
   forwardRef,
 } from "@nestjs/common";
-import { ProductsDto } from "./dto/products.dto";
+import { ProductsDto, SearchParams } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
 import { BAD, CREATED, OK } from "src/constants/codes";
@@ -121,8 +121,18 @@ export class ProductsController {
   }
 
   @Get("/suggestions")
-  getProductSuggestions(@Query("q", new DefaultValuePipe("")) query: any) {
-    return this.productsService.getProductSuggestions(query);
+  getProductSuggestions(
+    @Query("q", new DefaultValuePipe("")) query: any,
+    @Query() params: any,
+  ) {
+    const validParams = {};
+
+    for (const [key, value] of Object.entries(params)) {
+      if (key === "category" || key === "price") {
+        validParams[key] = value;
+      }
+    }
+    return this.productsService.getProductSuggestions(query, validParams);
   }
 
   @Post()

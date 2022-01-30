@@ -9,6 +9,7 @@ import {
   UpdateResult,
 } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { SearchParams } from "./dto/products.dto";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
@@ -26,14 +27,19 @@ export class ProductsService {
     private saleRepository: Repository<SaleEntity>,
   ) {}
 
-  getAll(skip: number = 0) {
-    return this.productsRepository.findAndCount({
-      select: ["prod_id", "price", "img_id", "title"],
-      relations: ["img_id"],
-      order: { prod_id: "DESC" },
-      skip,
-      take: 5,
-    });
+  async getAll(skip: number = 0) {
+    return this.productsRepository
+      .findAndCount({
+        select: ["prod_id", "price", "img_id", "title"],
+        relations: ["img_id"],
+        order: { prod_id: "DESC" },
+        skip,
+        take: 5,
+      })
+      .then(([res, amm]) => [
+        res.map((prop) => ({ ...prop, img_id: prop.img_id.reverse() })),
+        amm,
+      ]);
   }
 
   async getCategories(): Promise<string[]> {
@@ -135,18 +141,21 @@ export class ProductsService {
       })
       .then(([res, ammount]) => {
         return [
-          res.map(({ prod_id, img_id }) => ({ ...prod_id, img_id })),
+          res.map(({ prod_id, img_id }: any) => ({
+            ...prod_id,
+            img_id: img_id.reverse(),
+          })),
           ammount,
         ];
       });
   }
 
-  async getProductSuggestions(text: string = "") {
+  async getProductSuggestions(text: string = "", params: any) {
     return this.productsRepository
       .find({
         select: ["prod_id", "img_id", "title", "price"],
         relations: ["img_id"],
-        where: { title: Like(`%${text}%`) },
+        where: { title: Like(`%${text}%`), ...params },
         take: 5,
       })
       .then((response) => {

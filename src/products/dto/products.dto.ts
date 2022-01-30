@@ -21,3 +21,9 @@ export class ProductsDto {
   @IsNotEmpty()
   manufactor: string;
 }
+
+export class SearchParams {
+  price: number;
+
+  category: string;
+}
