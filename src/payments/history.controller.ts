@@ -1,19 +1,11 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Req,
-  Res,
-} from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Post, Res } from "@nestjs/common";
 import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Response } from "express";
-import { CartService } from "src/cart/cart.service";
-import { NotificationsService } from "src/notifications/notifications.service";
-import { expo } from "src/notifications/methods";
-import User from "src/decorators/User";
+import { CartService } from "../cart/cart.service";
+import { NotificationsService } from "../notifications/notifications.service";
+import { expo } from "../notifications/methods";
+import User from "../decorators/User";
 import Stripe from "stripe";
 
 @Controller("payments")

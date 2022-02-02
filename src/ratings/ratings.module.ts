@@ -3,8 +3,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { RatingsController } from "./ratings.controller";
 import { RatingsEntity } from "./ratings.entity";
 import { RatingsService } from "./ratings.service";
-import { UsersModule } from "src/users/users.module";
-import { HistoryModule } from "src/payments/history.module";
+import { UsersModule } from "../users/users.module";
+import { HistoryModule } from "../payments/history.module";
 
 @Module({
   imports: [

@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { Interval } from "@nestjs/schedule";
-import { NotificationsService } from "src/notifications/notifications.service";
-import { expo } from "src/notifications/methods";
+import { NotificationsService } from "../notifications/notifications.service";
+import { expo } from "../notifications/methods";
 import { ProductsService } from "./products.service";
 
 @Injectable()

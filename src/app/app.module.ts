@@ -1,14 +1,14 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { CartModule } from "src/cart/cart.module";
-import { HistoryModule } from "src/payments/history.module";
-import { NotificationsModule } from "src/notifications/notifications.module";
-import { ProductsModule } from "src/products/products.module";
-import { RatingsModule } from "src/ratings/ratings.module";
-import { UploadModule } from "src/upload/upload.module";
+import { CartModule } from "../cart/cart.module";
+import { HistoryModule } from "../payments/history.module";
+import { NotificationsModule } from "../notifications/notifications.module";
+import { ProductsModule } from "../products/products.module";
+import { RatingsModule } from "../ratings/ratings.module";
+import { UploadModule } from "../upload/upload.module";
 
-import { UsersModule } from "src/users/users.module";
+import { UsersModule } from "../users/users.module";
 import { AppMiddleware } from "./middleware/app.middleware";
 
 @Module({

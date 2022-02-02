@@ -2,10 +2,10 @@ import { Body, Controller, Post, Res } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
-import { NotificationsService } from "src/notifications/notifications.service";
+import { NotificationsService } from "../notifications/notifications.service";
 import Expo from "expo-server-sdk";
-import { BAD, CREATED } from "src/constants/codes";
-import User from "src/decorators/User";
+import { BAD, CREATED } from "../constants/codes";
+import User from "../decorators/User";
 
 const expo = new Expo();
 

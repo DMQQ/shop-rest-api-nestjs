@@ -1,4 +1,4 @@
-import { HistoryEntity } from "src/payments/history.entity";
+import { HistoryEntity } from "../payments/history.entity";
 import { ProductsEntity } from "../products/Entities/products.entity";
 import {
   Column,

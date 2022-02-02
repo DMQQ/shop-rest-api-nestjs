@@ -15,12 +15,12 @@ import {
 import { ProductsDto, SearchParams } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
-import { BAD, CREATED, OK } from "src/constants/codes";
-import { FAILED_CREATE, SUCCESS_CREATE } from "src/constants/responses";
-import { NotificationsService } from "src/notifications/notifications.service";
-import { expo, NewProductNotification } from "src/notifications/methods";
-import { RatingsService } from "src/ratings/ratings.service";
-import User from "src/decorators/User";
+import { BAD, CREATED, OK } from "../constants/codes";
+import { FAILED_CREATE, SUCCESS_CREATE } from "../constants/responses";
+import { NotificationsService } from "../notifications/notifications.service";
+import { expo, NewProductNotification } from "../notifications/methods";
+import { RatingsService } from "../ratings/ratings.service";
+import User from "../decorators/User";
 
 @Controller("products")
 export class ProductsController {

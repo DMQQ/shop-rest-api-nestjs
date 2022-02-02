@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, NestMiddleware } from "@nestjs/common";
 import { Response, NextFunction } from "express";
-import { RequestExtend } from "src/@types/types";
-import { UsersService } from "src/users/users.service";
+import { RequestExtend } from "../../@types/types";
+import { UsersService } from "../../users/users.service";
 
 @Injectable()
 export class AppMiddleware implements NestMiddleware {

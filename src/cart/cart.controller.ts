@@ -10,8 +10,8 @@ import {
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { Response } from "express";
-import { BAD, CREATED, OK } from "src/constants/codes";
-import User from "src/decorators/User";
+import { BAD, CREATED, OK } from "../constants/codes";
+import User from "../decorators/User";
 
 @Controller("cart")
 export class CartController {

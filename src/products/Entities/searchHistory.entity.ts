@@ -1,5 +1,5 @@
-import { UploadEntity } from "src/upload/upload.entity";
-import { UsersEntity } from "src/users/users.entity";
+import { UploadEntity } from "../../upload/upload.entity";
+import { UsersEntity } from "../../users/users.entity";
 import {
   Column,
   CreateDateColumn,

@@ -1,5 +1,5 @@
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { UploadEntity } from "src/upload/upload.entity";
+import { UploadEntity } from "../upload/upload.entity";
 
 import {
   Entity,

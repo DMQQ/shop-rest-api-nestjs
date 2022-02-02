@@ -9,7 +9,7 @@ import {
 import { NotificationsDto } from "./dto/notifications.dto";
 import { NotificationsService } from "./notifications.service";
 import { Response } from "express";
-import User from "src/decorators/User";
+import User from "../decorators/User";
 
 @Controller("notifications")
 export class NotificationsController {

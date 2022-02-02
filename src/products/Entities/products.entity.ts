@@ -1,6 +1,6 @@
-import { RatingsEntity } from "src/ratings/ratings.entity";
-import { UploadEntity } from "src/upload/upload.entity";
-import { UsersEntity } from "src/users/users.entity";
+import { RatingsEntity } from "../../ratings/ratings.entity";
+import { UploadEntity } from "../../upload/upload.entity";
+import { UsersEntity } from "../../users/users.entity";
 import {
   Column,
   Entity,

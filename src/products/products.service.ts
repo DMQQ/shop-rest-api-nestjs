@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import RemoveObjectFields from "src/functions/RemoveObjectFields";
+import RemoveObjectFields from "../functions/RemoveObjectFields";
 import {
   Repository,
   MoreThanOrEqual,
@@ -9,7 +9,6 @@ import {
   UpdateResult,
 } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
-import { SearchParams } from "./dto/products.dto";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
