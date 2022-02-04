@@ -25,7 +25,7 @@ export class UsersEntity {
   @Column({ type: "enum", default: UserEnum.user, enum: UserEnum })
   user_type: UserEnum;
 
-  @Column({ type: "boolean", default: true }) // False later
+  @Column({ type: "boolean", default: false }) // False later
   activated: boolean;
 
   @Column({ type: "varchar", nullable: true, length: "60" })

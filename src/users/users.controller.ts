@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
@@ -6,6 +6,8 @@ import { NotificationsService } from "../notifications/notifications.service";
 import Expo from "expo-server-sdk";
 import { BAD, CREATED } from "../constants/codes";
 import User from "../decorators/User";
+import * as path from "path";
+import { Mailer } from "../Mail/Mailer";
 
 const expo = new Expo();
 
@@ -73,12 +75,24 @@ export class UsersController {
               id: result.raw.insertId,
             });
 
-            response.status(CREATED).send({
-              status: CREATED,
-              token,
-              user_id: result.raw.insertId,
-              name: email,
-            });
+            new Mailer()
+              .sendMail({
+                html: `<a href="http://192.168.0.25:3000/auth/confirm?token=${token}">Confirm Account</a>`,
+                to: email,
+                subject: "Confirm your account",
+                text: "Hello, please confirm your account",
+              })
+              .then(() => {
+                response.status(CREATED).send({
+                  status: CREATED,
+                  token,
+                  user_id: result.raw.insertId,
+                  name: email,
+                });
+              })
+              .catch(() => {
+                console.warn("email failed");
+              });
           });
         }
       } else {
@@ -94,5 +108,29 @@ export class UsersController {
   validateToken(@User() user_id: number, @Res() response: Response) {
     const token = this.userService.createToken({ id: user_id });
     return response.send({ token, id: user_id });
+  }
+
+  @Get("/confirm")
+  confirmEmailPage(@Res() response: Response) {
+    response.sendFile(path.join(process.cwd(), "./src/users/View/index.html"));
+  }
+
+  @Post("/confirm-account")
+  confirmEmail(@Body("token") token: string, @Res() response: Response) {
+    this.userService.verifyToken<{ id: number }>(token, (err, decoded) => {
+      if (decoded) {
+        this.userService.activateUser(decoded.id).then((result) => {
+          if (result.affected > 0) {
+            return response.send({
+              message: "success",
+            });
+          }
+        });
+      } else if (err) {
+        return response.status(400).send({
+          message: "failed",
+        });
+      }
+    });
   }
 }

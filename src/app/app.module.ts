@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from "@nestjs/common";
 
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CartModule } from "../cart/cart.module";
@@ -27,7 +32,14 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AppMiddleware)
-      .exclude("/auth/login", "/auth/register", "/upload/images=:img")
+      .exclude(
+        "/auth/login",
+        "/auth/register",
+        "/upload/images=:img",
+        "/auth/confirm",
+        "/auth/confirm-account",
+        "/upload/images=:img",
+      )
       .forRoutes("*");
   }
 }

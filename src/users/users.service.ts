@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { InsertResult, Repository } from "typeorm";
+import { InsertResult, Repository, UpdateResult } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { hash, compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
@@ -42,5 +42,9 @@ export class UsersService {
     callback: (err: any, decoded: T) => void,
   ): void {
     return verify(token, KEY, callback);
+  }
+
+  activateUser(id: number): Promise<UpdateResult> {
+    return this.userRepository.update({ id }, { activated: true });
   }
 }
