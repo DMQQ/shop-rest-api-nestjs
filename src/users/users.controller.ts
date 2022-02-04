@@ -1,27 +1,25 @@
-import { Body, Controller, Get, Post, Query, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Res } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import { Response } from "express";
+import { response, Response } from "express";
 import { UserDto } from "./dto/user.dto";
-import { NotificationsService } from "../notifications/notifications.service";
-import Expo from "expo-server-sdk";
 import { BAD, CREATED } from "../constants/codes";
 import User from "../decorators/User";
 import * as path from "path";
 import { Mailer } from "../Mail/Mailer";
-
-const expo = new Expo();
+import { UserConfirmHTML } from "../Mail/templates/UserConfirm";
 
 @Controller("auth")
 export class UsersController {
-  constructor(
-    private userService: UsersService,
-    private notifyService: NotificationsService,
-  ) {}
+  constructor(private userService: UsersService) {}
 
   @Post("login")
   login(@Body() { email, password }: UserDto, @Res() res: Response) {
     this.userService.findMatch(email).then(async (result) => {
-      if (typeof result !== "undefined")
+      if (!result.activated)
+        return response.status(400).send({
+          message: "Account not activated",
+        });
+      if (typeof result !== "undefined" && result.activated)
         return this.userService
           .comparePasswords(result.password, password)
           .then((isPasswordCorrect) => {
@@ -58,18 +56,6 @@ export class UsersController {
         const hashed = await this.userService.createHashedPassword(password);
         if (hashed) {
           this.userService.createUser(email, hashed).then(async (result) => {
-            this.notifyService.findUsersToken(result.raw.insertId).then((r) => {
-              if (typeof r !== "undefined") {
-                expo.sendPushNotificationsAsync([
-                  {
-                    to: r.token,
-                    title: `Welcome ${email}`,
-                    body: "Promo code for new customers: 213769420",
-                  },
-                ]);
-              }
-            });
-
             const token = this.userService.createToken({
               email,
               id: result.raw.insertId,
@@ -77,22 +63,20 @@ export class UsersController {
 
             new Mailer()
               .sendMail({
-                html: `<a href="http://192.168.0.25:3000/auth/confirm?token=${token}">Confirm Account</a>`,
+                html: UserConfirmHTML(token),
                 to: email,
                 subject: "Confirm your account",
                 text: "Hello, please confirm your account",
               })
               .then(() => {
-                response.status(CREATED).send({
-                  status: CREATED,
-                  token,
-                  user_id: result.raw.insertId,
-                  name: email,
-                });
+                console.log("email sent");
               })
-              .catch(() => {
-                console.warn("email failed");
-              });
+              .catch(console.warn);
+            response.status(CREATED).send({
+              status: CREATED,
+              activated: false,
+              user_id: result.raw.insertId,
+            });
           });
         }
       } else {
@@ -117,15 +101,16 @@ export class UsersController {
 
   @Post("/confirm-account")
   confirmEmail(@Body("token") token: string, @Res() response: Response) {
-    this.userService.verifyToken<{ id: number }>(token, (err, decoded) => {
+    this.userService.verifyToken<{ id: number }>(token, async (err, decoded) => {
       if (decoded) {
-        this.userService.activateUser(decoded.id).then((result) => {
-          if (result.affected > 0) {
+        try {
+          const { affected } = await this.userService.activateUser(decoded.id);
+          if (affected > 0) {
             return response.send({
               message: "success",
             });
           }
-        });
+        } catch (error) {}
       } else if (err) {
         return response.status(400).send({
           message: "failed",

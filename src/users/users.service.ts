@@ -37,10 +37,7 @@ export class UsersService {
     });
   }
 
-  verifyToken<T>(
-    token: string,
-    callback: (err: any, decoded: T) => void,
-  ): void {
+  verifyToken<T>(token: string, callback: (err: any, decoded: T) => void): void {
     return verify(token, KEY, callback);
   }
 
