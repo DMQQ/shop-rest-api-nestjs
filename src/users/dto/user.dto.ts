@@ -7,3 +7,10 @@ export class UserDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class UserCredentials {
+  name?: string;
+  surname?: string;
+  phone_number?: string;
+  address?: string;
+}

@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Res } from "@nestjs/common";
-import { UsersService } from "./users.service";
+import { Body, Controller, Get, Post, Put, Query, Res } from "@nestjs/common";
+import { CredentialsType, UsersService } from "./users.service";
 import { Response } from "express";
-import { UserDto } from "./dto/user.dto";
+import { UserCredentials, UserDto } from "./dto/user.dto";
 import { BAD, CREATED } from "../constants/codes";
 import User from "../decorators/User";
 import * as path from "path";
@@ -117,5 +117,43 @@ export class UsersController {
         });
       }
     });
+  }
+
+  @Put("/credentials")
+  updateCredentials(@Body() value: CredentialsType, @User() id: number, @Res() response: Response) {
+    const valid = ["address", "phone_number", "name", "surname"];
+
+    const [key] = Object.keys(value);
+
+    if (!valid.includes(key) && value[key] !== undefined)
+      return response.send({
+        message: "invalid field",
+      });
+
+    this.userService
+      .updateCredentials(
+        {
+          value: value[key],
+          key: key,
+        },
+        id,
+      )
+      .then(({ affected }) => {
+        if (affected > 0) {
+          return response.send({
+            message: "updated",
+          });
+        } else {
+          return response.status(400).send({
+            message: "failed",
+          });
+        }
+      })
+      .catch(console.warn);
+  }
+
+  @Get("/credentials")
+  getUserCredentials(@User() id: number) {
+    return this.userService.getCredentials(id);
   }
 }

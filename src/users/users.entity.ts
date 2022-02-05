@@ -1,9 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 enum UserEnum {
   user = "user",
@@ -35,7 +30,7 @@ export class UsersEntity {
   surname: string;
 
   @Column({ type: "varchar", nullable: true, length: "60" })
-  adress: string;
+  address: string;
 
   @Column({ type: "varchar", length: "9", nullable: true })
   phone_number: string;

@@ -4,8 +4,16 @@ import { InsertResult, Repository, UpdateResult } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { hash, compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
+import { UserCredentials } from "./dto/user.dto";
 
 const KEY = process.env.JWTTOKEN || "dhbada8d##!%aaad778464";
+
+export type CredentialsType = "address" | "phone_number" | "name" | "surname";
+
+interface CredentialsProps {
+  key: string;
+  value: string;
+}
 
 @Injectable()
 export class UsersService {
@@ -43,5 +51,15 @@ export class UsersService {
 
   activateUser(id: number): Promise<UpdateResult> {
     return this.userRepository.update({ id }, { activated: true });
+  }
+
+  updateCredentials({ key, value }: CredentialsProps, id: number): Promise<UpdateResult> {
+    return this.userRepository.update({ id }, { [key]: value });
+  }
+
+  getCredentials(id: number) {
+    return this.userRepository.findOne(id, {
+      select: ["address", "email", "name", "surname", "phone_number"],
+    });
   }
 }
