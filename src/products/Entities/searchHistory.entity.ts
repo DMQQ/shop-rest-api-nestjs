@@ -17,7 +17,9 @@ export class SearchHistoryEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => UsersEntity, (type) => type.id)
+  @ManyToOne(() => UsersEntity, (type) => type.id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "user_id" })
   user_id: number;
 

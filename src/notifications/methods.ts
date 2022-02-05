@@ -9,7 +9,7 @@ export const NewProductNotification = (tokens: string[], product: string) => {
   for (let i = 0; i < N; i++) {
     messages.push({
       to: tokens[i],
-      title: "New Product avaiable now",
+      title: "New products droped, check it out",
       body: product,
     });
   }

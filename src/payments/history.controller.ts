@@ -46,14 +46,9 @@ export class HistoryController {
   }
 
   @Post("/create-payment-intent")
-  async createPayment(
-    @Body() { prod_id }: HistoryDto,
-    @Res() response: Response,
-  ) {
+  async createPayment(@Body() { prod_id }: HistoryDto, @Res() response: Response) {
     try {
-      const total = await this.historyService.getTotalPriceOfSelectedProducts(
-        prod_id,
-      );
+      const total = await this.historyService.getTotalPriceOfSelectedProducts(prod_id);
 
       const paymentIntent = await this.#stripe.paymentIntents.create({
         amount: total * 100,

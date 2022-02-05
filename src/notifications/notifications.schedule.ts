@@ -23,18 +23,4 @@ export class NotificationsSchedule {
       }
     });
   }
-  // doesnt work correctly
-  /*  @Cron("* * 12 * * *")
-  cartReminder() {
-    this.notifyService.getTokens().then(async (tokens) => {
-      const messages = tokens.map(({ token }) => ({
-        to: token,
-        title: "Check your cart mate",
-        body: "You left your cart alone",
-      }));
-      const ticket = await expo.sendPushNotificationsAsync(messages);
-
-      console.log(ticket);
-    });
-  } */
 }

@@ -2,6 +2,12 @@
 
 ## To run server on local machine required is NODE & MySQL
 
+### Set enviroment variables
+
+- STRIPE_TEST_SECRET
+- SENDGRID_KEY
+- EMAIL (for sendgrid)
+
 ### Create database
 
 ```mysql

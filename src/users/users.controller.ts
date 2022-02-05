@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Res } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import { response, Response } from "express";
+import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
 import { BAD, CREATED } from "../constants/codes";
 import User from "../decorators/User";
@@ -15,11 +15,11 @@ export class UsersController {
   @Post("login")
   login(@Body() { email, password }: UserDto, @Res() res: Response) {
     this.userService.findMatch(email).then(async (result) => {
-      if (!result.activated)
-        return response.status(400).send({
+      if (typeof result !== "undefined" && !result.activated) {
+        return res.status(400).send({
           message: "Account not activated",
         });
-      if (typeof result !== "undefined" && result.activated)
+      } else if (typeof result !== "undefined" && result.activated)
         return this.userService
           .comparePasswords(result.password, password)
           .then((isPasswordCorrect) => {
