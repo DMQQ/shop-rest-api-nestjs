@@ -1,13 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import RemoveObjectFields from "../functions/RemoveObjectFields";
-import {
-  Repository,
-  MoreThanOrEqual,
-  Like,
-  InsertResult,
-  UpdateResult,
-} from "typeorm";
+import { Repository, MoreThanOrEqual, Like, InsertResult, UpdateResult } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
@@ -35,10 +29,7 @@ export class ProductsService {
         skip,
         take: 5,
       })
-      .then(([res, amm]) => [
-        res.map((prop) => ({ ...prop, img_id: prop.img_id.reverse() })),
-        amm,
-      ]);
+      .then(([res, amm]) => [res.map((prop) => ({ ...prop, img_id: prop.img_id.reverse() })), amm]);
   }
 
   async getCategories(): Promise<string[]> {
@@ -47,9 +38,7 @@ export class ProductsService {
         select: ["category"],
         cache: true,
       })
-      .then((response) => [
-        ...new Set(response.map(({ category }) => category)),
-      ]);
+      .then((response) => [...new Set(response.map(({ category }) => category))]);
   }
 
   getByCategory(category: string) {
@@ -102,10 +91,7 @@ export class ProductsService {
     return this.productsRepository.find({
       select: ["prod_id", "price", "img_id", "title"],
       relations: ["img_id", "rating_id"],
-      where: [
-        { title: Like(`%${input}%`) },
-        { description: Like(`%${input}%`) },
-      ],
+      where: [{ title: Like(`%${input}%`) }, { description: Like(`%${input}%`) }],
     });
   }
 
@@ -193,7 +179,7 @@ export class ProductsService {
   }
 
   setDailySaleProduct(id: any): Promise<InsertResult> {
-    return this.saleRepository.insert({ prod_id: id });
+    return this.saleRepository.insert({ prod_id: id, type: "test" });
   }
 
   applyDiscount(prod_id: number, discount: number): Promise<UpdateResult> {

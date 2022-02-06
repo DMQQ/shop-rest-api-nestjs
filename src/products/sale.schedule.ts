@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { NotificationsService } from "../notifications/notifications.service";
 import { expo } from "../notifications/methods";
 import { ProductsService } from "./products.service";
+import { Interval } from "@nestjs/schedule";
 
 @Injectable()
 export class SaleSchedule {
@@ -11,6 +12,7 @@ export class SaleSchedule {
   ) {}
 
   // @Interval(864_000_00) // 24h
+  // @Interval(1000 * 60)
   setDailySale() {
     this.productsService.getProductsIds().then((ids) => {
       const N = ids.length;

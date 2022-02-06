@@ -12,7 +12,6 @@ export class SaleController {
         return {
           ...{
             ...response.results,
-            price: (response.results.price * 0.8).toFixed(2),
           },
         };
       }
