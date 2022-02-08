@@ -12,7 +12,7 @@ import {
   Inject,
   forwardRef,
 } from "@nestjs/common";
-import { ProductsDto, SearchParams } from "./dto/products.dto";
+import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
 import { BAD, CREATED, OK } from "../constants/codes";
@@ -90,45 +90,31 @@ export class ProductsController {
   }
 
   @Get("/product/:id")
-  async getById(
-    @Param("id", ParseIntPipe) id: number,
-    @User() user_id: number,
-  ) {
+  async getById(@Param("id", ParseIntPipe) id: number, @User() user_id: number) {
     return this.productsService.getById(id).then((result) => {
       if (typeof result !== "undefined") {
-        this.productsService.pushSearchHistory(
-          user_id,
-          "",
-          result.prod_id as any,
-        );
+        this.productsService.pushSearchHistory(user_id, "", result.prod_id as any);
       }
       return result;
     });
   }
 
   @Get("/good-rated")
-  async getMostSearched(
-    @Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number,
-  ) {
-    return this.ratingsService
-      .findRatedMoreThanThree(skip)
-      .then(([products, ammount]) => {
-        return {
-          hasMore: +skip + 5 < ammount,
-          results: products,
-        };
-      });
+  async getMostSearched(@Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number) {
+    return this.ratingsService.findRatedMoreThanThree(skip).then(([products, ammount]) => {
+      return {
+        hasMore: +skip + 5 < ammount,
+        results: products,
+      };
+    });
   }
 
   @Get("/suggestions")
-  getProductSuggestions(
-    @Query("q", new DefaultValuePipe("")) query: any,
-    @Query() params: any,
-  ) {
+  getProductSuggestions(@Query("q", new DefaultValuePipe("")) query: any, @Query() params: any) {
     const validParams = {};
 
     for (const [key, value] of Object.entries(params)) {
-      if (key === "category" || key === "price") {
+      if (key === "category" || key === "price" || key === "title") {
         validParams[key] = value;
       }
     }
@@ -136,11 +122,7 @@ export class ProductsController {
   }
 
   @Post()
-  createProduct(
-    @Body() props: ProductsDto,
-    @Res() response: Response,
-    @User() id: number,
-  ) {
+  createProduct(@Body() props: ProductsDto, @Res() response: Response, @User() id: number) {
     this.productsService
       .createProduct({ ...props, vendor: id })
       .then(({ raw }) => {
@@ -149,9 +131,7 @@ export class ProductsController {
             .getTokens()
             .then((res) => res.map(({ token }) => token))
             .then((tokens) => {
-              expo.sendPushNotificationsAsync(
-                NewProductNotification(tokens, props.title),
-              );
+              expo.sendPushNotificationsAsync(NewProductNotification(tokens, props.title));
             });
           return response.status(CREATED).send({
             message: SUCCESS_CREATE,

@@ -29,7 +29,7 @@ export class ProductsService {
         skip,
         take: 5,
       })
-      .then(([res, amm]) => [res.map((prop) => ({ ...prop, img_id: prop.img_id.reverse() })), amm]);
+      .then(([res, amm]) => [res.map((prop) => ({ ...prop, img_id: prop.img_id })), amm]);
   }
 
   async getCategories(): Promise<string[]> {
@@ -128,7 +128,7 @@ export class ProductsService {
         return [
           res.map(({ prod_id, img_id }: any) => ({
             ...prod_id,
-            img_id: img_id.reverse(),
+            img_id,
           })),
           ammount,
         ];
@@ -140,7 +140,13 @@ export class ProductsService {
       .find({
         select: ["prod_id", "img_id", "title", "price"],
         relations: ["img_id"],
-        where: { title: Like(`%${text}%`), ...params },
+        order: {
+          ...params,
+        },
+        where: {
+          title: Like(`%${text}%`),
+          ...(params.category && { category: params.category }),
+        },
         take: 5,
       })
       .then((response) => {
