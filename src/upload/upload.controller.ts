@@ -42,9 +42,8 @@ export class FilesController {
 
   @Get("images=:img")
   getUploadedFile(@Param("img") img: string, @Res() res: Response) {
-    const file = createReadStream(join(process.cwd(), `./images/${img}`)).on(
-      "error",
-      (err) => console.warn(err),
+    const file = createReadStream(join(process.cwd(), `./images/${img}`)).on("error", (err) =>
+      console.warn(err),
     );
     return file.pipe(res);
   }

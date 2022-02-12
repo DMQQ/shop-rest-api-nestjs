@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Res,
-  Get,
-  ParseBoolPipe,
-} from "@nestjs/common";
+import { Body, Controller, Post, Res, Get, ParseBoolPipe } from "@nestjs/common";
 import { NotificationsDto } from "./dto/notifications.dto";
 import { NotificationsService } from "./notifications.service";
 import { Response } from "express";
@@ -23,25 +16,18 @@ export class NotificationsController {
   ) {
     this.notifiService.findUsersToken(user_id).then(async (res) => {
       if (typeof res === "undefined") {
-        return this.notifiService
-          .pushTokenToDataBase(props.token, user_id)
-          .then(({ raw }) => {
-            if (raw && raw.affected > 0) {
-              response
-                .status(201)
-                .send({ status: 201, message: "token uploaded" });
-            }
-          });
+        return this.notifiService.pushTokenToDataBase(props.token, user_id).then(({ raw }) => {
+          if (raw && raw.affected > 0) {
+            response.status(201).send({ status: 201, message: "token uploaded" });
+          }
+        });
       }
       response.send({ message: "token already exists" });
     });
   }
 
   @Post("/settings")
-  notificationsSettings(
-    @Body("enable", ParseBoolPipe) enable: boolean,
-    @User() user_id: number,
-  ) {
+  notificationsSettings(@Body("enable", ParseBoolPipe) enable: boolean, @User() user_id: number) {
     this.notifiService.notificationsSettings(enable, user_id);
   }
 

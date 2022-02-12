@@ -17,8 +17,6 @@ import { ProductsService } from "./products.service";
 import { Response } from "express";
 import { BAD, CREATED, OK } from "../constants/codes";
 import { FAILED_CREATE, SUCCESS_CREATE } from "../constants/responses";
-import { NotificationsService } from "../notifications/notifications.service";
-import { expo, NewProductNotification } from "../notifications/methods";
 import { RatingsService } from "../ratings/ratings.service";
 import User from "../decorators/User";
 
@@ -26,7 +24,6 @@ import User from "../decorators/User";
 export class ProductsController {
   constructor(
     private productsService: ProductsService,
-    private notifyService: NotificationsService,
     @Inject(forwardRef(() => RatingsService))
     private ratingsService: RatingsService,
   ) {}
@@ -127,12 +124,6 @@ export class ProductsController {
       .createProduct({ ...props, vendor: id })
       .then(({ raw }) => {
         if (raw.affectedRows > 0) {
-          this.notifyService
-            .getTokens()
-            .then((res) => res.map(({ token }) => token))
-            .then((tokens) => {
-              expo.sendPushNotificationsAsync(NewProductNotification(tokens, props.title));
-            });
           return response.status(CREATED).send({
             message: SUCCESS_CREATE,
             StatusCode: CREATED,

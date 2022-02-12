@@ -4,7 +4,6 @@ import { InsertResult, Repository, UpdateResult } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { hash, compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
-import { UserCredentials } from "./dto/user.dto";
 
 const KEY = process.env.JWTTOKEN || "dhbada8d##!%aaad778464";
 
@@ -23,7 +22,12 @@ export class UsersService {
   ) {}
 
   findMatch(email: string): Promise<UsersEntity> {
-    return this.userRepository.findOne({ email });
+    return this.userRepository.findOne({
+      where: {
+        email,
+      },
+      select: ["password", "id", "activated", "email"],
+    });
   }
 
   async comparePasswords(hashed: string, password: string): Promise<boolean> {

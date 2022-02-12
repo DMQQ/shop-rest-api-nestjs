@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import RemoveObjectFields from "../functions/RemoveObjectFields";
-import { Repository, MoreThanOrEqual, Like, InsertResult, UpdateResult } from "typeorm";
+import { Repository, Like, InsertResult, UpdateResult } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
@@ -50,37 +49,10 @@ export class ProductsService {
   }
 
   async getById(id: number) {
-    return this.productsRepository
-      .findOne({
-        relations: ["img_id", "rating_id", "vendor"],
-        where: { prod_id: id },
-      })
-      .then((response) => {
-        return {
-          ...response,
-          vendor: RemoveObjectFields(response?.vendor, [
-            "password",
-            "user_type",
-            "activated",
-            "adress",
-          ]),
-        };
-      });
-  }
-
-  async getByPriceRange(start: number, end: number): Promise<ProductsEntity[]> {
-    return this.productsRepository
-      .find({
-        relations: ["img_id", "rating_id"],
-        where: { price: MoreThanOrEqual(start) },
-      })
-      .then((res) =>
-        res.map((p) => {
-          if (p.price > end) {
-            return p;
-          }
-        }),
-      );
+    return this.productsRepository.findOne({
+      relations: ["img_id", "rating_id", "vendor"],
+      where: { prod_id: id },
+    });
   }
 
   createProduct(props: any): Promise<InsertResult> {

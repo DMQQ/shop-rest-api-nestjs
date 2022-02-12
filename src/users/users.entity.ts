@@ -14,13 +14,13 @@ export class UsersEntity {
   @Column({ type: "varchar", length: 30 })
   email: string;
 
-  @Column({ type: "varchar", length: 60 })
+  @Column({ type: "varchar", length: 60, select: false })
   password: string;
 
-  @Column({ type: "enum", default: UserEnum.user, enum: UserEnum })
+  @Column({ type: "enum", default: UserEnum.user, enum: UserEnum, select: false })
   user_type: UserEnum;
 
-  @Column({ type: "boolean", default: false }) // False later
+  @Column({ type: "boolean", default: false, select: false })
   activated: boolean;
 
   @Column({ type: "varchar", nullable: true, length: "60" })
@@ -29,10 +29,10 @@ export class UsersEntity {
   @Column({ type: "varchar", nullable: true, length: "60" })
   surname: string;
 
-  @Column({ type: "varchar", nullable: true, length: "60" })
+  @Column({ type: "varchar", nullable: true, length: "60", select: false })
   address: string;
 
-  @Column({ type: "varchar", length: "9", nullable: true })
+  @Column({ type: "varchar", length: "9", nullable: true, select: false })
   phone_number: string;
 
   @CreateDateColumn()

@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Put, Query, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, Res } from "@nestjs/common";
 import { CredentialsType, UsersService } from "./users.service";
 import { Response } from "express";
-import { UserCredentials, UserDto } from "./dto/user.dto";
+import { UserDto } from "./dto/user.dto";
 import { BAD, CREATED } from "../constants/codes";
 import User from "../decorators/User";
 import * as path from "path";
@@ -126,7 +126,7 @@ export class UsersController {
     const [key] = Object.keys(value);
 
     if (!valid.includes(key) && value[key] !== undefined)
-      return response.send({
+      return response.status(400).send({
         message: "invalid field",
       });
 

@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  forwardRef,
-  Get,
-  Inject,
-  Post,
-  Res,
-} from "@nestjs/common";
+import { Body, Controller, forwardRef, Get, Inject, Post, Res } from "@nestjs/common";
 import { RatingsDto } from "./dto/ratings.dto";
 import { RatingsService } from "./ratings.service";
 import { Response } from "express";
@@ -32,11 +24,7 @@ export class RatingsController {
   }
 
   @Post()
-  createRating(
-    @Body() props: RatingsDto,
-    @User() user_id: number,
-    @Res() response: Response,
-  ) {
+  createRating(@Body() props: RatingsDto, @User() user_id: number, @Res() response: Response) {
     this.historyService
       .getUsersHistoryByProductId(user_id, props.prod_id)
       .then(async ([result]) => {

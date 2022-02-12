@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { ExpoPushMessage } from "expo-server-sdk";
 import { Repository, UpdateResult } from "typeorm";
+import { expo } from "./methods";
 import { NotificationsEntity } from "./notifications.entity";
 
 @Injectable()
@@ -22,10 +24,7 @@ export class NotificationsService {
     return this.notifyRepository.find({ where: { enabled: true } });
   }
 
-  notificationsSettings(
-    value: boolean,
-    user_id: number,
-  ): Promise<UpdateResult> {
+  notificationsSettings(value: boolean, user_id: number): Promise<UpdateResult> {
     return this.notifyRepository.update({ user_id }, { enabled: value });
   }
 
@@ -41,5 +40,13 @@ export class NotificationsService {
       select: ["token"],
       where: { user_id },
     });
+  }
+
+  async notifyAll(fn: (arg: string[]) => ExpoPushMessage[]) {
+    return this.getTokens()
+      .then((res) => res.map(({ token }) => token))
+      .then((tokens) => {
+        expo.sendPushNotificationsAsync(fn(tokens));
+      });
   }
 }

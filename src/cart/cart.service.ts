@@ -17,16 +17,12 @@ export class CartService {
         where: { user_id },
       })
       .then((result) => {
-        const arr = [];
-        result.forEach((object) => {
-          arr.push({
-            ...object.prod_id,
-            img_id: object.img_id,
-            cart_id: object.cart_id,
-            ammount: object.ammount,
-          });
-        });
-        return arr;
+        return result.map(({ prod_id, img_id, cart_id, ammount }) => ({
+          ...prod_id,
+          img_id,
+          cart_id,
+          ammount,
+        }));
       });
   }
   addToCart(user_id: number, prod_id: any): Promise<InsertResult> {
@@ -37,24 +33,13 @@ export class CartService {
     return this.cartRepository.findOne({ user_id, prod_id });
   }
 
-  async incrementAmmount(
-    user_id: number,
-    prod_id: number,
-  ): Promise<UpdateResult> {
-    return this.findSameProductInCart(user_id, prod_id).then(
-      ({ cart_id, ammount }) => {
-        return this.cartRepository.update(
-          { cart_id: cart_id },
-          { ammount: ammount + 1 },
-        );
-      },
-    );
+  async incrementAmmount(user_id: number, prod_id: number): Promise<UpdateResult> {
+    return this.findSameProductInCart(user_id, prod_id).then(({ cart_id, ammount }) => {
+      return this.cartRepository.update({ cart_id: cart_id }, { ammount: ammount + 1 });
+    });
   }
 
-  async decreaseAmmount(
-    cart_id: number,
-    ammount: number,
-  ): Promise<UpdateResult> {
+  async decreaseAmmount(cart_id: number, ammount: number): Promise<UpdateResult> {
     return this.cartRepository.update({ cart_id }, { ammount: ammount - 1 });
   }
 
