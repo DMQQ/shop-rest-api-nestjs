@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, Like, InsertResult, UpdateResult } from "typeorm";
-import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
@@ -62,46 +61,62 @@ export class ProductsService {
   getByTitleOrDesc(input: string): Promise<ProductsEntity[]> {
     return this.productsRepository.find({
       select: ["prod_id", "price", "img_id", "title"],
-      relations: ["img_id", "rating_id"],
+      relations: ["img_id"],
       where: [{ title: Like(`%${input}%`) }, { description: Like(`%${input}%`) }],
     });
   }
 
-  pushSearchHistory(
-    user_id: number,
-    word: string,
-    prod_id: QueryDeepPartialEntity<ProductsEntity[]>,
-  ): Promise<InsertResult> {
-    return this.searchRepository.insert({
-      user_id,
-      word,
-      prod_id,
-      date: new Date(),
-    });
+  pushSearchHistory(user_id: number, prod_id: any) {
+    this.searchRepository
+      .findOne({
+        where: {
+          prod_id,
+          user_id,
+        },
+      })
+      .then((match) => {
+        if (typeof match === "undefined") {
+          this.searchRepository.insert({
+            prod_id,
+            user_id,
+          });
+        } else {
+          this.searchRepository.update(
+            {
+              user_id,
+              prod_id,
+            },
+            {},
+          );
+        }
+      });
   }
 
   getSearchHistory(user_id: number): Promise<SearchHistoryEntity[]> {
     return this.searchRepository.find({
       where: { user_id },
+      take: 20,
     });
   }
   async getSearchHistoryProduct(user_id: number, skip: number): Promise<any[]> {
     return this.searchRepository
-      .findAndCount({
-        relations: ["prod_id", "img_id"],
-        where: { user_id },
-        skip,
-        take: 5,
-        order: {
-          date: "DESC",
-        },
-      })
+      .createQueryBuilder("search")
+      .leftJoinAndSelect("search.prod_id", "products")
+      .leftJoinAndSelect("products.img_id", "images")
+      .where("search.user_id = :user_id", { user_id })
+      .take(5)
+      .skip(skip)
+      .orderBy("search.date", "DESC")
+      .getManyAndCount()
       .then(([res, ammount]) => {
         return [
-          res.map(({ prod_id, img_id }: any) => ({
-            ...prod_id,
-            img_id,
+          res.map(({ prod_id }: any) => ({
+            prod_id: prod_id.prod_id,
+            price: +prod_id.price,
+            title: prod_id.title,
+            img_id: prod_id.img_id,
           })),
+
           ammount,
         ];
       });
@@ -126,7 +141,7 @@ export class ProductsService {
           title: product.title,
           prod_id: product.prod_id,
           image: product?.img_id[0]?.name,
-          price: product.price,
+          price: +product.price,
         }));
       });
   }

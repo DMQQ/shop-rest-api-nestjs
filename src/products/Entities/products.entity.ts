@@ -1,14 +1,7 @@
 import { RatingsEntity } from "../../ratings/ratings.entity";
 import { UploadEntity } from "../../upload/upload.entity";
 import { UsersEntity } from "../../users/users.entity";
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("products")
 export class ProductsEntity {

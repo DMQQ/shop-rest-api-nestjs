@@ -60,7 +60,7 @@ export class CartController {
         if (affected > 0) {
           return response.send({ code: OK, status: "Deleted" });
         }
-        response.send({ code: BAD, status: "Failed" });
+        response.status(400).send({ code: BAD, status: "Failed" });
       });
     });
   }

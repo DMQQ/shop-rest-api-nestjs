@@ -53,7 +53,7 @@ export class ProductsController {
       if (typeof result !== "undefined") {
         if (result.length > 0) {
           const [one] = result as any;
-          this.productsService.pushSearchHistory(user_id, text, one.prod_id);
+          this.productsService.pushSearchHistory(user_id, one.prod_id);
         }
         return response.status(HttpStatus.OK).send(result);
       }
@@ -66,7 +66,7 @@ export class ProductsController {
     return this.productsService.getSearchHistory(user_id);
   }
 
-  @Get("searched-products")
+  @Get("searched-products") // bad db table
   async getSearchedProducts(
     @User() user_id: number,
     @Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number,
@@ -84,16 +84,6 @@ export class ProductsController {
   @Get("/category/:category")
   getProductsByCategory(@Param("category") category: string) {
     return this.productsService.getByCategory(category);
-  }
-
-  @Get("/product/:id")
-  async getById(@Param("id", ParseIntPipe) id: number, @User() user_id: number) {
-    return this.productsService.getById(id).then((result) => {
-      if (typeof result !== "undefined") {
-        this.productsService.pushSearchHistory(user_id, "", result.prod_id as any);
-      }
-      return result;
-    });
   }
 
   @Get("/good-rated")
@@ -116,6 +106,16 @@ export class ProductsController {
       }
     }
     return this.productsService.getProductSuggestions(query, validParams);
+  }
+
+  @Get("/:id")
+  async getById(@Param("id", ParseIntPipe) id: number, @User() user_id: number) {
+    return this.productsService.getById(id).then((result) => {
+      if (typeof result !== "undefined") {
+        this.productsService.pushSearchHistory(user_id, result.prod_id as any);
+      }
+      return result;
+    });
   }
 
   @Post()

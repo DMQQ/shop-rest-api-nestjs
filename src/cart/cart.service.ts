@@ -17,8 +17,10 @@ export class CartService {
         where: { user_id },
       })
       .then((result) => {
-        return result.map(({ prod_id, img_id, cart_id, ammount }) => ({
-          ...prod_id,
+        return result.map(({ prod_id, img_id, cart_id, ammount }: any) => ({
+          prod_id: prod_id.prod_id,
+          price: prod_id.price,
+          title: prod_id.title,
           img_id,
           cart_id,
           ammount,

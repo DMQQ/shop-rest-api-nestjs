@@ -8,6 +8,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { ProductsEntity } from "./products.entity";
@@ -17,26 +18,15 @@ export class SearchHistoryEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => UsersEntity, (type) => type.id, {
-    onDelete: "CASCADE",
-  })
-  @JoinColumn({ name: "user_id" })
+  @Column({ type: "int" })
   user_id: number;
-
-  @Column("varchar")
-  word: string;
-
-  @CreateDateColumn()
-  @Column({ name: "date", insert: true })
-  date: Date;
 
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "prod_id" })
-  prod_id: QueryDeepPartialEntity<ProductsEntity[]>;
+  prod_id: any;
 
-  @OneToMany(() => UploadEntity, (type) => type.prod_id)
-  @JoinColumn({ name: "img_id" })
-  img_id: number;
+  @UpdateDateColumn({ name: "date", insert: true, type: "timestamp" })
+  date: string;
 }
