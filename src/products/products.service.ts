@@ -43,7 +43,7 @@ export class ProductsService {
     return this.productsRepository.find({
       select: ["prod_id", "price", "img_id", "title"],
       where: { category },
-      relations: ["img_id", "rating_id"],
+      relations: ["img_id"],
     });
   }
 
@@ -128,11 +128,13 @@ export class ProductsService {
         select: ["prod_id", "img_id", "title", "price"],
         relations: ["img_id"],
         order: {
-          ...params,
+          ...(params.title && { title: params.title }),
+          ...(params.price && { price: params.price }),
         },
         where: {
           title: Like(`%${text}%`),
           ...(params.category && { category: params.category }),
+          ...(params.manufacturer && { manufacturer: params.manufacturer }),
         },
         take: 5,
       })

@@ -1,7 +1,15 @@
 import { RatingsEntity } from "../../ratings/ratings.entity";
 import { UploadEntity } from "../../upload/upload.entity";
 import { UsersEntity } from "../../users/users.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity("products")
 export class ProductsEntity {
@@ -42,4 +50,7 @@ export class ProductsEntity {
 
   @Column({ type: "int", default: 0 })
   quantity: number;
+
+  @UpdateDateColumn({ insert: true, name: "date_add" })
+  date_add: Date;
 }

@@ -29,11 +29,10 @@ export class HistoryController {
         hasMore: false,
         results: result.map((prod: any) => ({
           product: {
-            ...prod.prod_id,
+            prod_id: prod.prod_id.prod_id,
+            title: prod.prod_id.title,
+            price: prod.prod_id.price,
             img_id: prod.img_id,
-            history_id: prod.history_id,
-            date: prod.date,
-            status: prod.status,
           },
           details: {
             purchase_id: prod.history_id,

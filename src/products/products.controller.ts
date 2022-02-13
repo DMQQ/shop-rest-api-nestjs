@@ -99,11 +99,11 @@ export class ProductsController {
   @Get("/suggestions")
   getProductSuggestions(@Query("q", new DefaultValuePipe("")) query: any, @Query() params: any) {
     const validParams = {};
+    //prettier-ignore
+    const validKeys = ["category", "price", "title", "manufacturer"];
 
     for (const [key, value] of Object.entries(params)) {
-      if (key === "category" || key === "price" || key === "title") {
-        validParams[key] = value;
-      }
+      if (validKeys.includes(key)) validParams[key] = value;
     }
     return this.productsService.getProductSuggestions(query, validParams);
   }
