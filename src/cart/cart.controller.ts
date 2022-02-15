@@ -1,8 +1,19 @@
-import { Body, Controller, Delete, Get, ParseIntPipe, Post, Query, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  ParseIntPipe,
+  Post,
+  Query,
+  Res,
+  UseFilters,
+} from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { Response } from "express";
 import { BAD, CREATED, OK } from "../constants/codes";
 import User from "../decorators/User";
+import { HttpExceptionFilter } from "../filters/HttpExceptionFilter";
 
 @Controller("cart")
 export class CartController {
@@ -14,6 +25,7 @@ export class CartController {
   }
 
   @Post()
+  @UseFilters(HttpExceptionFilter)
   addToCart(
     @Body("prod_id", ParseIntPipe) prod_id: number,
     @User() user_id: number,

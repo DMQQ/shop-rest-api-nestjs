@@ -4,6 +4,8 @@ import { InsertResult, Repository, UpdateResult } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { hash, compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
+import { Mailer } from "../Mail/Mailer";
+import { UserConfirmHTML } from "../Mail/templates/UserConfirm";
 
 const KEY = process.env.JWTTOKEN || "dhbada8d##!%aaad778464";
 
@@ -16,10 +18,31 @@ interface CredentialsProps {
 
 @Injectable()
 export class UsersService {
+  #mail: Mailer;
   constructor(
     @InjectRepository(UsersEntity)
     private userRepository: Repository<UsersEntity>,
-  ) {}
+  ) {
+    this.#mail = new Mailer();
+  }
+
+  sendConfirmationEmail(email: string, token: string) {
+    return this.#mail.sendMail({
+      html: UserConfirmHTML(token),
+      to: email,
+      subject: "Confirm your account",
+      text: "Hello, please confirm your account",
+    });
+  }
+
+  findMatchOrFail(email: string) {
+    return this.userRepository.findOneOrFail({
+      where: {
+        email,
+      },
+      select: ["password", "id", "activated", "email"],
+    });
+  }
 
   findMatch(email: string): Promise<UsersEntity> {
     return this.userRepository.findOne({

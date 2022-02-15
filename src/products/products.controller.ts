@@ -66,7 +66,7 @@ export class ProductsController {
     return this.productsService.getSearchHistory(user_id);
   }
 
-  @Get("searched-products") // bad db table
+  @Get("searched-products")
   async getSearchedProducts(
     @User() user_id: number,
     @Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number,

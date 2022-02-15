@@ -1,91 +1,79 @@
-import { Body, Controller, Get, Post, Put, Res } from "@nestjs/common";
+import { Body, Controller, Get, NotFoundException, Post, Put, Res } from "@nestjs/common";
 import { CredentialsType, UsersService } from "./users.service";
 import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
-import { BAD, CREATED } from "../constants/codes";
 import User from "../decorators/User";
 import * as path from "path";
-import { Mailer } from "../Mail/Mailer";
-import { UserConfirmHTML } from "../Mail/templates/UserConfirm";
 
 @Controller("auth")
 export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Post("login")
-  login(@Body() { email, password }: UserDto, @Res() res: Response) {
-    this.userService.findMatch(email).then(async (result) => {
+  async login(@Body() { email, password }: UserDto, @Res() response: Response) {
+    try {
+      const result = await this.userService.findMatchOrFail(email);
+
       if (typeof result !== "undefined" && !result.activated) {
-        return res.status(400).send({
+        return response.status(400).send({
+          statusCode: 400,
           message: "Account not activated",
         });
-      } else if (typeof result !== "undefined" && result.activated)
-        return this.userService
-          .comparePasswords(result.password, password)
-          .then((isPasswordCorrect) => {
-            if (isPasswordCorrect) {
-              const token = this.userService.createToken({
-                email: result.email,
-                id: result.id,
-              });
+      }
+      const isValid = await this.userService.comparePasswords(result.password, password);
 
-              return res.status(200).send({
-                token,
-                name: result.email,
-                user_id: result.id,
-                status: "verified",
-              });
-            }
-            res.status(400).send({
-              status: 400,
-              message: "Invalid password",
-            });
-          });
-
-      res.status(404).send({
-        status: 404,
-        message: "User not found",
+      if (!isValid) {
+        response.status(400).send({
+          status: 400,
+          message: "Invalid password",
+        });
+      }
+      const token = this.userService.createToken({
+        email: result.email,
+        id: result.id,
       });
-    });
+
+      return response.send({
+        token,
+        name: result.email,
+        user_id: result.id,
+        status: "verified",
+      });
+    } catch (error) {
+      throw new NotFoundException();
+    }
   }
 
   @Post("register")
-  register(@Body() { email, password }: UserDto, @Res() response: Response) {
-    this.userService.findMatch(email).then(async (res) => {
-      if (typeof res === "undefined") {
-        const hashed = await this.userService.createHashedPassword(password);
-        if (hashed) {
-          this.userService.createUser(email, hashed).then(async (result) => {
-            const token = this.userService.createToken({
-              email,
-              id: result.raw.insertId,
-            });
+  async register(@Body() { email, password }: UserDto, @Res() response: Response) {
+    const res = await this.userService.findMatch(email);
 
-            new Mailer()
-              .sendMail({
-                html: UserConfirmHTML(token),
-                to: email,
-                subject: "Confirm your account",
-                text: "Hello, please confirm your account",
-              })
-              .then(() => {
-                console.log("email sent");
-              })
-              .catch(console.warn);
-            response.status(CREATED).send({
-              status: CREATED,
-              activated: false,
-              user_id: result.raw.insertId,
-            });
-          });
-        }
-      } else {
-        response.status(BAD).send({
-          status: BAD,
-          message: "Account with that email already exists",
-        });
-      }
-    });
+    if (typeof res !== "undefined") {
+      return response.status(400).send({
+        status: 400,
+        message: "Account with that email already exists",
+      });
+    }
+
+    const hashed = await this.userService.createHashedPassword(password);
+
+    if (hashed) {
+      const result = await this.userService.createUser(email, hashed);
+
+      const token = this.userService.createToken({
+        email,
+        id: result.raw.insertId,
+      });
+
+      this.userService.sendConfirmationEmail(email, token).then(() => {
+        console.log("email sent");
+      });
+      response.status(201).send({
+        status: 201,
+        activated: false,
+        user_id: result.raw.insertId,
+      });
+    }
   }
 
   @Post("token")

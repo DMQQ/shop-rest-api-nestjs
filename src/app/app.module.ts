@@ -22,6 +22,7 @@ import { AppMiddleware } from "./middleware/app.middleware";
     RatingsModule,
     NotificationsModule,
   ],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

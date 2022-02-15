@@ -19,15 +19,13 @@ export class ProductsService {
   ) {}
 
   async getAll(skip: number = 0) {
-    return this.productsRepository
-      .findAndCount({
-        select: ["prod_id", "price", "img_id", "title"],
-        relations: ["img_id"],
-        order: { prod_id: "DESC" },
-        skip,
-        take: 5,
-      })
-      .then(([res, amm]) => [res.map((prop) => ({ ...prop, img_id: prop.img_id })), amm]);
+    return this.productsRepository.findAndCount({
+      select: ["prod_id", "price", "img_id", "title"],
+      relations: ["img_id"],
+      order: { prod_id: "DESC" },
+      skip,
+      take: 5,
+    });
   }
 
   async getCategories(): Promise<string[]> {
