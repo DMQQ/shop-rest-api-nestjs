@@ -18,16 +18,14 @@ interface CredentialsProps {
 
 @Injectable()
 export class UsersService {
-  #mail: Mailer;
   constructor(
     @InjectRepository(UsersEntity)
     private userRepository: Repository<UsersEntity>,
-  ) {
-    this.#mail = new Mailer();
-  }
+    private mailer: Mailer,
+  ) {}
 
-  sendConfirmationEmail(email: string, token: string) {
-    return this.#mail.sendMail({
+  sendConfirmationEmail(email: string, token: string): Promise<void> {
+    return this.mailer.sendMail({
       html: UserConfirmHTML(token),
       to: email,
       subject: "Confirm your account",

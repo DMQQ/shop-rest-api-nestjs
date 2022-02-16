@@ -11,6 +11,8 @@ import {
   ParseIntPipe,
   Inject,
   forwardRef,
+  BadRequestException,
+  NotFoundException,
 } from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
@@ -110,34 +112,33 @@ export class ProductsController {
 
   @Get("/:id")
   async getById(@Param("id", ParseIntPipe) id: number, @User() user_id: number) {
-    return this.productsService.getById(id).then((result) => {
+    try {
+      const result = await this.productsService.getById(id);
+
       if (typeof result !== "undefined") {
         this.productsService.pushSearchHistory(user_id, result.prod_id as any);
       }
+
       return result;
-    });
+    } catch (error) {
+      throw new NotFoundException(`Couldn't find post with id: ${id}`);
+    }
   }
 
   @Post()
-  createProduct(@Body() props: ProductsDto, @Res() response: Response, @User() id: number) {
-    this.productsService
-      .createProduct({ ...props, vendor: id })
-      .then(({ raw }) => {
-        if (raw.affectedRows > 0) {
-          return response.status(CREATED).send({
-            message: SUCCESS_CREATE,
-            StatusCode: CREATED,
-            id: raw.insertId,
-          });
-        } else {
-          response.status(400).send({ message: FAILED_CREATE });
-        }
-      })
-      .catch((err) =>
-        response.status(BAD).send({
-          message: err.message,
-          code: BAD,
-        }),
-      );
+  async createProduct(
+    @Body() props: ProductsDto,
+    @Res() response: Response,
+    @User() vendor: number,
+  ) {
+    const { raw } = await this.productsService.createProduct({ ...props, vendor });
+    if (raw.affectedRows > 0) {
+      return response.status(CREATED).send({
+        message: SUCCESS_CREATE,
+        StatusCode: CREATED,
+        id: raw.insertId,
+      });
+    }
+    throw new BadRequestException(FAILED_CREATE);
   }
 }

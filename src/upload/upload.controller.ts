@@ -7,8 +7,9 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  BadRequestException,
 } from "@nestjs/common";
-import { Express, response } from "express";
+import { Express } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadService } from "./upload.service";
 import { Response } from "express";
@@ -26,7 +27,7 @@ export class FilesController {
       dest: "images",
     }),
   )
-  uploadFile(
+  async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Param("prod_id", ParseIntPipe) id: number,
     @Res() response: Response,
@@ -37,6 +38,8 @@ export class FilesController {
           return response.status(201).send({ filename: file.filename });
         }
       });
+    } else {
+      throw new BadRequestException("No files recived");
     }
   }
 

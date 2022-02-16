@@ -1,3 +1,4 @@
+import { Injectable } from "@nestjs/common";
 import { setApiKey, send } from "@sendgrid/mail";
 
 interface EmailTemplate {
@@ -7,12 +8,13 @@ interface EmailTemplate {
   html: string;
 }
 
+@Injectable()
 export class Mailer {
   constructor() {
     this.init();
   }
 
-  async init() {
+  private async init() {
     try {
       setApiKey(process.env.SENDGRID_KEY);
     } catch (error) {

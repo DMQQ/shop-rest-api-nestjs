@@ -29,20 +29,22 @@ export class HistoryService {
     { user_id, date }: { user_id: number; date: string },
   ): Promise<"finished" | "failed"> {
     let status = true;
-    products.forEach((id) => {
-      this.historyRepository
-        .insert({
-          user_id,
-          date,
-          prod_id: id,
-          status: "finished",
-        })
-        .then(({ raw }) => {
-          if (raw.affectedRows === 0) {
-            status = false;
-          }
-        });
-    });
+
+    const fnArray = products.map((id) =>
+      this.historyRepository.insert({
+        user_id,
+        date,
+        prod_id: id,
+        status: "finished",
+      }),
+    );
+
+    try {
+      const result = await Promise.all(fnArray);
+      if (result.some(({ raw }) => raw.affectedRows === 0)) {
+        status = false;
+      }
+    } catch (error) {}
 
     return status ? "finished" : "failed";
   }
@@ -55,11 +57,8 @@ export class HistoryService {
     });
   }
 
-  getUsersHistoryByProductId(
-    user_id: number,
-    prod_id: number,
-  ): Promise<HistoryEntity[]> {
-    return this.historyRepository.find({
+  getUserPurchasedProduct(user_id: number, prod_id: number) {
+    return this.historyRepository.findOneOrFail({
       relations: ["prod_id"],
       where: {
         user_id,

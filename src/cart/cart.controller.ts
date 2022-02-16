@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -26,25 +27,26 @@ export class CartController {
 
   @Post()
   @UseFilters(HttpExceptionFilter)
-  addToCart(
+  async addToCart(
     @Body("prod_id", ParseIntPipe) prod_id: number,
     @User() user_id: number,
     @Res() res: Response,
   ) {
-    this.cartService.findSameProductInCart(user_id, prod_id).then(async (sameList) => {
+    return this.cartService.findSameProductInCart(user_id, prod_id).then(async (sameList) => {
       if (typeof sameList === "undefined") {
-        return this.cartService.addToCart(user_id, prod_id).then(({ raw }) => {
-          if (raw && raw.affectedRows > 0) {
+        try {
+          const { raw } = await this.cartService.addToCart(user_id, prod_id);
+
+          if (raw?.affectedRows > 0) {
             return res.status(201).send({
               status: "Added",
               code: 201,
             });
           }
-          res.status(400).send({
-            status: "Add to cart failed",
-            code: 400,
-          });
-        });
+          throw new BadRequestException();
+        } catch (error) {
+          throw new BadRequestException("Something went wrong");
+        }
       }
       this.cartService.incrementAmmount(user_id, prod_id).then((result) => {
         if (result.affected > 0) {

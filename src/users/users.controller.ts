@@ -1,4 +1,13 @@
-import { Body, Controller, Get, NotFoundException, Post, Put, Res } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Post,
+  Put,
+  Res,
+} from "@nestjs/common";
 import { CredentialsType, UsersService } from "./users.service";
 import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
@@ -23,7 +32,7 @@ export class UsersController {
       const isValid = await this.userService.comparePasswords(result.password, password);
 
       if (!isValid) {
-        response.status(400).send({
+        return response.status(400).send({
           status: 400,
           message: "Invalid password",
         });
@@ -40,7 +49,7 @@ export class UsersController {
         status: "verified",
       });
     } catch (error) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Account with ${email} email hasnt't been found`);
     }
   }
 
@@ -49,10 +58,7 @@ export class UsersController {
     const res = await this.userService.findMatch(email);
 
     if (typeof res !== "undefined") {
-      return response.status(400).send({
-        status: 400,
-        message: "Account with that email already exists",
-      });
+      throw new BadRequestException(`Account with ${email} already exists`);
     }
 
     const hashed = await this.userService.createHashedPassword(password);
@@ -68,6 +74,7 @@ export class UsersController {
       this.userService.sendConfirmationEmail(email, token).then(() => {
         console.log("email sent");
       });
+
       response.status(201).send({
         status: 201,
         activated: false,
@@ -89,55 +96,47 @@ export class UsersController {
 
   @Post("/confirm-account")
   confirmEmail(@Body("token") token: string, @Res() response: Response) {
-    this.userService.verifyToken<{ id: number }>(token, async (err, decoded) => {
+    return this.userService.verifyToken<{ id: number }>(token, async (err, decoded) => {
       if (decoded) {
-        try {
-          const { affected } = await this.userService.activateUser(decoded.id);
-          if (affected > 0) {
-            return response.send({
-              message: "success",
-            });
-          }
-        } catch (error) {}
+        const { affected } = await this.userService.activateUser(decoded.id);
+        if (affected > 0) {
+          return response.send({
+            message: "success",
+          });
+        }
       } else if (err) {
-        return response.status(400).send({
-          message: "failed",
-        });
+        throw new BadRequestException("Couldn't confirm account");
       }
     });
   }
 
   @Put("/credentials")
-  updateCredentials(@Body() value: CredentialsType, @User() id: number, @Res() response: Response) {
+  async updateCredentials(
+    @Body() value: CredentialsType,
+    @User() id: number,
+    @Res() response: Response,
+  ) {
     const valid = ["address", "phone_number", "name", "surname"];
 
     const [key] = Object.keys(value);
 
     if (!valid.includes(key) && value[key] !== undefined)
-      return response.status(400).send({
-        message: "invalid field",
-      });
+      throw new BadRequestException("Invalid fields");
 
-    this.userService
-      .updateCredentials(
-        {
-          value: value[key],
-          key: key,
-        },
-        id,
-      )
-      .then(({ affected }) => {
-        if (affected > 0) {
-          return response.send({
-            message: "updated",
-          });
-        } else {
-          return response.status(400).send({
-            message: "failed",
-          });
-        }
-      })
-      .catch(console.warn);
+    const props = { value: value[key], key };
+
+    try {
+      const { affected } = await this.userService.updateCredentials(props, id);
+      if (affected > 0) {
+        return response.send({
+          statusCode: 200,
+          message: "updated",
+        });
+      }
+      throw new BadRequestException();
+    } catch (error) {
+      throw new BadRequestException("Something went wrong");
+    }
   }
 
   @Get("/credentials")

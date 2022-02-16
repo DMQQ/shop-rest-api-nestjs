@@ -2,15 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InsertResult, MoreThan, Repository } from "typeorm";
 import { RatingsEntity } from "./ratings.entity";
-
-interface AddReviewProps {
-  rating: number;
-  title: string;
-  description: string;
-  user_id: number;
-  history_id: number;
-  prod_id: number;
-}
+import { AddReviewProps } from "./ratings.interface";
 
 @Injectable()
 export class RatingsService {

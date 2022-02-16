@@ -1,4 +1,13 @@
-import { Body, Controller, forwardRef, Get, Inject, Post, Res } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  forwardRef,
+  Get,
+  Inject,
+  Post,
+  Res,
+} from "@nestjs/common";
 import { RatingsDto } from "./dto/ratings.dto";
 import { RatingsService } from "./ratings.service";
 import { Response } from "express";
@@ -24,32 +33,27 @@ export class RatingsController {
   }
 
   @Post()
-  createRating(@Body() props: RatingsDto, @User() user_id: number, @Res() response: Response) {
-    this.historyService
-      .getUsersHistoryByProductId(user_id, props.prod_id)
-      .then(async ([result]) => {
-        if (typeof result !== "undefined") {
-          return this.ratingsService
-            .addReview({
-              ...props,
-              user_id,
-              history_id: result?.history_id,
-            })
-            .then(({ raw }) => {
-              if (raw.affectedRows > 0) {
-                response.send({
-                  status: "Created",
-                  code: 201,
-                });
-              }
-            })
-            .catch((err) => {
-              response.status(400).send({ message: "Failed", error: err });
-            });
-        }
-        response.status(400).send({
-          message: "Sorry you have to buy first before adding the review",
+  async createRating(
+    @Body() props: RatingsDto,
+    @User() user_id: number,
+    @Res() response: Response,
+  ) {
+    try {
+      const { history_id } = await this.historyService.getUserPurchasedProduct(
+        user_id,
+        props.prod_id,
+      );
+
+      const { raw } = await this.ratingsService.addReview({ ...props, user_id, history_id });
+
+      if (raw.affectedRows > 0) {
+        return response.status(201).send({
+          status: "Created",
+          code: 201,
         });
-      });
+      }
+    } catch (error) {
+      throw new BadRequestException("Purchase product to be able to review it");
+    }
   }
 }
