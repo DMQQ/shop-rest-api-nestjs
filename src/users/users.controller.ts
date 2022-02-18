@@ -13,11 +13,22 @@ import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
 import User from "../decorators/User";
 import * as path from "path";
+import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiAuthBody,
+  ApiLoginResponseBad,
+  ApiLoginResponseOk,
+  ApiRegisterResponseOk,
+} from "./user.swagger";
 
+@ApiTags("auth")
 @Controller("auth")
 export class UsersController {
   constructor(private userService: UsersService) {}
 
+  @ApiBody({ type: ApiAuthBody })
+  @ApiResponse({ status: 200, description: "Logged in successfully", type: ApiLoginResponseOk })
+  @ApiResponse({ status: 400, description: "Something went wrong", type: ApiLoginResponseBad })
   @Post("login")
   async login(@Body() { email, password }: UserDto, @Res() response: Response) {
     try {
@@ -53,6 +64,13 @@ export class UsersController {
     }
   }
 
+  @ApiBody({ type: ApiAuthBody })
+  @ApiResponse({
+    status: 201,
+    description: "Account created successfully",
+    type: ApiRegisterResponseOk,
+  })
+  @ApiResponse({ status: 400, description: "Account exists or something went wrong" })
   @Post("register")
   async register(@Body() { email, password }: UserDto, @Res() response: Response) {
     const res = await this.userService.findMatch(email);

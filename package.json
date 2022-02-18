@@ -24,6 +24,7 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/schedule": "^1.0.1",
+    "@nestjs/swagger": "^5.2.0",
     "@nestjs/throttler": "^2.0.0",
     "@nestjs/typeorm": "^8.0.2",
     "@sendgrid/mail": "^7.6.0",
@@ -39,6 +40,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "stripe": "^8.197.0",
+    "swagger-ui-express": "^4.3.0",
     "typeorm": "^0.2.36"
   },
   "devDependencies": {

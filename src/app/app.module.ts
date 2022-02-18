@@ -10,6 +10,7 @@ import { UploadModule } from "../upload/upload.module";
 
 import { UsersModule } from "../users/users.module";
 import { AppMiddleware } from "./middleware/app.middleware";
+import { WatchlistModule } from "../watchlist/watchlist.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AppMiddleware } from "./middleware/app.middleware";
     UploadModule,
     RatingsModule,
     NotificationsModule,
+    WatchlistModule,
   ],
   providers: [],
 })
