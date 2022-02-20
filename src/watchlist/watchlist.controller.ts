@@ -11,6 +11,20 @@ export class WatchlistController {
     return this.watchlistService.getUsers(user_id);
   }
 
+  @Post("check")
+  async checkProduct(@User() user_id: number, @Body("prod_id") prod_id: number) {
+    return this.watchlistService.checkIfProdIsIn(user_id, prod_id).then((res) => {
+      if (typeof res === "undefined") {
+        return {
+          isIn: false,
+        };
+      }
+      return {
+        isIn: true,
+      };
+    });
+  }
+
   @Post()
   async addProductWatchlist(@User() id: number, @Body("prod_id", ParseIntPipe) prod_id: number) {
     try {

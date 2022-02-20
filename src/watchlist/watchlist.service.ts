@@ -48,4 +48,8 @@ export class WatchlistService {
       prod_id,
     });
   }
+
+  checkIfProdIsIn(user_id: number, prod_id: any) {
+    return this.watchRepository.findOne({ user_id, prod_id });
+  }
 }
