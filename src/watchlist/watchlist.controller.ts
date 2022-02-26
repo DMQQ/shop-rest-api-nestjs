@@ -1,4 +1,13 @@
-import { BadRequestException, Body, Controller, Get, ParseIntPipe, Post } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from "@nestjs/common";
 import User from "../decorators/User";
 import { WatchlistService } from "./watchlist.service";
 
@@ -9,6 +18,23 @@ export class WatchlistController {
   @Get()
   getUsersWatchlist(@User() user_id: number) {
     return this.watchlistService.getUsers(user_id);
+  }
+
+  @Delete("/:prod_id")
+  async deleteFromWatchlist(@User() user_id: number, @Param("prod_id") prod_id: number) {
+    try {
+      const res = await this.watchlistService.removeWatchlistProduct(user_id, prod_id);
+
+      if (res.affected > 0) {
+        return {
+          statusCode: 200,
+          message: "Removed",
+        };
+      }
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException();
+    }
   }
 
   @Post("check")
