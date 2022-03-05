@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -23,6 +24,14 @@ export class CartController {
   @Get()
   async getCart(@User() user_id: number) {
     return this.cartService.getUsersCart(user_id);
+  }
+
+  @Get("/check")
+  async checkIsIn(@Query("prod_id") prod_id: number, @User() id: number) {
+    const cart = await this.cartService.getOneByUserAndProduct(id, prod_id);
+    return {
+      isIn: typeof cart !== "undefined",
+    };
   }
 
   @Post()

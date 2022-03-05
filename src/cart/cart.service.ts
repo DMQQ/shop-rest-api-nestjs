@@ -56,4 +56,8 @@ export class CartService {
   removeAllRelatedToUser(user_id: number): Promise<DeleteResult> {
     return this.cartRepository.delete({ user_id });
   }
+
+  getOneByUserAndProduct(user_id: number, prod_id: any) {
+    return this.cartRepository.findOne({ user_id, prod_id });
+  }
 }
