@@ -17,7 +17,7 @@ import {
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
-import { BAD, CREATED, OK } from "../constants/codes";
+import { CREATED } from "../constants/codes";
 import { FAILED_CREATE, SUCCESS_CREATE } from "../constants/responses";
 import { RatingsService } from "../ratings/ratings.service";
 import User from "../decorators/User";

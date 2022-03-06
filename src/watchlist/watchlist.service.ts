@@ -10,6 +10,26 @@ export class WatchlistService {
     private watchRepository: Repository<WatchlistEntity>,
   ) {}
 
+  getOne(watchlist_id: number) {
+    return this.watchRepository.findOne({
+      where: {
+        id: watchlist_id,
+      },
+      relations: ["prod_id", "prod_id.img_id"],
+    });
+  }
+
+  getWatchlist(user_id: number, skip = 0) {
+    return this.watchRepository
+      .createQueryBuilder("w")
+      .leftJoinAndSelect("w.prod_id", "prod")
+      .leftJoinAndSelect("prod.img_id", "images")
+      .where("w.user_id = :user_id", { user_id })
+      .take(5)
+      .skip(skip)
+      .getMany();
+  }
+
   async getUsers(user_id: number, skip: number = 0) {
     return this.watchRepository
       .createQueryBuilder("w")
@@ -47,6 +67,10 @@ export class WatchlistService {
       user_id,
       prod_id,
     });
+  }
+
+  removeById(id: number) {
+    return this.watchRepository.delete({ id });
   }
 
   checkIfProdIsIn(user_id: number, prod_id: any) {

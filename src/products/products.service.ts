@@ -18,6 +18,14 @@ export class ProductsService {
     private saleRepository: Repository<SaleEntity>,
   ) {}
 
+  async getAllQL(skip = 0) {
+    return this.productsRepository.find({
+      relations: ["img_id", "rating_id", "vendor"],
+      skip,
+      take: 5,
+    });
+  }
+
   async getAll(skip: number = 0) {
     return this.productsRepository.findAndCount({
       select: ["prod_id", "price", "img_id", "title"],
