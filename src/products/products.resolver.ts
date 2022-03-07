@@ -7,7 +7,7 @@ export class ProductsResolver {
   constructor(private productsService: ProductsService) {}
 
   @Query(() => [ProductsEntity])
-  getAllProducts(@Args("skip", { type: () => Int }) skip: number) {
+  getAllProducts(@Args("skip", { type: () => Int, nullable: true }) skip: number) {
     return this.productsService.getAllQL(skip);
   }
 

@@ -30,3 +30,21 @@ export class CartEntity {
   @Column({ type: "int", default: 1 })
   ammount?: number;
 }
+
+@ObjectType()
+export class IsInCart {
+  @Field(() => Boolean)
+  isIn: boolean;
+}
+
+@ObjectType()
+export class AddCart {
+  @Field(() => Int)
+  cart_id: number;
+
+  @Field(() => Int, { nullable: true })
+  prod_id: number;
+
+  @Field(() => Int)
+  affected: number;
+}
