@@ -45,12 +45,19 @@ export class ProductsService {
       .then((response) => [...new Set(response.map(({ category }) => category))]);
   }
 
-  getByCategory(category: string) {
-    return this.productsRepository.find({
-      select: ["prod_id", "price", "img_id", "title"],
-      where: { category },
-      relations: ["img_id"],
-    });
+  async getByCategory(category: string, skip = 0) {
+    return this.productsRepository
+      .findAndCount({
+        select: ["prod_id", "price", "img_id", "title"],
+        where: { category },
+        relations: ["img_id"],
+        skip,
+        take: 5,
+      })
+      .then(([prods, amount]) => ({
+        hasMore: +skip + 5 < amount,
+        results: prods,
+      }));
   }
 
   async getById(id: number) {

@@ -83,9 +83,9 @@ export class ProductsController {
       });
   }
 
-  @Get("/category/:category")
-  getProductsByCategory(@Param("category") category: string) {
-    return this.productsService.getByCategory(category);
+  @Get("/category")
+  getProductsByCategory(@Query("q") category: string, @Query("skip") skip: number) {
+    return this.productsService.getByCategory(category, skip);
   }
 
   @Get("/good-rated")
