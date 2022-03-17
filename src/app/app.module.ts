@@ -12,6 +12,9 @@ import { UsersModule } from "../users/users.module";
 import { AppMiddleware } from "./middleware/app.middleware";
 import { WatchlistModule } from "../watchlist/watchlist.module";
 
+import { GraphQLModule } from "@nestjs/graphql";
+import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
@@ -23,8 +26,19 @@ import { WatchlistModule } from "../watchlist/watchlist.module";
     RatingsModule,
     NotificationsModule,
     WatchlistModule,
+
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: true,
+      /*  formatError: (error) => ({
+        path: error.path,
+        message: error.message,
+        location: error.locations,
+        error: error.extensions.exception.stacktrace[0] || "",
+        status: error.extensions.code,
+      }), */
+    }),
   ],
-  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

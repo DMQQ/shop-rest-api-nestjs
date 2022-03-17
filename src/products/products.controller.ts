@@ -17,7 +17,7 @@ import {
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
-import { BAD, CREATED, OK } from "../constants/codes";
+import { CREATED } from "../constants/codes";
 import { FAILED_CREATE, SUCCESS_CREATE } from "../constants/responses";
 import { RatingsService } from "../ratings/ratings.service";
 import User from "../decorators/User";
@@ -83,9 +83,9 @@ export class ProductsController {
       });
   }
 
-  @Get("/category/:category")
-  getProductsByCategory(@Param("category") category: string) {
-    return this.productsService.getByCategory(category);
+  @Get("/category")
+  getProductsByCategory(@Query("q") category: string, @Query("skip") skip: number) {
+    return this.productsService.getByCategory(category, skip);
   }
 
   @Get("/good-rated")

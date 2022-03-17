@@ -10,19 +10,15 @@ import { RatingsModule } from "../ratings/ratings.module";
 import { SaleEntity } from "./Entities/sale.entity";
 import { SaleSchedule } from "./sale.schedule";
 import { SaleController } from "./sale.controller";
+import { ProductsResolver } from "./products.resolver";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      ProductsEntity,
-      SearchHistoryEntity,
-      MostSearchedEntity,
-      SaleEntity,
-    ]),
+    TypeOrmModule.forFeature([ProductsEntity, SearchHistoryEntity, MostSearchedEntity, SaleEntity]),
     NotificationsModule,
     RatingsModule,
   ],
-  providers: [ProductsService, SaleSchedule],
+  providers: [ProductsService, SaleSchedule, ProductsResolver],
   controllers: [ProductsController, SaleController],
 })
 export class ProductsModule {}

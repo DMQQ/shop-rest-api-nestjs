@@ -10,6 +10,15 @@ export class CartService {
     private cartRepository: Repository<CartEntity>,
   ) {}
 
+  getUsersCartQL(user_id: number) {
+    return this.cartRepository.find({
+      where: {
+        user_id,
+      },
+      relations: ["prod_id", "prod_id.img_id"],
+    });
+  }
+
   async getUsersCart(user_id: number) {
     return this.cartRepository
       .find({
