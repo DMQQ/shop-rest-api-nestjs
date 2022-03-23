@@ -5,6 +5,8 @@ import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
 
+const TAKE = 5;
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -22,7 +24,7 @@ export class ProductsService {
     return this.productsRepository.find({
       relations: ["img_id", "rating_id", "vendor"],
       skip,
-      take: 5,
+      take: TAKE,
     });
   }
 
@@ -32,7 +34,7 @@ export class ProductsService {
       relations: ["img_id"],
       order: { prod_id: "DESC" },
       skip,
-      take: 5,
+      take: TAKE,
     });
   }
 
@@ -46,18 +48,13 @@ export class ProductsService {
   }
 
   async getByCategory(category: string, skip = 0) {
-    return this.productsRepository
-      .findAndCount({
-        select: ["prod_id", "price", "img_id", "title"],
-        where: { category },
-        relations: ["img_id"],
-        skip,
-        take: 5,
-      })
-      .then(([prods, amount]) => ({
-        hasMore: +skip + 5 < amount,
-        results: prods,
-      }));
+    return this.productsRepository.findAndCount({
+      select: ["prod_id", "price", "img_id", "title"],
+      where: { category },
+      relations: ["img_id"],
+      skip,
+      take: TAKE,
+    });
   }
 
   async getById(id: number) {
@@ -88,20 +85,18 @@ export class ProductsService {
         },
       })
       .then((match) => {
-        if (typeof match === "undefined") {
-          this.searchRepository.insert({
-            prod_id,
-            user_id,
-          });
-        } else {
-          this.searchRepository.update(
-            {
-              user_id,
+        typeof match === "undefined"
+          ? this.searchRepository.insert({
               prod_id,
-            },
-            {},
-          );
-        }
+              user_id,
+            })
+          : this.searchRepository.update(
+              {
+                user_id,
+                prod_id,
+              },
+              {},
+            );
       });
   }
 
@@ -117,7 +112,7 @@ export class ProductsService {
       .leftJoinAndSelect("search.prod_id", "products")
       .leftJoinAndSelect("products.img_id", "images")
       .where("search.user_id = :user_id", { user_id })
-      .take(5)
+      .take(TAKE)
       .skip(skip)
       .orderBy("search.date", "DESC")
       .getManyAndCount()
@@ -150,7 +145,7 @@ export class ProductsService {
           ...(params.category && { category: params.category }),
           ...(params.manufacturer && { manufacturer: params.manufacturer }),
         },
-        take: 5,
+        take: TAKE,
       })
       .then((response) => {
         return response.map((product) => ({

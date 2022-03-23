@@ -1,5 +1,5 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from "@nestjs/common";
-import { map, Observable } from "rxjs";
+import { map, Observable, tap } from "rxjs";
 
 interface Response<T> {
   hasMore: boolean;
@@ -13,12 +13,13 @@ export class PagingInterceptor<T> implements NestInterceptor<T, Response<T>> {
     context: ExecutionContext,
     next: CallHandler<T>,
   ): Observable<Response<T>> | Promise<Observable<Response<T>>> {
-    //@ts-ignore
+    const args = context.getArgByIndex(0);
+
     return next.handle().pipe(
-      map((data) => {
-        console.log(data);
-        return data;
-      }),
+      map(([results, amount]: any) => ({
+        hasMore: +args?.query?.skip + 5 < amount,
+        results,
+      })),
     );
   }
 }

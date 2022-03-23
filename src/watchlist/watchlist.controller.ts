@@ -8,7 +8,7 @@ import {
   ParseIntPipe,
   Post,
 } from "@nestjs/common";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 import { WatchlistService } from "./watchlist.service";
 
 @Controller("watchlist")

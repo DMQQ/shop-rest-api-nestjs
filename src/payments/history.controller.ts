@@ -5,7 +5,7 @@ import { Response } from "express";
 import { CartService } from "../cart/cart.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { expo } from "../notifications/methods";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 import Stripe from "stripe";
 
 @Controller("payments")

@@ -2,7 +2,7 @@ import { Body, Controller, Post, Res, Get, ParseBoolPipe } from "@nestjs/common"
 import { NotificationsDto } from "./dto/notifications.dto";
 import { NotificationsService } from "./notifications.service";
 import { Response } from "express";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 
 @Controller("notifications")
 export class NotificationsController {

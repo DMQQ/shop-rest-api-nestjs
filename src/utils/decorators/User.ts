@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { RequestExtend } from "../@types/types";
+import { RequestExtend } from "../../@types/types";
 
 const User = createParamDecorator((_, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest() as RequestExtend;

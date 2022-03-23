@@ -13,14 +13,16 @@ import {
   forwardRef,
   BadRequestException,
   NotFoundException,
+  UseInterceptors,
 } from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
 import { Response } from "express";
-import { CREATED } from "../constants/codes";
-import { FAILED_CREATE, SUCCESS_CREATE } from "../constants/responses";
+import { CREATED } from "../utils/constants/codes";
+import { FAILED_CREATE, SUCCESS_CREATE } from "../utils/constants/responses";
 import { RatingsService } from "../ratings/ratings.service";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
+import { PagingInterceptor } from "../utils/functions/PagingInterceptor";
 
 @Controller("products")
 export class ProductsController {
@@ -31,13 +33,9 @@ export class ProductsController {
   ) {}
 
   @Get()
-  async getAllProducts(@Query("skip") skip: number, @Res() response: Response) {
-    return this.productsService.getAll(skip).then(([products, ammount]) => {
-      response.send({
-        hasMore: +skip + 5 < ammount,
-        results: products,
-      });
-    });
+  @UseInterceptors(PagingInterceptor)
+  async getAllProducts(@Query("skip") skip: number) {
+    return this.productsService.getAll(skip);
   }
 
   @Get("categories")
@@ -84,28 +82,20 @@ export class ProductsController {
   }
 
   @Get("/category")
+  @UseInterceptors(PagingInterceptor)
   getProductsByCategory(@Query("q") category: string, @Query("skip") skip: number) {
     return this.productsService.getByCategory(category, skip);
   }
 
   @Get("/good-rated")
+  @UseInterceptors(PagingInterceptor)
   async getMostSearched(@Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number) {
-    return this.ratingsService.findRatedMoreThanThree(skip).then(([products, ammount]) => {
-      return {
-        hasMore: +skip + 5 < ammount,
-        results: products,
-      };
-    });
+    return this.ratingsService.findRatedMoreThanThree(skip);
   }
 
   @Get("/suggestions")
-  getProductSuggestions(
-    @Query("q", new DefaultValuePipe("")) query: any,
-    @Query("skip") skip: number,
-    @Query() params: any,
-  ) {
+  getProductSuggestions(@Query("q") query = "", @Query() params: any) {
     const validParams = {};
-    //prettier-ignore
     const validKeys = ["category", "price", "title", "manufacturer"];
 
     for (const [key, value] of Object.entries(params)) {
