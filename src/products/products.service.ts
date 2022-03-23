@@ -135,11 +135,12 @@ export class ProductsService {
       });
   }
 
-  async getProductSuggestions(text: string = "", params: any) {
+  async getProductSuggestions(text: string = "", params: any, skip: number = 0) {
     return this.productsRepository
       .find({
         select: ["prod_id", "img_id", "title", "price"],
         relations: ["img_id"],
+        skip,
         order: {
           ...(params.title && { title: params.title }),
           ...(params.price && { price: params.price }),

@@ -13,6 +13,15 @@ class WatchlistRemoveType {
   watchlist_id: number;
 }
 
+@ObjectType()
+class WatchlistCheck {
+  @Field(()=> Int)
+  prod_id:number;
+
+  @Field(()=> Boolean)
+  isIn:boolean;
+}
+
 @Resolver(() => WatchlistEntity)
 export class WatchlistResolver {
   constructor(private watchlistService: WatchlistService) {}
@@ -25,6 +34,19 @@ export class WatchlistResolver {
     const data = await this.watchlistService.getWatchlist(id, skip);
 
     return data;
+  }
+
+  @Query(()=> WatchlistCheck)
+  async watchlistCheck(
+    @Args('prod_id',{type:()=> Int}) prod_id:number,
+    @User() id:number
+  ){
+    const result = await this.watchlistService.checkIfProdIsIn(id,prod_id)
+
+    return {
+      prod_id,
+      isIn: typeof result === "undefined"
+    }
   }
 
   @Mutation(() => WatchlistRemoveType)

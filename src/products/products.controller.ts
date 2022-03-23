@@ -99,7 +99,11 @@ export class ProductsController {
   }
 
   @Get("/suggestions")
-  getProductSuggestions(@Query("q", new DefaultValuePipe("")) query: any, @Query() params: any) {
+  getProductSuggestions(
+    @Query("q", new DefaultValuePipe("")) query: any,
+    @Query("skip") skip: number,
+    @Query() params: any,
+  ) {
     const validParams = {};
     //prettier-ignore
     const validKeys = ["category", "price", "title", "manufacturer"];
