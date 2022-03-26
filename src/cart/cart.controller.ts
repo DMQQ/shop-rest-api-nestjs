@@ -12,9 +12,9 @@ import {
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { Response } from "express";
-import { BAD, CREATED, OK } from "../constants/codes";
-import User from "../decorators/User";
-import { HttpExceptionFilter } from "../filters/HttpExceptionFilter";
+import { BAD, CREATED, OK } from "../utils/constants/codes";
+import User from "../utils/decorators/User";
+import { HttpExceptionFilter } from "../utils/filters/HttpExceptionFilter";
 
 @Controller("cart")
 export class CartController {
@@ -73,16 +73,16 @@ export class CartController {
       if (ammount > 1) {
         return this.cartService.decreaseAmmount(cart_id, ammount).then(({ affected }) => {
           if (affected > 0) {
-            return response.status(OK).send({ code: OK, status: "Deleted" });
+            return response.status(OK).send({ statusCode: OK, message: "Deleted" });
           }
-          response.status(BAD).send({ code: BAD, status: "Failed" });
+          response.status(BAD).send({ statusCode: BAD, message: "Failed" });
         });
       }
       this.cartService.removeFromCart(cart_id).then(({ affected }) => {
         if (affected > 0) {
-          return response.send({ code: OK, status: "Deleted" });
+          return response.send({ statusCode: OK, message: "Deleted" });
         }
-        response.status(400).send({ code: BAD, status: "Failed" });
+        response.status(400).send({ statusCode: BAD, message: "Failed" });
       });
     });
   }

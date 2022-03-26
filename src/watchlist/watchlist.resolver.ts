@@ -1,5 +1,5 @@
 import { Args, Field, Int, Mutation, ObjectType, Query, Resolver } from "@nestjs/graphql";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 import { WatchlistEntity } from "./watchlist.entity";
 import { WatchlistService } from "./watchlist.service";
 import { BadRequestException } from "@nestjs/common";
@@ -11,6 +11,15 @@ class WatchlistRemoveType {
 
   @Field(() => Int)
   watchlist_id: number;
+}
+
+@ObjectType()
+class WatchlistCheck {
+  @Field(() => Int)
+  prod_id: number;
+
+  @Field(() => Boolean)
+  isIn: boolean;
 }
 
 @Resolver(() => WatchlistEntity)
@@ -25,6 +34,16 @@ export class WatchlistResolver {
     const data = await this.watchlistService.getWatchlist(id, skip);
 
     return data;
+  }
+
+  @Query(() => WatchlistCheck)
+  async watchlistCheck(@Args("prod_id", { type: () => Int }) prod_id: number, @User() id: number) {
+    const result = await this.watchlistService.checkIfProdIsIn(id, prod_id);
+
+    return {
+      prod_id,
+      isIn: typeof result === "undefined",
+    };
   }
 
   @Mutation(() => WatchlistRemoveType)

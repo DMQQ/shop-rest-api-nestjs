@@ -2,7 +2,7 @@ import { Resolver } from "@nestjs/graphql";
 import { AddCart, CartEntity, IsInCart } from "./cart.entity";
 
 import { Query, Mutation, Args, Int } from "@nestjs/graphql";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 import { CartService } from "./cart.service";
 
 @Resolver(() => CartEntity)

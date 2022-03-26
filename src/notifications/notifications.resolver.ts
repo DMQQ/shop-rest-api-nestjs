@@ -1,5 +1,5 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 import { UploadTokenQL } from "./dto/notifications.fields";
 import { NotificationsEntity } from "./notifications.entity";
 import { NotificationsService } from "./notifications.service";

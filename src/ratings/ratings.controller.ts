@@ -12,7 +12,7 @@ import { RatingsDto } from "./dto/ratings.dto";
 import { RatingsService } from "./ratings.service";
 import { Response } from "express";
 import { HistoryService } from "../payments/history.service";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 
 @Controller("ratings")
 export class RatingsController {

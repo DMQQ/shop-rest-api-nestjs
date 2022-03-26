@@ -8,7 +8,7 @@ import {
   ParseIntPipe,
   Post,
 } from "@nestjs/common";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 import { WatchlistService } from "./watchlist.service";
 
 @Controller("watchlist")
@@ -39,16 +39,9 @@ export class WatchlistController {
 
   @Post("check")
   async checkProduct(@User() user_id: number, @Body("prod_id") prod_id: number) {
-    return this.watchlistService.checkIfProdIsIn(user_id, prod_id).then((res) => {
-      if (typeof res === "undefined") {
-        return {
-          isIn: false,
-        };
-      }
-      return {
-        isIn: true,
-      };
-    });
+    return this.watchlistService.checkIfProdIsIn(user_id, prod_id).then((res) => ({
+      isIn: typeof res !== "undefined",
+    }));
   }
 
   @Post()

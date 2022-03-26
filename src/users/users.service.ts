@@ -4,8 +4,8 @@ import { InsertResult, Repository, UpdateResult } from "typeorm";
 import { UsersEntity } from "./users.entity";
 import { hash, compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
-import { Mailer } from "../Mail/Mailer";
-import { UserConfirmHTML } from "../Mail/templates/UserConfirm";
+import { Mailer } from "../utils/Mail/Mailer";
+import { UserConfirmHTML } from "../utils/Mail/templates/UserConfirm";
 
 const KEY = process.env.JWTTOKEN || "dhbada8d##!%aaad778464";
 

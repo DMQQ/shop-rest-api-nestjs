@@ -11,7 +11,7 @@ import {
 import { CredentialsType, UsersService } from "./users.service";
 import { Response } from "express";
 import { UserDto } from "./dto/user.dto";
-import User from "../decorators/User";
+import User from "../utils/decorators/User";
 import * as path from "path";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import {

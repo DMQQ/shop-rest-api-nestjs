@@ -25,16 +25,16 @@ export class CartService {
         relations: ["prod_id", "img_id"],
         where: { user_id },
       })
-      .then((result) => {
-        return result.map(({ prod_id, img_id, cart_id, ammount }: any) => ({
+      .then((result) =>
+        result.map(({ prod_id, img_id, cart_id, ammount }: any) => ({
           prod_id: prod_id.prod_id,
           price: prod_id.price,
           title: prod_id.title,
           img_id,
           cart_id,
           ammount,
-        }));
-      });
+        })),
+      );
   }
   addToCart(user_id: number, prod_id: any): Promise<InsertResult> {
     return this.cartRepository.insert({ user_id, prod_id });
