@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CartModule } from "../cart/cart.module";
@@ -14,6 +14,7 @@ import { WatchlistModule } from "../watchlist/watchlist.module";
 
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { AuctionsModule } from "../auctions/auctions.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
     RatingsModule,
     NotificationsModule,
     WatchlistModule,
+    AuctionsModule,
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -51,6 +53,7 @@ export class AppModule implements NestModule {
         "/auth/confirm",
         "/auth/confirm-account",
         "/upload/images=:img",
+        { method: RequestMethod.GET, path: "/graphql" },
       )
       .forRoutes("*");
   }
