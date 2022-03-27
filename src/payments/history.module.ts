@@ -5,6 +5,7 @@ import { NotificationsModule } from "../notifications/notifications.module";
 import { ProductsEntity } from "../products/Entities/products.entity";
 import { HistoryController } from "./history.controller";
 import { HistoryEntity } from "./history.entity";
+import { HistoryResolver } from "./history.resolver";
 import { HistoryService } from "./history.service";
 
 @Module({
@@ -13,7 +14,7 @@ import { HistoryService } from "./history.service";
     CartModule,
     NotificationsModule,
   ],
-  providers: [HistoryService],
+  providers: [HistoryService, HistoryResolver],
   controllers: [HistoryController],
   exports: [HistoryService],
 })

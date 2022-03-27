@@ -36,3 +36,24 @@ export class HistoryEntity {
   @JoinColumn({ name: "img_id" })
   img_id: number;
 }
+
+@ObjectType()
+class Details {
+  @Field(() => Int)
+  purchase_id: number;
+
+  @Field(() => String)
+  date: string;
+
+  @Field(() => String)
+  status: string;
+}
+
+@ObjectType()
+export class HistoryResponse {
+  @Field(() => ProductsEntity)
+  product: ProductsEntity;
+
+  @Field(() => Details)
+  details: Details;
+}

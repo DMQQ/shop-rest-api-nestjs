@@ -4,6 +4,11 @@ import { Connection, Repository } from "typeorm";
 import { Auction, Bids } from "./auction.entity";
 import { AuctionProps, BidProps } from "./auction.interface";
 
+interface SkipTake {
+  skip: number;
+  take: number;
+}
+
 @Injectable()
 export class AuctionsService {
   constructor(
@@ -12,7 +17,8 @@ export class AuctionsService {
     @InjectConnection() private connection: Connection,
   ) {}
 
-  getAuctions() {
+  // skip,take doesnt work
+  getAuctions({ skip = 0, take = 5 }: SkipTake) {
     return this.auctionRepository
       .createQueryBuilder("au")
       .leftJoinAndSelect("au.product", "prod")
@@ -47,7 +53,7 @@ export class AuctionsService {
       },
     });
 
-    if (typeof highest.amount !== "undefined" && props.amount > +highest.amount) {
+    if (props.amount > (+highest?.amount || 0)) {
       const { generatedMaps } = await this.bidsRepository.insert(props);
       const bidId = generatedMaps[0].bid_id;
 

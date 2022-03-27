@@ -3,16 +3,36 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { ProductsEntity } from "../products/Entities/products.entity";
 import { Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
+import { Stripe } from "stripe";
 
 @Injectable()
 export class HistoryService {
+  private stripe: Stripe;
   constructor(
     @InjectRepository(HistoryEntity)
     private historyRepository: Repository<HistoryEntity>,
 
     @InjectRepository(ProductsEntity)
     private productsRepository: Repository<ProductsEntity>,
-  ) {}
+  ) {
+    this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
+      apiVersion: "2020-08-27",
+      typescript: true,
+    });
+  }
+
+  createIntent(total: number) {
+    return this.stripe.paymentIntents.create({
+      amount: total * 100,
+      currency: "usd",
+    });
+  }
+
+  constructEventPayload(sig: string, payload: Buffer) {
+    const webhookSec = process.env.STRIPE_WEBHOOK_KEY;
+
+    return this.stripe.webhooks.constructEvent(payload, sig, webhookSec);
+  }
 
   async getTotalPriceOfSelectedProducts(ids: number[]) {
     return this.productsRepository
@@ -54,6 +74,16 @@ export class HistoryService {
       where: { user_id: id },
       relations: ["prod_id", "img_id"],
       order: { date: "DESC" },
+    });
+  }
+
+  getHistoryGQL(user_id: number, skip = 0) {
+    return this.historyRepository.find({
+      where: { user_id },
+      relations: ["prod_id", "prod_id.img_id"],
+      order: { date: "DESC" },
+      skip,
+      take: 10,
     });
   }
 
