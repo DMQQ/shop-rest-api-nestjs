@@ -1,24 +1,8 @@
-import {
-  Resolver,
-  Query,
-  Args,
-  Int,
-  ObjectType,
-  Field,
-  ResolveField,
-  Parent,
-} from "@nestjs/graphql";
+import { Resolver, Query, Args, Int, ResolveField, Parent } from "@nestjs/graphql";
 import { ProductsEntity } from "./Entities/products.entity";
 import { ProductsService } from "./products.service";
-
-@ObjectType()
-class Images {
-  @Field(() => Int)
-  id: number;
-
-  @Field(() => String)
-  name: string;
-}
+import { RatingsEntity } from "../ratings/ratings.entity";
+import { UploadEntity } from "../upload/upload.entity";
 
 @Resolver(() => ProductsEntity)
 export class ProductsResolver {
@@ -37,13 +21,22 @@ export class ProductsResolver {
     return this.productsService.getProductSuggestions(name, {});
   }
 
-  @ResolveField("img_id", () => [Images])
+  @ResolveField("img_id", () => [UploadEntity])
   async images(
     @Parent() product: ProductsEntity,
     @Args("take", { type: () => Int, nullable: true }) take: number = 10,
     @Args("skip", { type: () => Int, nullable: true }) skip: number = 0,
   ) {
     return product.img_id.splice(skip, take);
+  }
+
+  @ResolveField("rating_id", () => [RatingsEntity])
+  async ratings(
+    @Parent() parent: ProductsEntity,
+    @Args("take", { type: () => Int, nullable: true }) take: number = 2,
+    @Args("skip", { type: () => Int, nullable: true }) skip: number = 0,
+  ) {
+    return parent.rating_id.splice(skip, take);
   }
 
   @Query(() => ProductsEntity)

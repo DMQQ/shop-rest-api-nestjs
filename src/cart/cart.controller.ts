@@ -21,8 +21,8 @@ export class CartController {
   constructor(private cartService: CartService) {}
 
   @Get()
-  async getCart(@User() user_id: number) {
-    return this.cartService.getUsersCart(user_id);
+  async getCart(@User() user_id: number, @Query("skip") skip: number) {
+    return this.cartService.getUsersCart(user_id, skip);
   }
 
   @Get("/check")
