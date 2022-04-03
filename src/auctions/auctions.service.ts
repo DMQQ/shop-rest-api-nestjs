@@ -4,9 +4,8 @@ import { Connection, Repository } from "typeorm";
 import { Auction, Bids } from "./auction.entity";
 import { AuctionProps, BidProps } from "./auction.interface";
 
-interface SkipTake {
-  skip: number;
-  take: number;
+interface AuctionParams {
+  user?: number;
 }
 
 @Injectable()
@@ -17,14 +16,25 @@ export class AuctionsService {
     @InjectConnection() private connection: Connection,
   ) {}
 
+  getBids(auction_id: string, { skip = 0, take = 5 }) {
+    return this.bidsRepository.find({
+      where: {
+        auction_id,
+      },
+      skip,
+      take,
+    });
+  }
+
   // skip,take doesnt work
-  getAuctions({ skip = 0, take = 5 }: SkipTake) {
+  getAuctions({ user }: AuctionParams) {
     return this.auctionRepository
       .createQueryBuilder("au")
       .leftJoinAndSelect("au.product", "prod")
       .leftJoinAndSelect("prod.img_id", "img")
       .leftJoinAndSelect("au.bids", "bids")
       .orderBy("bids.amount", "DESC")
+      .where("au.seller = :user OR TRUE", { user })
       .getMany();
   }
 
