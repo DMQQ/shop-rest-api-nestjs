@@ -32,7 +32,6 @@ export class WatchlistController {
         };
       }
     } catch (error) {
-      console.error(error);
       throw new BadRequestException();
     }
   }

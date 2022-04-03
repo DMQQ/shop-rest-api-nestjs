@@ -54,7 +54,7 @@ export class Auction {
       referencedColumnName: "bid_id",
     },
   })
-  bids: Promise<Bids[]>;
+  bids: Bids[];
 }
 
 @ObjectType()

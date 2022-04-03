@@ -1,5 +1,5 @@
 import { BadRequestException } from "@nestjs/common";
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, ID, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import User from "../utils/decorators/User";
 import {
   Auction,
@@ -7,21 +7,31 @@ import {
   AuctionCreateResponse,
   BidCreate,
   BidCreateResponse,
+  Bids,
 } from "./auction.entity";
 import { AuctionsService } from "./auctions.service";
 
-@Resolver()
+@Resolver((of) => Auction)
 export class AuctionResolver {
   constructor(private readonly auctionService: AuctionsService) {}
 
-  @Query(() => [Auction])
-  auctions() {
-    return this.auctionService.getAuctions();
+  @Query(() => [Auction], { nullable: false })
+  auctions(@Args("user", { nullable: true, type: () => Int }) user: number) {
+    return this.auctionService.getAuctions({ user });
   }
 
   @Query(() => Auction)
-  async auction(@Args("auction_id", { nullable: false }) auction_id: string) {
+  async auction(@Args("auction_id", { nullable: false, type: () => ID }) auction_id: string) {
     return this.auctionService.getAuction(auction_id);
+  }
+
+  @ResolveField("bids", () => [Bids])
+  bids(
+    @Parent() parent: Auction,
+    @Args("skip", { type: () => Int, nullable: true }) skip: number,
+    @Args("take", { type: () => Int, nullable: true }) take: number,
+  ) {
+    return this.auctionService.getBids(parent.auction_id, { skip, take });
   }
 
   @Mutation(() => BidCreateResponse)

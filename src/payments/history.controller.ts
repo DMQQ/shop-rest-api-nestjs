@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+} from "@nestjs/common";
 import { HistoryDto } from "./dto/history.dto";
 import { HistoryService } from "./history.service";
 import { Response } from "express";
@@ -6,26 +16,23 @@ import { CartService } from "../cart/cart.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { expo } from "../notifications/methods";
 import User from "../utils/decorators/User";
-import Stripe from "stripe";
+
+interface BufferRequest extends Request {
+  rawBody: Buffer;
+}
 
 @Controller("payments")
 export class HistoryController {
-  #stripe: Stripe;
   constructor(
     private historyService: HistoryService,
     private cartService: CartService,
     private notifyService: NotificationsService,
-  ) {
-    this.#stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
-      apiVersion: "2020-08-27",
-      typescript: true,
-    });
-  }
+  ) {}
 
   @Get("/history")
-  async getYourPurchaseHistory(@User() id: number, @Res() response: Response) {
+  async getYourPurchaseHistory(@User() id: number) {
     return this.historyService.getHistory(id).then(([result]) => {
-      return response.send({
+      return {
         hasMore: false,
         results: result.map((prod: any) => ({
           product: {
@@ -40,7 +47,7 @@ export class HistoryController {
             status: prod.status,
           },
         })),
-      });
+      };
     });
   }
 
@@ -49,15 +56,30 @@ export class HistoryController {
     try {
       const total = await this.historyService.getTotalPriceOfSelectedProducts(prod_id);
 
-      const paymentIntent = await this.#stripe.paymentIntents.create({
-        amount: total * 100,
-        currency: "usd",
-      });
+      const paymentIntent = await this.historyService.createIntent(total);
 
       response.send({
         clientSecret: paymentIntent.client_secret,
       });
     } catch (error) {}
+  }
+
+  @Post("/webhook")
+  async handleEvent(@Headers("stripe-signature") signature: string, @Req() request: BufferRequest) {
+    if (!signature) throw new BadRequestException("Missing stripe-signature header");
+
+    const event = this.historyService.constructEventPayload(signature, request.rawBody);
+
+    switch (event.type) {
+      case "payment_intent.succeeded":
+        try {
+        } catch (error) {}
+        break;
+
+      default:
+        console.log(`unhandled method: ${event.type}`);
+        return {};
+    }
   }
 
   @Post("/purchase")

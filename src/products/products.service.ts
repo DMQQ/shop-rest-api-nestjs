@@ -131,30 +131,21 @@ export class ProductsService {
   }
 
   async getProductSuggestions(text: string = "", params: any, skip: number = 0) {
-    return this.productsRepository
-      .find({
-        select: ["prod_id", "img_id", "title", "price"],
-        relations: ["img_id"],
-        skip,
-        order: {
-          ...(params.title && { title: params.title }),
-          ...(params.price && { price: params.price }),
-        },
-        where: {
-          title: Like(`%${text}%`),
-          ...(params.category && { category: params.category }),
-          ...(params.manufacturer && { manufacturer: params.manufacturer }),
-        },
-        take: TAKE,
-      })
-      .then((response) => {
-        return response.map((product) => ({
-          title: product.title,
-          prod_id: product.prod_id,
-          image: product?.img_id[0]?.name,
-          price: +product.price,
-        }));
-      });
+    return this.productsRepository.find({
+      select: ["prod_id", "img_id", "title", "price"],
+      relations: ["img_id"],
+      skip,
+      order: {
+        ...(params.title && { title: params.title }),
+        ...(params.price && { price: params.price }),
+      },
+      where: {
+        title: Like(`%${text}%`),
+        ...(params.category && { category: params.category }),
+        ...(params.manufacturer && { manufacturer: params.manufacturer }),
+      },
+      take: TAKE,
+    });
   }
 
   async getDailySaleProduct(): Promise<{

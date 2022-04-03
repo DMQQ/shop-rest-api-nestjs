@@ -32,13 +32,6 @@ import { AuctionsModule } from "../auctions/auctions.module";
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      /*  formatError: (error) => ({
-        path: error.path,
-        message: error.message,
-        location: error.locations,
-        error: error.extensions.exception.stacktrace[0] || "",
-        status: error.extensions.code,
-      }), */
     }),
   ],
 })

@@ -4,6 +4,10 @@ import { Connection, Repository } from "typeorm";
 import { Auction, Bids } from "./auction.entity";
 import { AuctionProps, BidProps } from "./auction.interface";
 
+interface AuctionParams {
+  user?: number;
+}
+
 @Injectable()
 export class AuctionsService {
   constructor(
@@ -12,13 +16,25 @@ export class AuctionsService {
     @InjectConnection() private connection: Connection,
   ) {}
 
-  getAuctions() {
+  getBids(auction_id: string, { skip = 0, take = 5 }) {
+    return this.bidsRepository.find({
+      where: {
+        auction_id,
+      },
+      skip,
+      take,
+    });
+  }
+
+  // skip,take doesnt work
+  getAuctions({ user }: AuctionParams) {
     return this.auctionRepository
       .createQueryBuilder("au")
       .leftJoinAndSelect("au.product", "prod")
       .leftJoinAndSelect("prod.img_id", "img")
       .leftJoinAndSelect("au.bids", "bids")
       .orderBy("bids.amount", "DESC")
+      .where("au.seller = :user OR TRUE", { user })
       .getMany();
   }
 
@@ -47,7 +63,7 @@ export class AuctionsService {
       },
     });
 
-    if (typeof highest.amount !== "undefined" && props.amount > +highest.amount) {
+    if (props.amount > (+highest?.amount || 0)) {
       const { generatedMaps } = await this.bidsRepository.insert(props);
       const bidId = generatedMaps[0].bid_id;
 

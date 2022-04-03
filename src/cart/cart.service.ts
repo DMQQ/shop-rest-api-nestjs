@@ -19,11 +19,13 @@ export class CartService {
     });
   }
 
-  async getUsersCart(user_id: number) {
+  async getUsersCart(user_id: number, skip = 0) {
     return this.cartRepository
       .find({
         relations: ["prod_id", "img_id"],
         where: { user_id },
+        skip,
+        take: 5,
       })
       .then((result) =>
         result.map(({ prod_id, img_id, cart_id, ammount }: any) => ({

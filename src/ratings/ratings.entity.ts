@@ -2,7 +2,7 @@ import { HistoryEntity } from "../payments/history.entity";
 import { ProductsEntity } from "../products/Entities/products.entity";
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
-import { Field, Int, Float, ObjectType } from "@nestjs/graphql";
+import { Field, Int, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
 @Entity("ratings")
