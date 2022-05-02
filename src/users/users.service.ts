@@ -59,7 +59,7 @@ export class UsersService {
   }
 
   createToken(body: { email?: string; id: number }): string {
-    return sign(body, KEY, { expiresIn: "48h" });
+    return sign(body, KEY, { expiresIn: "192h" });
   }
 
   createUser(email: string, hashedPassword: string): Promise<InsertResult> {

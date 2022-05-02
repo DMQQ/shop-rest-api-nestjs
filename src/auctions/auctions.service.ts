@@ -6,6 +6,12 @@ import { AuctionProps, BidProps } from "./auction.interface";
 
 interface AuctionParams {
   user?: number;
+  skip?: number;
+  take?: number;
+
+  active?: boolean;
+
+  //order?: "ASC" | "DESC";
 }
 
 @Injectable()
@@ -23,19 +29,22 @@ export class AuctionsService {
       },
       skip,
       take,
+      order: {
+        amount: "DESC",
+      },
     });
   }
 
   // skip,take doesnt work
-  getAuctions({ user }: AuctionParams) {
-    return this.auctionRepository
-      .createQueryBuilder("au")
-      .leftJoinAndSelect("au.product", "prod")
-      .leftJoinAndSelect("prod.img_id", "img")
-      .leftJoinAndSelect("au.bids", "bids")
-      .orderBy("bids.amount", "DESC")
-      .where("au.seller = :user OR TRUE", { user })
-      .getMany();
+  getAuctions({ user, skip = 0, take = 5 }: AuctionParams) {
+    return this.auctionRepository.find({
+      relations: ["product", "product.img_id", "bids"],
+      where: {
+        ...(!!user && { seller: user }),
+      },
+      skip: skip,
+      take: take,
+    });
   }
 
   getAuction(auction_id: string) {

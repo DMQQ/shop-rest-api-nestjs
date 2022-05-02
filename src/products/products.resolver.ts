@@ -27,7 +27,7 @@ export class ProductsResolver {
     @Args("take", { type: () => Int, nullable: true }) take: number = 10,
     @Args("skip", { type: () => Int, nullable: true }) skip: number = 0,
   ) {
-    return product.img_id.splice(skip, take);
+    return product.img_id.splice(skip, take).sort((img1, img2) => img1.id - img2.id);
   }
 
   @ResolveField("rating_id", () => [RatingsEntity])
