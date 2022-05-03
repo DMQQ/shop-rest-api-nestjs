@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { NotificationsService } from "./notifications.service";
-import { expo } from "./methods";
 
 @Injectable()
 export class NotificationsSchedule {
@@ -9,18 +8,11 @@ export class NotificationsSchedule {
 
   @Interval(1000 * 60 * 15)
   interval() {
-    this.notifyService.findUsersToken(1).then(async (res) => {
-      if (res) {
-        const ticket = await expo.sendPushNotificationsAsync([
-          {
-            to: res.token,
-            data: { data: "Hello mate" },
-            body: `Backend Status OK`,
-            title: "React Native shop application",
-          },
-        ]);
-        console.log(ticket);
-      }
+    this.notifyService.single(1, {
+      data: { data: "Hello mate" },
+      body: `Backend Status OK`,
+      title: "React Native shop application",
+      ttl: 10,
     });
   }
 }

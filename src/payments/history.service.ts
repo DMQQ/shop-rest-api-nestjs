@@ -4,6 +4,7 @@ import { ProductsEntity } from "../products/Entities/products.entity";
 import { Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 import { Stripe } from "stripe";
+import { SavePurchase } from "./history.interface";
 
 @Injectable()
 export class HistoryService {
@@ -21,10 +22,11 @@ export class HistoryService {
     });
   }
 
-  createIntent(total: number) {
+  createIntent<T extends {} = {}>(total: number, metadata?: T) {
     return this.stripe.paymentIntents.create({
       amount: total * 100,
       currency: "usd",
+      metadata,
     });
   }
 
@@ -44,29 +46,25 @@ export class HistoryService {
       });
   }
 
-  async addHistory(
-    products: number[],
-    { user_id, date }: { user_id: number; date: string },
-  ): Promise<"finished" | "failed"> {
-    let status = true;
+  async savePurchase(props: SavePurchase): Promise<"finished" | "failed"> {
+    return new Promise(async (resolve, reject) => {
+      const fnArray = props.products.map((id) =>
+        this.historyRepository.insert({
+          prod_id: id,
+          status: "finished",
+          ...props,
+        }),
+      );
 
-    const fnArray = products.map((id) =>
-      this.historyRepository.insert({
-        user_id,
-        date,
-        prod_id: id,
-        status: "finished",
-      }),
-    );
-
-    try {
-      const result = await Promise.all(fnArray);
-      if (result.some(({ raw }) => raw.affectedRows === 0)) {
-        status = false;
+      try {
+        const result = await Promise.all(fnArray);
+        if (result.every(({ raw }) => raw.affectedRows > 0)) {
+          resolve("finished");
+        }
+      } catch (error) {
+        reject("Saving failed");
       }
-    } catch (error) {}
-
-    return status ? "finished" : "failed";
+    });
   }
 
   getHistory(id: number): Promise<[HistoryEntity[], number]> {

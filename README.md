@@ -1,11 +1,11 @@
 # Backend server for <a href="https://github.com/DMQQ/shop-mobile-react-native" target="_blank">Mobile shop app</a>
 
-### **Tech stack**:
+## **Tech stack**:
 
 - **MySQL** database
 - **NestJS** server framework
 - **Typescript**
-- **Typeorm** sql ORM
+- **Typeorm** SQL ORM
 - **bcrypt** password hashing
 - **jsonwebtoken** user authentication
 - **sendgrid** mailing
@@ -15,11 +15,20 @@
 - **class-transformer, class-validator** for input validation
 - **nodejs** runtime
 
-### Set enviroment variables
+## **Set enviroment variables**
 
 - STRIPE_TEST_SECRET
 - SENDGRID_KEY
 - EMAIL (for sendgrid)
+- STRIPE_WEBHOOK_KEY
+
+## Run test payments on local
+
+1. Download [stripe cli](https://stripe.com/docs/stripe-cli)
+2. Run stripe cli via cmd
+3. Run command `stripe login`
+4. Run command `stripe listen --forward-to {URL}/payments/webhook `
+5. Copy webhook signing secret and set env STRIPE_WEBHOOK_KEY
 
 ### Create database
 
@@ -27,7 +36,7 @@
 CREATE DATABASE shop;
 ```
 
-### Use your IPv4 Address as backend address in src/main.ts or .env PORT
+### Use your IPv4 Address as backend address in src/main.ts or .env URL
 
 ```bash
 ipconfig
