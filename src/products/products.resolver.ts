@@ -3,10 +3,12 @@ import { ProductsEntity } from "./Entities/products.entity";
 import { ProductsService } from "./products.service";
 import { RatingsEntity } from "../ratings/ratings.entity";
 import { UploadEntity } from "../upload/upload.entity";
+import { RatingsService } from "../ratings/ratings.service";
+import { NotFoundException } from "@nestjs/common";
 
 @Resolver(() => ProductsEntity)
 export class ProductsResolver {
-  constructor(private productsService: ProductsService) {}
+  constructor(private productsService: ProductsService, private ratingService: RatingsService) {}
 
   @Query(() => [ProductsEntity])
   products(
@@ -45,7 +47,18 @@ export class ProductsResolver {
   }
 
   @Query(() => ProductsEntity)
-  product(@Args("prod_id", { type: () => Int }) prod_id: number) {
-    return this.productsService.getById(prod_id);
+  async product(@Args("prod_id", { type: () => Int }) prod_id: number) {
+    try {
+      const [rating] = await this.ratingService.getAvg(prod_id);
+
+      const product = await this.productsService.getById(prod_id);
+
+      return {
+        ...product,
+        rating: Math.ceil(Number(rating["AVG(rating)"] ?? 0)),
+      };
+    } catch (error) {
+      throw new NotFoundException("Product not found");
+    }
   }
 }

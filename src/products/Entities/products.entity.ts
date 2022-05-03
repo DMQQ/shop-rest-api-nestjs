@@ -57,6 +57,9 @@ export class ProductsEntity {
   @JoinColumn({ name: "vendor" })
   vendor: string;
 
+  @Field(() => Int, { nullable: true, defaultValue: null })
+  rating: number;
+
   @Field()
   @Column({ type: "varchar", length: "60" })
   manufacturer: string;

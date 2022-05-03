@@ -11,6 +11,12 @@ export class RatingsService {
     private ratingsRepository: Repository<RatingsEntity>,
   ) {}
 
+  getAvg(prod_id: number) {
+    return this.ratingsRepository.query("SELECT AVG(rating) FROM ratings WHERE prod_id = ?;", [
+      prod_id,
+    ]);
+  }
+
   addReview(body: AddReviewProps): Promise<InsertResult> {
     return this.ratingsRepository.insert(body);
   }
