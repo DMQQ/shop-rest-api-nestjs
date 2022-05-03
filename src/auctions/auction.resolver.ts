@@ -11,13 +11,19 @@ import {
 } from "./auction.entity";
 import { AuctionsService } from "./auctions.service";
 
-@Resolver((of) => Auction)
+@Resolver(() => Auction)
 export class AuctionResolver {
   constructor(private readonly auctionService: AuctionsService) {}
 
   @Query(() => [Auction], { nullable: false })
-  auctions(@Args("user", { nullable: true, type: () => Int }) user: number) {
-    return this.auctionService.getAuctions({ user });
+  auctions(
+    @Args("user", { nullable: true, type: () => Int }) user: number,
+    @Args("skip", { nullable: true, type: () => Int, defaultValue: 0 }) skip: number,
+    @Args("take", { nullable: true, type: () => Int, defaultValue: 5 }) take: number,
+    @Args("active", { nullable: true, type: () => Boolean }) active: boolean,
+    // @Args("order", { nullable: true, type: () => Sort }) order: keyof typeof Sort,
+  ) {
+    return this.auctionService.getAuctions({ user, skip, take, active });
   }
 
   @Query(() => Auction)

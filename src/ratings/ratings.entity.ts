@@ -1,8 +1,8 @@
 import { HistoryEntity } from "../payments/history.entity";
-import { ProductsEntity } from "../products/Entities/products.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { ProductsEntity } from "../products/Entities/products.entity";
 
 @ObjectType()
 @Entity("ratings")
@@ -23,8 +23,7 @@ export class RatingsEntity {
   @Column({ type: "varchar" })
   title: string;
 
-  @Field(() => ProductsEntity)
-  @OneToOne(() => ProductsEntity, { onDelete: "CASCADE", onUpdate: "CASCADE" })
+  @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
   @JoinColumn({ name: "prod_id" })
   prod_id: number;
 
