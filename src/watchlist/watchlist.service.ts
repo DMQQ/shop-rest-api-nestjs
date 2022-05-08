@@ -69,8 +69,9 @@ export class WatchlistService {
     });
   }
 
-  removeById(id: number) {
-    return this.watchRepository.delete({ id });
+  removeById(prod_id: number, user_id: number) {
+    //@ts-ignore
+    return this.watchRepository.delete({ prod_id, user_id });
   }
 
   checkIfProdIsIn(user_id: number, prod_id: any) {
