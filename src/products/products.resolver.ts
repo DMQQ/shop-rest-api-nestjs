@@ -15,7 +15,7 @@ export class ProductsResolver {
     @Args("skip", { type: () => Int, nullable: true }) skip: number,
     @Args("query", { nullable: true }) query: string,
   ) {
-    return this.productsService.getAllQL(skip);
+    return this.productsService.getAllQL(skip, { text: query });
   }
 
   @Query(() => [ProductsEntity])
@@ -29,7 +29,7 @@ export class ProductsResolver {
     @Args("take", { type: () => Int, nullable: true }) take: number = 10,
     @Args("skip", { type: () => Int, nullable: true }) skip: number = 0,
   ) {
-    return product.img_id.splice(skip, take).sort((img1, img2) => img1.id - img2.id);
+    return product?.img_id?.splice(skip, take).sort((img1, img2) => img1.id - img2.id);
   }
 
   @ResolveField("rating_id", () => [RatingsEntity])
@@ -38,7 +38,7 @@ export class ProductsResolver {
     @Args("take", { type: () => Int, nullable: true }) take: number = 2,
     @Args("skip", { type: () => Int, nullable: true }) skip: number = 0,
   ) {
-    return parent.rating_id.splice(skip, take);
+    return parent?.rating_id?.splice(skip, take) ?? [];
   }
 
   @Query(() => ProductsEntity)

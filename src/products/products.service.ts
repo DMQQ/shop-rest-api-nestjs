@@ -7,6 +7,10 @@ import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
 
 const TAKE = 5;
 
+interface ParamsProps {
+  text?: string;
+}
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -20,11 +24,13 @@ export class ProductsService {
     private saleRepository: Repository<SaleEntity>,
   ) {}
 
-  async getAllQL(skip = 0) {
+  async getAllQL(skip = 0, params: ParamsProps) {
     return this.productsRepository.find({
       relations: ["img_id", "rating_id", "vendor"],
       skip,
       take: TAKE,
+
+      ...(params.text && { where: { title: Like(`%${params.text}%`) } }),
     });
   }
 
