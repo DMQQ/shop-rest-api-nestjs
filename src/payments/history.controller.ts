@@ -85,8 +85,6 @@ export class HistoryController {
       const products = JSON.parse(metadata.prod_id)?.prod_id;
       const user_id = Number(metadata.user_id);
 
-      console.log(details);
-
       try {
         await this.historyService.savePurchase({
           amount: amount / 100,

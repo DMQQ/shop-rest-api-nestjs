@@ -2,17 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
 import { Connection, Repository } from "typeorm";
 import { Auction, Bids } from "./auction.entity";
-import { AuctionProps, BidProps } from "./auction.interface";
-
-interface AuctionParams {
-  user?: number;
-  skip?: number;
-  take?: number;
-
-  active?: boolean;
-
-  //order?: "ASC" | "DESC";
-}
+import { AuctionProps, BidProps, AuctionParams } from "./auction.interface";
 
 @Injectable()
 export class AuctionsService {

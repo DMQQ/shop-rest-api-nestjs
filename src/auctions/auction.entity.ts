@@ -6,13 +6,10 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   ManyToOne,
-  OneToMany,
 } from "typeorm";
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { UsersEntity } from "../users/users.entity";
 
 @ObjectType()
 @Entity("auction")
@@ -36,6 +33,10 @@ export class Auction {
   @Field(() => Boolean, { nullable: false })
   @Column({ type: "boolean" })
   active: boolean;
+
+  @Field(() => Int, { nullable: true })
+  @Column({ type: "int", nullable: true, default: 0 })
+  min_price: number;
 
   @Field(() => ProductsEntity, { nullable: false })
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id, { nullable: false })

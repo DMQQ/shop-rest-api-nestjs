@@ -67,18 +67,12 @@ export class ProductsController {
   }
 
   @Get("searched-products")
+  @UseInterceptors(PagingInterceptor)
   async getSearchedProducts(
     @User() user_id: number,
     @Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number,
   ) {
-    return this.productsService
-      .getSearchHistoryProduct(user_id, skip)
-      .then(([products, ammount]) => {
-        return {
-          hasMore: +skip + 5 < ammount,
-          results: products,
-        };
-      });
+    return this.productsService.getSearchHistoryProduct(user_id, skip);
   }
 
   @Get("/category")

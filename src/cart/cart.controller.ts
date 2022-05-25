@@ -7,14 +7,17 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  Res,
   UseFilters,
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
-import { Response } from "express";
-import { BAD, CREATED, OK } from "../utils/constants/codes";
+
+import { BAD, OK } from "../utils/constants/codes";
 import User from "../utils/decorators/User";
 import { HttpExceptionFilter } from "../utils/filters/HttpExceptionFilter";
+
+function response(affected: boolean) {
+  return { statusCode: !!affected ? OK : BAD, message: !!affected ? "Deleted" : "Failed" };
+}
 
 @Controller("cart")
 export class CartController {
@@ -35,55 +38,31 @@ export class CartController {
 
   @Post()
   @UseFilters(HttpExceptionFilter)
-  async addToCart(
-    @Body("prod_id", ParseIntPipe) prod_id: number,
-    @User() user_id: number,
-    @Res() res: Response,
-  ) {
-    return this.cartService.findSameProductInCart(user_id, prod_id).then(async (sameList) => {
-      if (typeof sameList === "undefined") {
-        try {
-          const { raw } = await this.cartService.addToCart(user_id, prod_id);
+  async addToCart(@Body("prod_id", ParseIntPipe) prod_id: number, @User() user_id: number) {
+    const list = await this.cartService.findSameProductInCart(user_id, prod_id);
 
-          if (raw?.affectedRows > 0) {
-            return res.status(201).send({
-              status: "Added",
-              code: 201,
-            });
-          }
-          throw new BadRequestException();
-        } catch (error) {
-          throw new BadRequestException("Something went wrong");
-        }
-      }
-      this.cartService.incrementAmmount(user_id, prod_id).then((result) => {
-        if (result.affected > 0) {
-          res.status(CREATED).send({
-            code: CREATED,
-            status: "Added",
-          });
-        }
-      });
-    });
+    if (typeof list === "undefined") {
+      const { raw } = await this.cartService.addToCart(user_id, prod_id);
+
+      return !!raw.affectedRows ? { statusCode: 201, message: "Added" } : new BadRequestException();
+    }
+    const result = await this.cartService.incrementAmmount(user_id, prod_id);
+
+    return !!result.affected && { statusCode: 201, message: "Added" };
   }
 
   @Delete()
-  removeFromCart(@Query("id", ParseIntPipe) cart_id: number, @Res() response: Response) {
-    this.cartService.findOneProductInCart(cart_id).then(async ({ ammount }) => {
-      if (ammount > 1) {
-        return this.cartService.decreaseAmmount(cart_id, ammount).then(({ affected }) => {
-          if (affected > 0) {
-            return response.status(OK).send({ statusCode: OK, message: "Deleted" });
-          }
-          response.status(BAD).send({ statusCode: BAD, message: "Failed" });
-        });
-      }
-      this.cartService.removeFromCart(cart_id).then(({ affected }) => {
-        if (affected > 0) {
-          return response.send({ statusCode: OK, message: "Deleted" });
-        }
-        response.status(400).send({ statusCode: BAD, message: "Failed" });
-      });
-    });
+  async removeFromCart(@Query("id", ParseIntPipe) cart_id: number) {
+    const { ammount } = await this.cartService.findOneProductInCart(cart_id);
+
+    if (ammount > 1) {
+      const { affected } = await this.cartService.decreaseAmmount(cart_id, ammount);
+
+      return response(!!affected);
+    }
+
+    const { affected } = await this.cartService.removeFromCart(cart_id);
+
+    return response(!!affected);
   }
 }

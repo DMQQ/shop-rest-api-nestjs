@@ -15,3 +15,13 @@ export interface BidProps {
 
   auction_id: string;
 }
+
+export interface AuctionParams {
+  user?: number;
+  skip?: number;
+  take?: number;
+
+  active?: boolean;
+
+  //order?: "ASC" | "DESC";
+}
