@@ -39,30 +39,47 @@ export class CartController {
   @Post()
   @UseFilters(HttpExceptionFilter)
   async addToCart(@Body("prod_id", ParseIntPipe) prod_id: number, @User() user_id: number) {
-    const list = await this.cartService.findSameProductInCart(user_id, prod_id);
+    try {
+      const list = await this.cartService.findSameProductInCart(user_id, prod_id);
 
-    if (typeof list === "undefined") {
-      const { raw } = await this.cartService.addToCart(user_id, prod_id);
+      if (typeof list === "undefined") {
+        const { raw } = await this.cartService.addToCart(user_id, prod_id);
 
-      return !!raw.affectedRows ? { statusCode: 201, message: "Added" } : new BadRequestException();
+        const product = await this.cartService.getSingleCartProduct(prod_id, user_id);
+
+        return !!raw.affectedRows
+          ? { statusCode: 201, message: "Added", product }
+          : new BadRequestException();
+      }
+      const result = await this.cartService.incrementAmmount(user_id, prod_id);
+
+      const product = await this.cartService.getSingleCartProduct(prod_id, user_id);
+
+      return !!result.affected && { statusCode: 201, message: "Added", product };
+    } catch (error) {
+      throw new BadRequestException();
     }
-    const result = await this.cartService.incrementAmmount(user_id, prod_id);
-
-    return !!result.affected && { statusCode: 201, message: "Added" };
   }
 
   @Delete()
   async removeFromCart(@Query("id", ParseIntPipe) cart_id: number) {
-    const { ammount } = await this.cartService.findOneProductInCart(cart_id);
+    try {
+      const { ammount } = await this.cartService.findOneProductInCart(cart_id);
 
-    if (ammount > 1) {
-      const { affected } = await this.cartService.decreaseAmmount(cart_id, ammount);
+      if (ammount > 1) {
+        const { affected } = await this.cartService.decreaseAmmount(cart_id, ammount);
+
+        return response(!!affected);
+      }
+
+      const { affected } = await this.cartService.removeFromCart(cart_id);
 
       return response(!!affected);
+    } catch (error) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: error,
+      });
     }
-
-    const { affected } = await this.cartService.removeFromCart(cart_id);
-
-    return response(!!affected);
   }
 }
