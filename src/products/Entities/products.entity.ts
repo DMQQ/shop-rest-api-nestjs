@@ -71,4 +71,7 @@ export class ProductsEntity {
   @Field()
   @UpdateDateColumn({ insert: true, name: "date_add" })
   date_add: Date;
+
+  @Column({type:'varchar'})
+  tags:string
 }

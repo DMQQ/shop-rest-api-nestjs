@@ -87,6 +87,7 @@ export class ProductsController {
     return this.ratingsService.findRatedMoreThanThree(skip);
   }
 
+  @UseInterceptors(PagingInterceptor)
   @Get("/suggestions")
   async getProductSuggestions(@Query("q") query = "", @Query() params: any) {
     const validParams = {};
@@ -95,14 +96,7 @@ export class ProductsController {
     for (const [key, value] of Object.entries(params)) {
       if (validKeys.includes(key)) validParams[key] = value;
     }
-    return this.productsService.getProductSuggestions(query, validParams).then((response) => {
-      return response.map((product) => ({
-        title: product.title,
-        prod_id: product.prod_id,
-        image: product?.img_id[0]?.name,
-        price: +product.price,
-      }));
-    });
+    return this.productsService.getProductSuggestions(query, validParams, params?.skip || 0);
   }
 
   @Get("/:id")
