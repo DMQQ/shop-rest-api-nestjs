@@ -20,7 +20,7 @@ export class ProductsResolver {
 
   @Query(() => [ProductsEntity])
   suggestions(@Args("name") name: string) {
-    return this.productsService.getProductSuggestions(name, {});
+    return this.productsService.getProductSuggestionsQL(name);
   }
 
   @ResolveField("img_id", () => [UploadEntity])

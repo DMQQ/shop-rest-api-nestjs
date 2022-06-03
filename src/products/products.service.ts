@@ -136,6 +136,14 @@ export class ProductsService {
       });
   }
 
+  async getProductSuggestionsQL(text: string) {
+    return this.productsRepository.find({
+      select: ["prod_id", "img_id", "title", "price"],
+      relations: ["img_id"],
+      where: { title: Like(`%${text}%`) },
+    });
+  }
+
   async getProductSuggestions(text: string = "", params: any, skip: number = 0) {
     return this.productsRepository
       .findAndCount({

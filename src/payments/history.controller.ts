@@ -94,18 +94,15 @@ export class HistoryController {
           payment_method,
         });
       } catch (error) {
+        console.log(error);
         response.status(400).send({
           error: error,
         });
       }
 
-      try {
-        await this.notifyService.purchaseNotification(user_id);
-      } catch (error) {}
+      await this.notifyService.purchaseNotification(user_id);
 
-      try {
-        await this.cartService.removeAllRelatedToUser(user_id);
-      } catch (error) {}
+      await this.cartService.removeAllRelatedToUser(user_id);
 
       response.send({
         finished: true,
