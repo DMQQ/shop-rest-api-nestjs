@@ -7,6 +7,10 @@ import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
 
 const TAKE = 5;
 
+interface ParamsProps {
+  text?: string;
+}
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -20,11 +24,13 @@ export class ProductsService {
     private saleRepository: Repository<SaleEntity>,
   ) {}
 
-  async getAllQL(skip = 0) {
+  async getAllQL(skip = 0, params: ParamsProps) {
     return this.productsRepository.find({
       relations: ["img_id", "rating_id", "vendor"],
       skip,
       take: TAKE,
+
+      ...(params.text && { where: { title: Like(`%${params.text}%`) } }),
     });
   }
 
@@ -130,22 +136,42 @@ export class ProductsService {
       });
   }
 
-  async getProductSuggestions(text: string = "", params: any, skip: number = 0) {
+  async getProductSuggestionsQL(text: string) {
     return this.productsRepository.find({
       select: ["prod_id", "img_id", "title", "price"],
       relations: ["img_id"],
-      skip,
-      order: {
-        ...(params.title && { title: params.title }),
-        ...(params.price && { price: params.price }),
-      },
-      where: {
-        title: Like(`%${text}%`),
-        ...(params.category && { category: params.category }),
-        ...(params.manufacturer && { manufacturer: params.manufacturer }),
-      },
-      take: TAKE,
+      where: { title: Like(`%${text}%`) },
     });
+  }
+
+  async getProductSuggestions(text: string = "", params: any, skip: number = 0) {
+    return this.productsRepository
+      .findAndCount({
+        select: ["prod_id", "img_id", "title", "price"],
+        relations: ["img_id"],
+        skip,
+        order: {
+          ...(params.title && { title: params.title }),
+          ...(params.price && { price: params.price }),
+        },
+        where: {
+          title: Like(`%${text}%`),
+          ...(params.category && { category: params.category }),
+          ...(params.manufacturer && { manufacturer: params.manufacturer }),
+        },
+        take: TAKE,
+      })
+      .then(([response, amount]) => {
+        return [
+          response.map((product) => ({
+            title: product.title,
+            prod_id: product.prod_id,
+            image: product?.img_id[0]?.name,
+            price: +product.price,
+          })),
+          amount,
+        ];
+      });
   }
 
   async getDailySaleProduct(): Promise<{

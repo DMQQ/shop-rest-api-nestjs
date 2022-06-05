@@ -10,7 +10,7 @@ class WatchlistRemoveType {
   affected: number;
 
   @Field(() => Int)
-  watchlist_id: number;
+  prod_id: number;
 }
 
 @ObjectType()
@@ -27,7 +27,7 @@ export class WatchlistResolver {
   constructor(private watchlistService: WatchlistService) {}
 
   @Query(() => [WatchlistEntity], { defaultValue: [] })
-  async getWatchlist(
+  async watchlist(
     @Args("skip", { nullable: true, type: () => Int }) skip: number,
     @User() id: number,
   ) {
@@ -37,27 +37,37 @@ export class WatchlistResolver {
   }
 
   @Query(() => WatchlistCheck)
-  async watchlistCheck(@Args("prod_id", { type: () => Int }) prod_id: number, @User() id: number) {
+  async watchlistCheckItem(
+    @Args("prod_id", { type: () => Int }) prod_id: number,
+    @User() id: number,
+  ) {
     const result = await this.watchlistService.checkIfProdIsIn(id, prod_id);
 
     return {
       prod_id,
-      isIn: typeof result === "undefined",
+      isIn: typeof result !== "undefined",
     };
   }
 
   @Mutation(() => WatchlistRemoveType)
-  async removeWatchlist(@Args("watchlist_id", { type: () => Int }) watchlist_id: number) {
-    const { affected } = await this.watchlistService.removeById(watchlist_id);
+  async watchlistRemoveItem(
+    @Args("prod_id", { type: () => Int }) prod_id: number,
+    @User() user_id: number,
+  ) {
+    try {
+      const { affected } = await this.watchlistService.removeById(prod_id, user_id);
 
-    return {
-      affected,
-      watchlist_id,
-    };
+      return {
+        affected,
+        prod_id,
+      };
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @Mutation(() => WatchlistEntity)
-  async appendWatchlist(
+  async watchlistAppendItem(
     @Args("prod_id", { nullable: false, type: () => Int }) prod_id: number,
     @User() id: number,
   ) {
@@ -68,8 +78,9 @@ export class WatchlistResolver {
 
       return await this.watchlistService.getOne(generatedMaps[0].id);
     } catch (error) {
+      console.log(error);
       throw new BadRequestException({
-        message: "Something went wrong",
+        message: error,
         statusCode: 400,
       });
     }

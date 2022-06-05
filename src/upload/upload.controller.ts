@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   BadRequestException,
+  HttpStatus,
 } from "@nestjs/common";
 import { Express } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -45,9 +46,11 @@ export class FilesController {
 
   @Get("images=:img")
   getUploadedFile(@Param("img") img: string, @Res() res: Response) {
-    const file = createReadStream(join(process.cwd(), `./images/${img}`)).on("error", (err) =>
-      console.warn(err),
-    );
+    if (typeof img === "undefined") return res.status(HttpStatus.NOT_ACCEPTABLE);
+    const file = createReadStream(join(process.cwd(), `./images/${img}`)).on("error", (err) => {
+      res.status(404).send({ error: "Image not found", statusCode: 404, message: [] });
+    });
+
     return file.pipe(res);
   }
 }

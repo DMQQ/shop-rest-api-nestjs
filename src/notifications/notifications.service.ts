@@ -1,16 +1,29 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ExpoPushMessage } from "expo-server-sdk";
+import Expo, { ExpoPushMessage } from "expo-server-sdk";
 import { Repository, UpdateResult } from "typeorm";
-import { expo } from "./methods";
 import { NotificationsEntity } from "./notifications.entity";
 
 @Injectable()
 export class NotificationsService {
+  private expo: Expo;
   constructor(
     @InjectRepository(NotificationsEntity)
     private readonly notifyRepository: Repository<NotificationsEntity>,
-  ) {}
+  ) {
+    this.expo = new Expo();
+  }
+
+  async single(id: number, message: Omit<ExpoPushMessage, "to">) {
+    return this.findUsersToken(id).then(async (res) => {
+      await this.expo.sendPushNotificationsAsync([
+        {
+          to: res.token,
+          ...message,
+        },
+      ]);
+    });
+  }
 
   pushTokenToDataBase(token: string, user_id: number) {
     return this.notifyRepository.insert({ token, user_id });
@@ -46,7 +59,36 @@ export class NotificationsService {
     return this.getTokens()
       .then((res) => res.map(({ token }) => token))
       .then((tokens) => {
-        expo.sendPushNotificationsAsync(fn(tokens));
+        this.expo.sendPushNotificationsAsync(fn(tokens));
       });
+  }
+
+  async purchaseNotification(user_id: number) {
+    const { token } = await this.getUserToken(user_id);
+
+    if (token) {
+      await this.expo.sendPushNotificationsAsync([
+        {
+          to: token,
+          sound: "default",
+          body: "❤ Purchase copy can be found in your mail box ❤",
+          title: "❤ Thank you for purchase ❤",
+          badge: 1,
+          ttl: 10,
+        },
+      ]);
+    }
+  }
+
+  async dailySale() {
+    this.getTokens().then((tokens) => {
+      this.expo.sendPushNotificationsAsync(
+        tokens.map(({ token }) => ({
+          to: token,
+          title: "Daily discount just hit, check it out",
+          body: "20% off on a daily product",
+        })),
+      );
+    });
   }
 }

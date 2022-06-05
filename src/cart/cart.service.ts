@@ -19,9 +19,26 @@ export class CartService {
     });
   }
 
+  async getSingleCartProduct(prod_id: number, user_id: number) {
+    return this.cartRepository
+      .findOne({
+        relations: ["prod_id", "prod_id.img_id"],
+        where: { prod_id, user_id },
+      })
+      .then((result: any) => ({
+        prod_id: result.prod_id.prod_id,
+        cart_id: result.cart_id,
+        ammount: result.ammount,
+        title: result.prod_id.title,
+        price: result.prod_id.price,
+        img_id: [result.prod_id.img_id[0]],
+      }));
+  }
+
   async getUsersCart(user_id: number, skip = 0) {
     return this.cartRepository
       .find({
+        select: ["prod_id", "ammount", "prod_id", "cart_id"],
         relations: ["prod_id", "img_id"],
         where: { user_id },
         skip,
@@ -32,7 +49,7 @@ export class CartService {
           prod_id: prod_id.prod_id,
           price: prod_id.price,
           title: prod_id.title,
-          img_id,
+          img_id: [img_id[0]],
           cart_id,
           ammount,
         })),

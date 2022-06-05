@@ -21,6 +21,9 @@ export class SaleEntity {
   @CreateDateColumn({ name: "date", nullable: false, insert: true })
   date: Date;
 
+  @Column({ type: "int" })
+  amount: number;
+
   @Field(() => ProductsEntity)
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id)
   @JoinColumn({ name: "prod_id" })
