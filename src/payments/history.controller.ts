@@ -2,9 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Get,
   Headers,
   Post,
+  Get,
+  UseInterceptors,
   Req,
   Res,
 } from "@nestjs/common";
@@ -13,6 +14,7 @@ import { HistoryService } from "./history.service";
 import { Response } from "express";
 import { CartService } from "../cart/cart.service";
 import { NotificationsService } from "../notifications/notifications.service";
+
 import User from "../utils/decorators/User";
 
 interface BufferRequest extends Request {
@@ -29,24 +31,7 @@ export class HistoryController {
 
   @Get("/history")
   async getYourPurchaseHistory(@User() id: number) {
-    return this.historyService.getHistory(id).then(([result]) => {
-      return {
-        hasMore: false,
-        results: result.map((prod: any) => ({
-          product: {
-            prod_id: prod.prod_id.prod_id,
-            title: prod.prod_id.title,
-            price: prod.prod_id.price,
-            img_id: prod.img_id,
-          },
-          details: {
-            purchase_id: prod.history_id,
-            date: prod.date,
-            status: prod.status,
-          },
-        })),
-      };
-    });
+    return this.historyService.getHistoryGQL(id);
   }
 
   @Post("/create-payment-intent")
@@ -85,24 +70,21 @@ export class HistoryController {
       const products = JSON.parse(metadata.prod_id)?.prod_id;
       const user_id = Number(metadata.user_id);
 
-      try {
-        await this.historyService.savePurchase({
-          amount: amount / 100,
-          client_secret,
-          products,
-          user_id,
-          payment_method,
-        });
-      } catch (error) {
-        console.log(error);
-        response.status(400).send({
-          error: error,
-        });
-      }
+      await this.historyService.savePurchase({
+        products,
+        user_id,
+        total_price: amount / 100,
+        client_secret,
+        payment_method,
+      });
 
       await this.notifyService.purchaseNotification(user_id);
 
       await this.cartService.removeAllRelatedToUser(user_id);
+
+      try {
+        await this.historyService.decreaseProductAmount(products);
+      } catch (error) {}
 
       response.send({
         finished: true,

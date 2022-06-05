@@ -12,7 +12,7 @@
 - **stripe** payments
 - **graphql/apollo** graphql query
 - **expo-server-sdk** mobile notifications
-- **class-transformer, class-validator** for input validation
+- **class-transformer, class-validator** input validation
 - **nodejs** runtime
 
 ## **Set enviroment variables**
@@ -22,7 +22,7 @@
 - EMAIL (for sendgrid)
 - STRIPE_WEBHOOK_KEY
 
-## Run test payments on local
+## Run test payments on local device
 
 1. Download [stripe cli](https://stripe.com/docs/stripe-cli)
 2. Run stripe cli via cmd

@@ -1,5 +1,4 @@
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { UploadEntity } from "../upload/upload.entity";
 
 import {
   Column,
@@ -7,11 +6,19 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  OneToMany,
   CreateDateColumn,
+  OneToOne,
 } from "typeorm";
 
 import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { PaymentEntity } from "./payment.entity";
+
+enum PaymentSteps {
+  created = "created",
+  processing = "processing",
+  finished = "finished",
+  failed = "failed",
+}
 
 @ObjectType()
 @Entity("purchase_history")
@@ -20,56 +27,27 @@ export class HistoryEntity {
   @PrimaryGeneratedColumn()
   history_id: number;
 
-  @Field(() => Int)
-  @Column("int")
+  @Field(() => Int, { nullable: true })
+  @Column("int", { select: false })
   user_id: number;
 
-  @Field(() => Int)
+  @Field(() => ProductsEntity)
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "prod_id" })
   prod_id: number;
 
-  @CreateDateColumn({ insert: true })
+  @Field(() => String)
+  @CreateDateColumn({ insert: true, type: "timestamp" })
   date: string;
 
-  @Field()
-  @Column({ type: "varchar", length: 10 })
+  @Field({ nullable: true })
+  @Column({ type: "enum", enum: PaymentSteps, nullable: true, select: false })
   status: string;
 
-  @Column({ type: "int" })
-  amount: number;
-
-  @Column({ type: "varchar", length: "50" })
-  payment_method: string;
-
-  @Column({ type: "varchar" })
-  client_secret: string;
-
-  @Field(() => Int)
-  @OneToMany(() => UploadEntity, (type) => type.prod_id)
-  @JoinColumn({ name: "img_id" })
-  img_id: number;
-}
-
-@ObjectType()
-class Details {
-  @Field(() => Int)
-  purchase_id: number;
-
-  @Field(() => String)
-  date: string;
-
-  @Field(() => String)
-  status: string;
-}
-
-@ObjectType()
-export class HistoryResponse {
-  @Field(() => ProductsEntity)
-  product: ProductsEntity;
-
-  @Field(() => Details)
-  details: Details;
+  @Field(() => PaymentEntity, { nullable: true })
+  @OneToOne(() => PaymentEntity, (type) => type.history_id)
+  @JoinColumn({ name: "payment" })
+  payment: PaymentEntity;
 }
