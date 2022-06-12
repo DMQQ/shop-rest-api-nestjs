@@ -52,21 +52,28 @@ export class CartService {
 
     const total = cart.map((c: any) => c.ammount * c.prod_id!.price).reduce((a, b) => a + b);
 
-    const flat = (arr: number[][]): number[] => [].concat(...arr);
+    //@ts-ignore
+    const flat = <T>(arr: T[][]): T[] => [].concat(...arr);
 
     const products = flat(cart.map((c: any) => new Array(c.ammount).fill(c.prod_id.prod_id)));
 
     return [total, products];
   }
 
-  findSameProductInCart(user_id: number, prod_id: any): Promise<CartEntity> {
-    return this.cartRepository.findOne({ user_id, prod_id });
+  findSameProductInCart(user_id: number, prod_id: any): Promise<CartEntity | undefined> {
+    return this.cartRepository.findOne({
+      where: { user_id, prod_id },
+    });
   }
 
   async incrementAmmount(user_id: number, prod_id: number): Promise<UpdateResult> {
-    return this.findSameProductInCart(user_id, prod_id).then(({ cart_id, ammount }) => {
-      return this.cartRepository.update({ cart_id: cart_id }, { ammount: ammount + 1 });
-    });
+    return this.cartRepository
+      .createQueryBuilder("cart")
+      .update()
+      .set({ ammount: () => "ammount + 1" })
+      .where("cart.prod_id = :prod_id", { prod_id })
+      .andWhere("cart.user_id = :user_id", { user_id })
+      .execute();
   }
 
   async decreaseAmmount(cart_id: number, ammount: number): Promise<UpdateResult> {
@@ -77,7 +84,7 @@ export class CartService {
     return this.cartRepository.delete({ cart_id });
   }
 
-  findOneProductInCart(cart_id: number): Promise<CartEntity> {
+  findOneProductInCart(cart_id: number): Promise<CartEntity | undefined> {
     return this.cartRepository.findOne({ cart_id });
   }
 

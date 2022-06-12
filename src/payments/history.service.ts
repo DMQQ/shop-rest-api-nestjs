@@ -22,17 +22,10 @@ export class HistoryService {
 
     @InjectConnection() private conn: Connection,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
+    this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET!, {
       apiVersion: "2020-08-27",
       typescript: true,
     });
-  }
-
-  decreaseProductAmount(products: number[]) {
-    return this.productsRepository.query(
-      "UPDATE products SET quantity = quantity - 1 WHERE prod_id IN (?);",
-      [products.join(",")],
-    );
   }
 
   createIntent<T extends {} = {}>(total: number, metadata?: T) {
@@ -46,48 +39,20 @@ export class HistoryService {
   constructEventPayload(sig: string, payload: Buffer) {
     const webhookSec = process.env.STRIPE_WEBHOOK_KEY;
 
+    if (typeof webhookSec === "undefined") throw new Error("Missing webhook secret");
+
     return this.stripe.webhooks.constructEvent(payload, sig, webhookSec);
   }
 
-  async getTotalPriceOfSelectedProducts(ids: number[]) {
-    return this.productsRepository
-      .findByIds(ids, {
-        select: ["price"],
-      })
-      .then((values) => {
-        return values.map(({ price }) => +price).reduce((a, b) => a + b);
-      });
+  getHistoryGQL(user_id: number, skip = 0) {
+    return this.paymentRepository.find({
+      where: { user_id },
+      order: { date: "DESC" },
+      relations: ["products", "products.prod_id", "products.prod_id.img_id"],
+      skip,
+      take: 5,
+    });
   }
-
-  async savePurchase({ products, user_id, ...rest }: SavePurchase) {
-    const map = products.map((prod_id) => ({ prod_id, user_id, status: "finished" }));
-
-    const result = await this.historyRepository
-      .createQueryBuilder("hs")
-      .insert()
-      .values(map)
-      .execute();
-
-    const history_id = result.identifiers?.[0].history_id as number;
-
-    const payment = await this.paymentRepository.insert({ ...rest });
-
-    const payment_id = payment.identifiers?.[0].payment_id as string;
-
-    //@ts-ignore
-    await this.historyRepository.update({ history_id }, { payment: payment_id });
-  }
-
-  getHistory(user_id: number) {
-    return this.historyRepository
-      .createQueryBuilder("hs")
-      .leftJoinAndSelect("hs.prod_id", "product")
-      .leftJoinAndSelect("product.img_id", "images")
-      .where("hs.user_id = :user_id", { user_id })
-      .getManyAndCount();
-  }
-
-  getHistoryGQL(user_id: number, skip = 0) {}
 
   getUserPurchasedProduct(user_id: number, prod_id: number) {
     return this.historyRepository.findOneOrFail({
@@ -99,14 +64,14 @@ export class HistoryService {
     });
   }
 
-  /*  Purchase Transaction */
-
   async purchase(props: PurchaseProps, callback?: () => Promise<void>): Promise<void> {
     const runner = this.conn.createQueryRunner();
 
-    await runner.connect();
+    // await runner.connect();
 
     await runner.startTransaction();
+
+    console.log("start transaction");
 
     try {
       await runner.query("DELETE FROM cart WHERE user_id = ?;", [props.user_id]);
@@ -140,6 +105,8 @@ export class HistoryService {
 
       await callback?.();
 
+      console.log("end transaction");
+
       await runner.commitTransaction();
     } catch (error) {
       console.log(error);
@@ -148,11 +115,5 @@ export class HistoryService {
     } finally {
       await runner.release();
     }
-  }
-
-  test() {
-    return this.paymentRepository.find({
-      relations: ["products", "products.prod_id", "products.prod_id.img_id"],
-    });
   }
 }

@@ -1,14 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Headers,
-  Post,
-  Get,
-  Req,
-  Res,
-} from "@nestjs/common";
-import { HistoryDto } from "./dto/history.dto";
+import { BadRequestException, Controller, Headers, Post, Get, Req, Res } from "@nestjs/common";
 import { HistoryService } from "./history.service";
 import { Response } from "express";
 import { CartService } from "../cart/cart.service";
@@ -27,11 +17,6 @@ export class HistoryController {
     private cartService: CartService,
     private notifyService: NotificationsService,
   ) {}
-
-  @Get()
-  test() {
-    return this.historyService.test();
-  }
 
   @Get("/history")
   async getYourPurchaseHistory(@User() id: number) {

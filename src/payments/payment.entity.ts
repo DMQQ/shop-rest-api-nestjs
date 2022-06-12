@@ -37,6 +37,7 @@ export class PaymentEntity {
   @Column({ type: "int", nullable: false })
   total_price: number;
 
+  @Field(() => String)
   @CreateDateColumn({ insert: true, type: "timestamp" })
   date: string;
 
@@ -44,6 +45,7 @@ export class PaymentEntity {
   @Column({ type: "enum", enum: PaymentSteps, nullable: true, select: false })
   status: string;
 
+  @Field(() => [HistoryEntity])
   @OneToMany(() => HistoryEntity, (type) => type.payment_id)
   products: HistoryEntity[];
 }

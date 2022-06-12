@@ -57,6 +57,7 @@ export class CartController {
 
       return !!result.affected && { statusCode: 201, message: "Added", product };
     } catch (error) {
+      console.log(error);
       throw new BadRequestException();
     }
   }
@@ -64,10 +65,13 @@ export class CartController {
   @Delete()
   async removeFromCart(@Query("id", ParseIntPipe) cart_id: number) {
     try {
-      const { ammount } = await this.cartService.findOneProductInCart(cart_id);
+      const result = await this.cartService.findOneProductInCart(cart_id);
 
-      if (ammount > 1) {
-        const { affected } = await this.cartService.decreaseAmmount(cart_id, ammount);
+      if ((result?.ammount || 0) > 1) {
+        const { affected } = await this.cartService.decreaseAmmount(
+          cart_id,
+          result!.ammount as number,
+        );
 
         return response(!!affected);
       }

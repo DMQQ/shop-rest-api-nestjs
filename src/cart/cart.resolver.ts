@@ -26,10 +26,10 @@ export class CartResolver {
   @Mutation(() => AddCart)
   async removeCart(@Args("cart_id", { type: () => Int }) cart_id: number) {
     try {
-      const { ammount } = await this.cartService.findOneProductInCart(cart_id);
+      const result = await this.cartService.findOneProductInCart(cart_id);
 
-      if (ammount > 1) {
-        await this.cartService.decreaseAmmount(cart_id, ammount);
+      if ((result?.ammount || 0) > 1) {
+        await this.cartService.decreaseAmmount(cart_id, result!.ammount!);
         return {
           affected: 1,
           cart_id,
@@ -37,7 +37,7 @@ export class CartResolver {
       }
       const { affected } = await this.cartService.removeFromCart(cart_id);
 
-      if (affected > 0)
+      if (affected! > 0)
         return {
           cart_id,
           affected: 1,
@@ -61,7 +61,7 @@ export class CartResolver {
     }
     const result = await this.cartService.incrementAmmount(id, prod_id);
 
-    if (result.affected > 0)
+    if ((result?.affected || 0) > 0)
       return {
         cart_id: null,
         affected: 1,
