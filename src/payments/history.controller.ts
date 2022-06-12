@@ -28,19 +28,24 @@ export class HistoryController {
     private notifyService: NotificationsService,
   ) {}
 
+  @Get()
+  test() {
+    return this.historyService.test();
+  }
+
   @Get("/history")
   async getYourPurchaseHistory(@User() id: number) {
     return this.historyService.getHistoryGQL(id);
   }
 
   @Post("/create-payment-intent")
-  async createPayment(@Body() { prod_id, user_id }: HistoryDto, @Res() response: Response) {
+  async createPayment(@Res() response: Response, @User() user: number) {
     try {
-      const total = await this.historyService.getTotalPriceOfSelectedProducts(prod_id);
+      const [total, prod_id] = await this.cartService.getCartTotal(user);
 
       const paymentIntent = await this.historyService.createIntent(total, {
         prod_id: JSON.stringify({ prod_id }),
-        user_id: user_id.toString(),
+        user_id: user.toString(),
       });
 
       response.send({
@@ -50,6 +55,8 @@ export class HistoryController {
       console.log(error);
     }
   }
+
+  // fix history entity, it's badly designed
 
   @Post("/webhook")
   async handleEvent(

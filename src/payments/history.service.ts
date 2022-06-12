@@ -87,15 +87,7 @@ export class HistoryService {
       .getManyAndCount();
   }
 
-  getHistoryGQL(user_id: number, skip = 0) {
-    return this.historyRepository.find({
-      where: { user_id },
-      relations: ["prod_id", "prod_id.img_id", "payment"],
-      order: { date: "DESC" },
-      skip,
-      take: 5,
-    });
-  }
+  getHistoryGQL(user_id: number, skip = 0) {}
 
   getUserPurchasedProduct(user_id: number, prod_id: number) {
     return this.historyRepository.findOneOrFail({
@@ -122,28 +114,33 @@ export class HistoryService {
       const payment_id = randomUUID();
 
       await runner.query(
-        "INSERT INTO payment(payment_id,payment_method,client_secret,total_price) VALUES(?,?,?,?)",
-        [payment_id, props.payment_method, props.client_secret, props.total_price / 100],
+        "INSERT INTO payment(payment_id,payment_method,client_secret,total_price,status,user_id) VALUES(?,?,?,?,?,?)",
+        [
+          payment_id,
+          props.payment_method,
+          props.client_secret,
+          props.total_price / 100,
+          "finished",
+          props.user_id,
+        ],
       );
 
       const products_fn = props.products.map((id) =>
-        runner.query(
-          "INSERT INTO purchase_history(user_id,status,prod_id,payment) VALUES (?,?,?,?)",
-          [props.user_id, "finished", id, payment_id],
-        ),
+        runner.query("INSERT INTO purchase_history(prod_id,payment_id) VALUES (?,?)", [
+          id,
+          payment_id,
+        ]),
       );
 
       await Promise.all(products_fn);
 
       await runner.query("UPDATE products SET quantity = quantity - 1 WHERE prod_id IN (?);", [
-        props.products.join(","),
+        [...new Set(props.products)].join(","),
       ]);
 
       await callback?.();
 
       await runner.commitTransaction();
-
-      console.log("payment ok");
     } catch (error) {
       console.log(error);
 
@@ -151,5 +148,11 @@ export class HistoryService {
     } finally {
       await runner.release();
     }
+  }
+
+  test() {
+    return this.paymentRepository.find({
+      relations: ["products", "products.prod_id", "products.prod_id.img_id"],
+    });
   }
 }

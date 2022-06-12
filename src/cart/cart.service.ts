@@ -44,6 +44,21 @@ export class CartService {
     return this.cartRepository.insert({ user_id, prod_id });
   }
 
+  async getCartTotal(user_id: number): Promise<[number, number[]]> {
+    const cart = await this.cartRepository.find({
+      where: { user_id },
+      relations: ["prod_id"],
+    });
+
+    const total = cart.map((c: any) => c.ammount * c.prod_id!.price).reduce((a, b) => a + b);
+
+    const flat = (arr: number[][]): number[] => [].concat(...arr);
+
+    const products = flat(cart.map((c: any) => new Array(c.ammount).fill(c.prod_id.prod_id)));
+
+    return [total, products];
+  }
+
   findSameProductInCart(user_id: number, prod_id: any): Promise<CartEntity> {
     return this.cartRepository.findOne({ user_id, prod_id });
   }
