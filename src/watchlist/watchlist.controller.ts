@@ -55,7 +55,6 @@ export class WatchlistController {
     } catch (error) {
       throw new BadRequestException({
         message: "Something went wrong",
-        statusCode: 400,
       });
     }
   }

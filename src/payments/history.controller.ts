@@ -5,7 +5,6 @@ import {
   Headers,
   Post,
   Get,
-  UseInterceptors,
   Req,
   Res,
 } from "@nestjs/common";
@@ -70,21 +69,17 @@ export class HistoryController {
       const products = JSON.parse(metadata.prod_id)?.prod_id;
       const user_id = Number(metadata.user_id);
 
-      await this.historyService.savePurchase({
-        products,
-        user_id,
-        total_price: amount / 100,
+      const props = {
         client_secret,
+        user_id,
+        products,
         payment_method,
+        total_price: amount,
+      };
+
+      await this.historyService.purchase(props, async () => {
+        await this.notifyService.purchaseNotification(user_id);
       });
-
-      await this.notifyService.purchaseNotification(user_id);
-
-      await this.cartService.removeAllRelatedToUser(user_id);
-
-      try {
-        await this.historyService.decreaseProductAmount(products);
-      } catch (error) {}
 
       response.send({
         finished: true,

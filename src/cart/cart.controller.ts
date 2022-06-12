@@ -25,12 +25,12 @@ export class CartController {
 
   @Get()
   async getCart(@User() user_id: number, @Query("skip") skip: number) {
-    return this.cartService.getUsersCart(user_id, skip);
+    return this.cartService.getCart(user_id, skip);
   }
 
   @Get("/check")
   async checkIsIn(@Query("prod_id") prod_id: number, @User() id: number) {
-    const cart = await this.cartService.getOneByUserAndProduct(id, prod_id);
+    const cart = await this.cartService.isInCart(id, prod_id);
     return {
       isIn: typeof cart !== "undefined",
     };
@@ -77,7 +77,6 @@ export class CartController {
       return response(!!affected);
     } catch (error) {
       throw new BadRequestException({
-        statusCode: 400,
         message: error,
       });
     }

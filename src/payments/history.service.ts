@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { In, Repository } from "typeorm";
+import { Connection, In, QueryRunner, Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 import { Stripe } from "stripe";
-import { SavePurchase } from "./history.interface";
+import { PurchaseProps, SavePurchase } from "./history.interface";
 import { PaymentEntity } from "./payment.entity";
+import { randomUUID } from "crypto";
 
 @Injectable()
 export class HistoryService {
@@ -18,6 +19,8 @@ export class HistoryService {
     private productsRepository: Repository<ProductsEntity>,
 
     @InjectRepository(PaymentEntity) private paymentRepository: Repository<PaymentEntity>,
+
+    @InjectConnection() private conn: Connection,
   ) {
     this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
       apiVersion: "2020-08-27",
@@ -67,7 +70,7 @@ export class HistoryService {
 
     const history_id = result.identifiers?.[0].history_id as number;
 
-    const payment = await this.paymentRepository.insert({ ...rest, history_id });
+    const payment = await this.paymentRepository.insert({ ...rest });
 
     const payment_id = payment.identifiers?.[0].payment_id as string;
 
@@ -90,7 +93,7 @@ export class HistoryService {
       relations: ["prod_id", "prod_id.img_id", "payment"],
       order: { date: "DESC" },
       skip,
-      take: 10,
+      take: 5,
     });
   }
 
@@ -102,5 +105,51 @@ export class HistoryService {
         prod_id,
       },
     });
+  }
+
+  /*  Purchase Transaction */
+
+  async purchase(props: PurchaseProps, callback?: () => Promise<void>): Promise<void> {
+    const runner = this.conn.createQueryRunner();
+
+    await runner.connect();
+
+    await runner.startTransaction();
+
+    try {
+      await runner.query("DELETE FROM cart WHERE user_id = ?;", [props.user_id]);
+
+      const payment_id = randomUUID();
+
+      await runner.query(
+        "INSERT INTO payment(payment_id,payment_method,client_secret,total_price) VALUES(?,?,?,?)",
+        [payment_id, props.payment_method, props.client_secret, props.total_price / 100],
+      );
+
+      const products_fn = props.products.map((id) =>
+        runner.query(
+          "INSERT INTO purchase_history(user_id,status,prod_id,payment) VALUES (?,?,?,?)",
+          [props.user_id, "finished", id, payment_id],
+        ),
+      );
+
+      await Promise.all(products_fn);
+
+      await runner.query("UPDATE products SET quantity = quantity - 1 WHERE prod_id IN (?);", [
+        props.products.join(","),
+      ]);
+
+      await callback?.();
+
+      await runner.commitTransaction();
+
+      console.log("payment ok");
+    } catch (error) {
+      console.log(error);
+
+      await runner.rollbackTransaction();
+    } finally {
+      await runner.release();
+    }
   }
 }

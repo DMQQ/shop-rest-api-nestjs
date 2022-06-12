@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DeleteResult, InsertResult, Repository, UpdateResult } from "typeorm";
 import { CartEntity } from "./cart.entity";
+import { singleCartProduct } from "./cart.functions";
 
 @Injectable()
 export class CartService {
@@ -25,35 +26,19 @@ export class CartService {
         relations: ["prod_id", "prod_id.img_id"],
         where: { prod_id, user_id },
       })
-      .then((result: any) => ({
-        prod_id: result.prod_id.prod_id,
-        cart_id: result.cart_id,
-        ammount: result.ammount,
-        title: result.prod_id.title,
-        price: result.prod_id.price,
-        img_id: [result.prod_id.img_id[0]],
-      }));
+      .then(singleCartProduct);
   }
 
-  async getUsersCart(user_id: number, skip = 0) {
+  async getCart(user_id: number, skip = 0) {
     return this.cartRepository
       .find({
         select: ["prod_id", "ammount", "prod_id", "cart_id"],
-        relations: ["prod_id", "img_id"],
+        relations: ["prod_id", "prod_id.img_id"],
         where: { user_id },
         skip,
         take: 5,
       })
-      .then((result) =>
-        result.map(({ prod_id, img_id, cart_id, ammount }: any) => ({
-          prod_id: prod_id.prod_id,
-          price: prod_id.price,
-          title: prod_id.title,
-          img_id: [img_id[0]],
-          cart_id,
-          ammount,
-        })),
-      );
+      .then((result) => result.map(singleCartProduct));
   }
   addToCart(user_id: number, prod_id: any): Promise<InsertResult> {
     return this.cartRepository.insert({ user_id, prod_id });
@@ -85,7 +70,7 @@ export class CartService {
     return this.cartRepository.delete({ user_id });
   }
 
-  getOneByUserAndProduct(user_id: number, prod_id: any) {
+  isInCart(user_id: number, prod_id: any) {
     return this.cartRepository.findOne({ user_id, prod_id });
   }
 }

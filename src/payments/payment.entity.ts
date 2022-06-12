@@ -17,7 +17,4 @@ export class PaymentEntity {
   @Field(() => Int)
   @Column({ type: "bigint", nullable: false })
   total_price: number;
-
-  @Column({ type: "int" })
-  history_id: number;
 }

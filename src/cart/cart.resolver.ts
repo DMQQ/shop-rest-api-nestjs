@@ -16,7 +16,7 @@ export class CartResolver {
 
   @Query(() => IsInCart)
   async isInCart(@Args("prod_id", { type: () => Int }) prod_id: number, @User() id: number) {
-    const cart = await this.cartService.getOneByUserAndProduct(id, prod_id);
+    const cart = await this.cartService.isInCart(id, prod_id);
 
     return {
       isIn: typeof cart !== "undefined",

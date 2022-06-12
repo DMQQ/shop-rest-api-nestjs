@@ -32,7 +32,7 @@ export class RatingsEntity {
   description: string;
 
   @Field(() => HistoryEntity)
-  @OneToOne(() => HistoryEntity)
+  @OneToOne(() => HistoryEntity, { onDelete: "CASCADE" })
   @JoinColumn({ name: "history_id" })
   history_id: number;
 }

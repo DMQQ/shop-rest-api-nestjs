@@ -47,7 +47,7 @@ export class HistoryEntity {
   status: string;
 
   @Field(() => PaymentEntity, { nullable: true })
-  @OneToOne(() => PaymentEntity, (type) => type.history_id)
+  @OneToOne(() => PaymentEntity, (type) => type.payment_id, { onDelete: "CASCADE" })
   @JoinColumn({ name: "payment" })
   payment: PaymentEntity;
 }
