@@ -28,7 +28,7 @@ export class NotificationsResolver {
     const result = await this.notifiRepo.findUsersToken(user_id);
 
     if (typeof result === "undefined") {
-      const { raw } = await this.notifiRepo.pushTokenToDataBase(token, user_id);
+      const { raw } = await this.notifiRepo.saveToken(token, user_id);
 
       if (raw.affected > 0) {
         return {

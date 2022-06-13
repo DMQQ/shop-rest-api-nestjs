@@ -76,8 +76,8 @@ export class CartService {
       .execute();
   }
 
-  async decreaseAmmount(cart_id: number, ammount: number): Promise<UpdateResult> {
-    return this.cartRepository.update({ cart_id }, { ammount: ammount - 1 });
+  async decreaseAmmount(cart_id: number): Promise<UpdateResult> {
+    return this.cartRepository.update({ cart_id }, { ammount: () => "ammount - 1" });
   }
 
   removeFromCart(cart_id: number): Promise<DeleteResult> {

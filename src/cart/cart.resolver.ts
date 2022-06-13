@@ -29,7 +29,7 @@ export class CartResolver {
       const result = await this.cartService.findOneProductInCart(cart_id);
 
       if ((result?.ammount || 0) > 1) {
-        await this.cartService.decreaseAmmount(cart_id, result!.ammount!);
+        await this.cartService.decreaseAmmount(cart_id);
         return {
           affected: 1,
           cart_id,

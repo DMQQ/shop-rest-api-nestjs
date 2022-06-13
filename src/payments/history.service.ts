@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { Connection, In, QueryRunner, Repository } from "typeorm";
+import { Connection, In, Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 import { Stripe } from "stripe";
-import { PurchaseProps, SavePurchase } from "./history.interface";
+import { PurchaseProps } from "./history.interface";
 import { PaymentEntity } from "./payment.entity";
 import { randomUUID } from "crypto";
 
@@ -14,9 +14,6 @@ export class HistoryService {
   constructor(
     @InjectRepository(HistoryEntity)
     private historyRepository: Repository<HistoryEntity>,
-
-    @InjectRepository(ProductsEntity)
-    private productsRepository: Repository<ProductsEntity>,
 
     @InjectRepository(PaymentEntity) private paymentRepository: Repository<PaymentEntity>,
 
@@ -78,30 +75,29 @@ export class HistoryService {
 
       const payment_id = randomUUID();
 
-      await runner.query(
-        "INSERT INTO payment(payment_id,payment_method,client_secret,total_price,status,user_id) VALUES(?,?,?,?,?,?)",
-        [
-          payment_id,
-          props.payment_method,
-          props.client_secret,
-          props.total_price / 100,
-          "finished",
-          props.user_id,
-        ],
+      console.log("Payment ID: " + payment_id);
+
+      await runner.manager.insert(PaymentEntity, {
+        client_secret: props.client_secret,
+        payment_id,
+        payment_method: props.payment_method,
+        status: "finished",
+        user_id: props.user_id,
+        total_price: props.total_price / 100,
+      });
+
+      await runner.manager.insert(
+        HistoryEntity,
+        props.products.map((prod_id) => ({ prod_id, payment_id })),
       );
 
-      const products_fn = props.products.map((id) =>
-        runner.query("INSERT INTO purchase_history(prod_id,payment_id) VALUES (?,?)", [
-          id,
-          payment_id,
-        ]),
+      await runner.manager.update(
+        ProductsEntity,
+        {
+          prod_id: In(props.products),
+        },
+        { quantity: () => "quantity - 1" },
       );
-
-      await Promise.all(products_fn);
-
-      await runner.query("UPDATE products SET quantity = quantity - 1 WHERE prod_id IN (?);", [
-        [...new Set(props.products)].join(","),
-      ]);
 
       await callback?.();
 
@@ -109,7 +105,7 @@ export class HistoryService {
 
       await runner.commitTransaction();
     } catch (error) {
-      console.log(error);
+      // TODO: if transaction failed, retry,refund or inform user
 
       await runner.rollbackTransaction();
     } finally {

@@ -16,7 +16,7 @@ export class NotificationsController {
   ) {
     this.notifiService.findUsersToken(user_id).then(async (res) => {
       if (typeof res === "undefined") {
-        return this.notifiService.pushTokenToDataBase(props.token, user_id).then(({ raw }) => {
+        return this.notifiService.saveToken(props.token, user_id).then(({ raw }) => {
           if (raw && raw.affected > 0) {
             response.status(201).send({ status: 201, message: "token uploaded" });
           }
