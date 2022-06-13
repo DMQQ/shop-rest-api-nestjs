@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
 import { ProductsEntity } from "../products/Entities/products.entity";
-import { In, Repository } from "typeorm";
+import { Connection, In, Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 import { Stripe } from "stripe";
-import { SavePurchase } from "./history.interface";
+import { PurchaseProps } from "./history.interface";
 import { PaymentEntity } from "./payment.entity";
+import { randomUUID } from "crypto";
+import { CartEntity } from "../cart/cart.entity";
 
 @Injectable()
 export class HistoryService {
@@ -14,22 +16,14 @@ export class HistoryService {
     @InjectRepository(HistoryEntity)
     private historyRepository: Repository<HistoryEntity>,
 
-    @InjectRepository(ProductsEntity)
-    private productsRepository: Repository<ProductsEntity>,
-
     @InjectRepository(PaymentEntity) private paymentRepository: Repository<PaymentEntity>,
+
+    @InjectConnection() private conn: Connection,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET, {
+    this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET!, {
       apiVersion: "2020-08-27",
       typescript: true,
     });
-  }
-
-  decreaseProductAmount(products: number[]) {
-    return this.productsRepository.query(
-      "UPDATE products SET quantity = quantity - 1 WHERE prod_id IN (?);",
-      [products.join(",")],
-    );
   }
 
   createIntent<T extends {} = {}>(total: number, metadata?: T) {
@@ -43,64 +37,81 @@ export class HistoryService {
   constructEventPayload(sig: string, payload: Buffer) {
     const webhookSec = process.env.STRIPE_WEBHOOK_KEY;
 
+    if (typeof webhookSec === "undefined") throw new Error("Missing webhook secret");
+
     return this.stripe.webhooks.constructEvent(payload, sig, webhookSec);
   }
 
-  async getTotalPriceOfSelectedProducts(ids: number[]) {
-    return this.productsRepository
-      .findByIds(ids, {
-        select: ["price"],
-      })
-      .then((values) => {
-        return values.map(({ price }) => +price).reduce((a, b) => a + b);
-      });
-  }
-
-  async savePurchase({ products, user_id, ...rest }: SavePurchase) {
-    const map = products.map((prod_id) => ({ prod_id, user_id, status: "finished" }));
-
-    const result = await this.historyRepository
-      .createQueryBuilder("hs")
-      .insert()
-      .values(map)
-      .execute();
-
-    const history_id = result.identifiers?.[0].history_id as number;
-
-    const payment = await this.paymentRepository.insert({ ...rest, history_id });
-
-    const payment_id = payment.identifiers?.[0].payment_id as string;
-
-    //@ts-ignore
-    await this.historyRepository.update({ history_id }, { payment: payment_id });
-  }
-
-  getHistory(user_id: number) {
-    return this.historyRepository
-      .createQueryBuilder("hs")
-      .leftJoinAndSelect("hs.prod_id", "product")
-      .leftJoinAndSelect("product.img_id", "images")
-      .where("hs.user_id = :user_id", { user_id })
-      .getManyAndCount();
-  }
-
   getHistoryGQL(user_id: number, skip = 0) {
-    return this.historyRepository.find({
+    return this.paymentRepository.find({
       where: { user_id },
-      relations: ["prod_id", "prod_id.img_id", "payment"],
       order: { date: "DESC" },
+      relations: ["products", "products.prod_id", "products.prod_id.img_id"],
       skip,
-      take: 10,
+      take: 5,
     });
   }
 
-  getUserPurchasedProduct(user_id: number, prod_id: number) {
-    return this.historyRepository.findOneOrFail({
-      relations: ["prod_id"],
-      where: {
-        user_id,
-        prod_id,
-      },
-    });
+  hasPurchased(user_id: number, prod_id: number) {
+    return this.paymentRepository
+      .createQueryBuilder("pt")
+      .leftJoinAndSelect("pt.products", "prods")
+      .where("pt.user_id = :user_id", { user_id })
+      .andWhere("prods.prod_id = :prod_id", { prod_id })
+      .getOneOrFail();
+  }
+
+  async purchase(props: PurchaseProps, callback?: () => Promise<void>): Promise<void> {
+    const runner = this.conn.createQueryRunner();
+
+    // await runner.connect();
+
+    await runner.startTransaction();
+
+    console.log("start transaction");
+
+    try {
+      //  await runner.query("DELETE FROM cart WHERE user_id = ?;", [props.user_id]);
+
+      await runner.manager.delete(CartEntity, { user_id: props.user_id });
+
+      const payment_id = randomUUID();
+
+      console.log("Payment ID: " + payment_id);
+
+      await runner.manager.insert(PaymentEntity, {
+        client_secret: props.client_secret,
+        payment_id,
+        payment_method: props.payment_method,
+        status: "finished",
+        user_id: props.user_id,
+        total_price: props.total_price / 100,
+      });
+
+      await runner.manager.insert(
+        HistoryEntity,
+        props.products.map((prod_id) => ({ prod_id, payment_id })),
+      );
+
+      await runner.manager.update(
+        ProductsEntity,
+        {
+          prod_id: In(props.products),
+        },
+        { quantity: () => "quantity - 1" },
+      );
+
+      await callback?.();
+
+      console.log("end transaction");
+
+      await runner.commitTransaction();
+    } catch (error) {
+      // TODO: if transaction failed, retry,refund or inform user
+
+      await runner.rollbackTransaction();
+    } finally {
+      await runner.release();
+    }
   }
 }

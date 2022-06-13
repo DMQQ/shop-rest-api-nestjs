@@ -1,15 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Headers,
-  Post,
-  Get,
-  UseInterceptors,
-  Req,
-  Res,
-} from "@nestjs/common";
-import { HistoryDto } from "./dto/history.dto";
+import { BadRequestException, Controller, Headers, Post, Get, Req, Res } from "@nestjs/common";
 import { HistoryService } from "./history.service";
 import { Response } from "express";
 import { CartService } from "../cart/cart.service";
@@ -35,13 +24,13 @@ export class HistoryController {
   }
 
   @Post("/create-payment-intent")
-  async createPayment(@Body() { prod_id, user_id }: HistoryDto, @Res() response: Response) {
+  async createPayment(@Res() response: Response, @User() user: number) {
     try {
-      const total = await this.historyService.getTotalPriceOfSelectedProducts(prod_id);
+      const [total, prod_id] = await this.cartService.getCartTotal(user);
 
       const paymentIntent = await this.historyService.createIntent(total, {
         prod_id: JSON.stringify({ prod_id }),
-        user_id: user_id.toString(),
+        user_id: user.toString(),
       });
 
       response.send({
@@ -51,6 +40,8 @@ export class HistoryController {
       console.log(error);
     }
   }
+
+  // fix history entity, it's badly designed
 
   @Post("/webhook")
   async handleEvent(
@@ -70,21 +61,17 @@ export class HistoryController {
       const products = JSON.parse(metadata.prod_id)?.prod_id;
       const user_id = Number(metadata.user_id);
 
-      await this.historyService.savePurchase({
-        products,
-        user_id,
-        total_price: amount / 100,
+      const props = {
         client_secret,
+        user_id,
+        products,
         payment_method,
+        total_price: amount,
+      };
+
+      await this.historyService.purchase(props, async () => {
+        await this.notifyService.purchaseNotification(user_id);
       });
-
-      await this.notifyService.purchaseNotification(user_id);
-
-      await this.cartService.removeAllRelatedToUser(user_id);
-
-      try {
-        await this.historyService.decreaseProductAmount(products);
-      } catch (error) {}
 
       response.send({
         finished: true,

@@ -62,7 +62,9 @@ export class AuctionsService {
       },
     });
 
-    if (props.amount > (+highest?.amount || 0)) {
+    const amount = highest?.amount !== undefined ? +highest.amount : 0;
+
+    if (props.amount > amount) {
       const { generatedMaps } = await this.bidsRepository.insert(props);
       const bidId = generatedMaps[0].bid_id;
 

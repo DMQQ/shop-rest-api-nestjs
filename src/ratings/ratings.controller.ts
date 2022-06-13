@@ -39,21 +39,26 @@ export class RatingsController {
     @Res() response: Response,
   ) {
     try {
-      const { history_id } = await this.historyService.getUserPurchasedProduct(
-        user_id,
-        props.prod_id,
-      );
+      await this.historyService.hasPurchased(user_id, props.prod_id);
 
-      const { raw } = await this.ratingsService.addReview({ ...props, user_id, history_id });
+      const result = await this.ratingsService.hasReviewed(user_id, props.prod_id);
 
-      if (raw.affectedRows > 0) {
-        return response.status(201).send({
-          status: "Created",
-          code: 201,
+      if (typeof result !== "undefined") {
+        return response.status(400).send({
+          statusCode: 400,
+          message: "You can't post more than one review per product ",
         });
       }
+
+      await this.ratingsService.addReview({ ...props, user_id });
+
+      return response.status(201).send({
+        status: "Created",
+        code: 201,
+      });
     } catch (error) {
-      throw new BadRequestException("Purchase product to be able to review it");
+      console.log(error);
+      throw new BadRequestException("You must purchase product before reviewing");
     }
   }
 }

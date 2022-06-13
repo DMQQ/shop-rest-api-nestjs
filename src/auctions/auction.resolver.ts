@@ -52,8 +52,8 @@ export class AuctionResolver {
         ...props,
         ...insertResult.generatedMaps[0],
       };
-    } catch (error) {
-      throw new BadRequestException(error.message);
+    } catch (error: any) {
+      throw new BadRequestException(error?.message);
     }
   }
 

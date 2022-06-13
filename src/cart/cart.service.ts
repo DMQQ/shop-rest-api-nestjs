@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DeleteResult, InsertResult, Repository, UpdateResult } from "typeorm";
 import { CartEntity } from "./cart.entity";
+import { singleCartProduct } from "./cart.functions";
 
 @Injectable()
 export class CartService {
@@ -25,59 +26,65 @@ export class CartService {
         relations: ["prod_id", "prod_id.img_id"],
         where: { prod_id, user_id },
       })
-      .then((result: any) => ({
-        prod_id: result.prod_id.prod_id,
-        cart_id: result.cart_id,
-        ammount: result.ammount,
-        title: result.prod_id.title,
-        price: result.prod_id.price,
-        img_id: [result.prod_id.img_id[0]],
-      }));
+      .then(singleCartProduct);
   }
 
-  async getUsersCart(user_id: number, skip = 0) {
+  async getCart(user_id: number, skip = 0) {
     return this.cartRepository
       .find({
         select: ["prod_id", "ammount", "prod_id", "cart_id"],
-        relations: ["prod_id", "img_id"],
+        relations: ["prod_id", "prod_id.img_id"],
         where: { user_id },
         skip,
         take: 5,
       })
-      .then((result) =>
-        result.map(({ prod_id, img_id, cart_id, ammount }: any) => ({
-          prod_id: prod_id.prod_id,
-          price: prod_id.price,
-          title: prod_id.title,
-          img_id: [img_id[0]],
-          cart_id,
-          ammount,
-        })),
-      );
+      .then((result) => result.map(singleCartProduct));
   }
   addToCart(user_id: number, prod_id: any): Promise<InsertResult> {
     return this.cartRepository.insert({ user_id, prod_id });
   }
 
-  findSameProductInCart(user_id: number, prod_id: any): Promise<CartEntity> {
-    return this.cartRepository.findOne({ user_id, prod_id });
+  async getCartTotal(user_id: number): Promise<[number, number[]]> {
+    const cart = await this.cartRepository.find({
+      where: { user_id },
+      relations: ["prod_id"],
+    });
+
+    const total = cart.map((c: any) => c.ammount * c.prod_id!.price).reduce((a, b) => a + b);
+
+    //@ts-ignore
+    const flat = <T>(arr: T[][]): T[] => [].concat(...arr);
+
+    const products = flat(cart.map((c: any) => new Array(c.ammount).fill(c.prod_id.prod_id)));
+
+    return [total, products];
   }
 
-  async incrementAmmount(user_id: number, prod_id: number): Promise<UpdateResult> {
-    return this.findSameProductInCart(user_id, prod_id).then(({ cart_id, ammount }) => {
-      return this.cartRepository.update({ cart_id: cart_id }, { ammount: ammount + 1 });
+  findSameProductInCart(user_id: number, prod_id: any): Promise<CartEntity | undefined> {
+    return this.cartRepository.findOne({
+      where: { user_id, prod_id },
     });
   }
 
-  async decreaseAmmount(cart_id: number, ammount: number): Promise<UpdateResult> {
-    return this.cartRepository.update({ cart_id }, { ammount: ammount - 1 });
+  async incrementAmmount(user_id: number, prod_id: number): Promise<UpdateResult> {
+    return this.cartRepository
+      .createQueryBuilder("cart")
+      .update()
+      .set({ ammount: () => "ammount + 1" })
+      .where("cart.prod_id = :prod_id", { prod_id })
+      .andWhere("cart.user_id = :user_id", { user_id })
+      .execute();
+  }
+
+  async decreaseAmmount(cart_id: number): Promise<UpdateResult> {
+    return this.cartRepository.update({ cart_id }, { ammount: () => "ammount - 1" });
   }
 
   removeFromCart(cart_id: number): Promise<DeleteResult> {
     return this.cartRepository.delete({ cart_id });
   }
 
-  findOneProductInCart(cart_id: number): Promise<CartEntity> {
+  findOneProductInCart(cart_id: number): Promise<CartEntity | undefined> {
     return this.cartRepository.findOne({ cart_id });
   }
 
@@ -85,7 +92,7 @@ export class CartService {
     return this.cartRepository.delete({ user_id });
   }
 
-  getOneByUserAndProduct(user_id: number, prod_id: any) {
+  isInCart(user_id: number, prod_id: any) {
     return this.cartRepository.findOne({ user_id, prod_id });
   }
 }

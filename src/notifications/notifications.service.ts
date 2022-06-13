@@ -25,7 +25,7 @@ export class NotificationsService {
     });
   }
 
-  pushTokenToDataBase(token: string, user_id: number) {
+  saveToken(token: string, user_id: number) {
     return this.notifyRepository.insert({ token, user_id });
   }
 

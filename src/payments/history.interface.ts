@@ -8,3 +8,11 @@ export interface SavePurchase {
 
   total_price: number;
 }
+
+export interface PurchaseProps {
+  products: number[];
+  user_id: number;
+  total_price: number;
+  client_secret: string;
+  payment_method: string;
+}
