@@ -30,6 +30,15 @@ export class RatingsService {
     });
   }
 
+  hasReviewed(user_id: number, prod_id: number) {
+    return this.ratingsRepository.findOne({
+      where: {
+        user_id,
+        prod_id,
+      },
+    });
+  }
+
   async findRatedMoreThanThree(skip: number = 0) {
     return this.ratingsRepository
       .findAndCount({

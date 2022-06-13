@@ -7,6 +7,7 @@ import { Stripe } from "stripe";
 import { PurchaseProps } from "./history.interface";
 import { PaymentEntity } from "./payment.entity";
 import { randomUUID } from "crypto";
+import { CartEntity } from "../cart/cart.entity";
 
 @Injectable()
 export class HistoryService {
@@ -51,14 +52,13 @@ export class HistoryService {
     });
   }
 
-  getUserPurchasedProduct(user_id: number, prod_id: number) {
-    return this.historyRepository.findOneOrFail({
-      relations: ["prod_id"],
-      where: {
-        user_id,
-        prod_id,
-      },
-    });
+  hasPurchased(user_id: number, prod_id: number) {
+    return this.paymentRepository
+      .createQueryBuilder("pt")
+      .leftJoinAndSelect("pt.products", "prods")
+      .where("pt.user_id = :user_id", { user_id })
+      .andWhere("prods.prod_id = :prod_id", { prod_id })
+      .getOneOrFail();
   }
 
   async purchase(props: PurchaseProps, callback?: () => Promise<void>): Promise<void> {
@@ -71,7 +71,9 @@ export class HistoryService {
     console.log("start transaction");
 
     try {
-      await runner.query("DELETE FROM cart WHERE user_id = ?;", [props.user_id]);
+      //  await runner.query("DELETE FROM cart WHERE user_id = ?;", [props.user_id]);
+
+      await runner.manager.delete(CartEntity, { user_id: props.user_id });
 
       const payment_id = randomUUID();
 
