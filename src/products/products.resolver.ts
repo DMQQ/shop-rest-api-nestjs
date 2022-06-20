@@ -49,14 +49,15 @@ export class ProductsResolver {
   @Query(() => ProductsEntity)
   async product(@Args("prod_id", { type: () => Int }) prod_id: number) {
     try {
-      const [rating] = await this.ratingService.getAvg(prod_id);
+      //    const [rating] = await this.ratingService.getAvg(prod_id);
 
       const product = await this.productsService.getById(prod_id);
 
-      return {
+      /*   return {
         ...product,
         rating: Math.ceil(Number(rating["AVG(rating)"] ?? 0)),
-      };
+      }; */
+      return product;
     } catch (error) {
       throw new NotFoundException("Product not found");
     }

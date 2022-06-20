@@ -14,6 +14,7 @@ import {
   BadRequestException,
   NotFoundException,
   UseInterceptors,
+  UseGuards,
 } from "@nestjs/common";
 import { ProductsDto } from "./dto/products.dto";
 import { ProductsService } from "./products.service";
@@ -23,6 +24,8 @@ import { FAILED_CREATE, SUCCESS_CREATE } from "../utils/constants/responses";
 import { RatingsService } from "../ratings/ratings.service";
 import User from "../utils/decorators/User";
 import { PagingInterceptor } from "../utils/functions/PagingInterceptor";
+import { RoleGuard } from "../utils/guards/RoleGuard";
+import { UserEnum } from "../users/users.entity";
 
 @Controller("products")
 export class ProductsController {
@@ -115,6 +118,7 @@ export class ProductsController {
   }
 
   @Post()
+  @UseGuards(new RoleGuard(UserEnum.developer))
   async createProduct(
     @Body() props: ProductsDto,
     @Res() response: Response,

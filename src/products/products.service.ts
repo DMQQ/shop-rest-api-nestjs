@@ -206,4 +206,8 @@ export class ProductsService {
   applyDiscount(prod_id: number, discount: number): Promise<UpdateResult> {
     return this.productsRepository.update({ prod_id }, { price: discount });
   }
+
+  updateRating(prod_id: number, rating: number) {
+    return this.productsRepository.update({ prod_id }, { rating });
+  }
 }

@@ -5,7 +5,7 @@ import { Connection, In, Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 import { Stripe } from "stripe";
 import { PurchaseProps } from "./history.interface";
-import { PaymentEntity } from "./payment.entity";
+import { PaymentEntity, PaymentSteps } from "./payment.entity";
 import { randomUUID } from "crypto";
 import { CartEntity } from "../cart/cart.entity";
 
@@ -71,8 +71,6 @@ export class HistoryService {
     console.log("start transaction");
 
     try {
-      //  await runner.query("DELETE FROM cart WHERE user_id = ?;", [props.user_id]);
-
       await runner.manager.delete(CartEntity, { user_id: props.user_id });
 
       const payment_id = randomUUID();
@@ -83,7 +81,7 @@ export class HistoryService {
         client_secret: props.client_secret,
         payment_id,
         payment_method: props.payment_method,
-        status: "finished",
+        status: PaymentSteps.finished,
         user_id: props.user_id,
         total_price: props.total_price / 100,
       });
@@ -108,7 +106,7 @@ export class HistoryService {
       await runner.commitTransaction();
     } catch (error) {
       // TODO: if transaction failed, retry,refund or inform user
-
+      console.warn(error);
       await runner.rollbackTransaction();
     } finally {
       await runner.release();

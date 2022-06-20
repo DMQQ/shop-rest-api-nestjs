@@ -1,16 +1,8 @@
 import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  OneToMany,
-  JoinColumn,
-  ManyToOne,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 
-enum PaymentSteps {
+export enum PaymentSteps {
   created = "created",
   processing = "processing",
   finished = "finished",
@@ -43,7 +35,7 @@ export class PaymentEntity {
 
   @Field({ nullable: true })
   @Column({ type: "enum", enum: PaymentSteps, nullable: true, select: false })
-  status: string;
+  status: PaymentSteps;
 
   @Field(() => [HistoryEntity])
   @OneToMany(() => HistoryEntity, (type) => type.payment_id)

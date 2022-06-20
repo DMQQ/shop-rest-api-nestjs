@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Field, Int, ObjectType } from "@nestjs/graphql";
 
-enum UserEnum {
+export enum UserEnum {
   user = "user",
   seller = "seller",
   developer = "developer",

@@ -57,9 +57,6 @@ export class ProductsEntity {
   @JoinColumn({ name: "vendor" })
   vendor: string;
 
-  @Field(() => Int, { nullable: true, defaultValue: null })
-  rating: number;
-
   @Field()
   @Column({ type: "varchar", length: "60" })
   manufacturer: string;
@@ -72,6 +69,10 @@ export class ProductsEntity {
   @UpdateDateColumn({ insert: true, name: "date_add" })
   date_add: Date;
 
-  @Column({type:'varchar'})
-  tags:string
+  @Column({ type: "varchar" })
+  tags: string;
+
+  @Field(() => Int, { nullable: true, defaultValue: 0 })
+  @Column({ type: "tinyint", default: 0 })
+  rating: number;
 }

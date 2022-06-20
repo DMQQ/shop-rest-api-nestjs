@@ -2,13 +2,32 @@ import { Injectable } from "@nestjs/common";
 import { NotificationsService } from "../notifications/notifications.service";
 import { ProductsService } from "./products.service";
 import { Interval } from "@nestjs/schedule";
+import { RatingsService } from "../ratings/ratings.service";
 
 @Injectable()
 export class SaleSchedule {
   constructor(
     private readonly productsService: ProductsService,
     private readonly notifiService: NotificationsService,
+    private readonly ratingService: RatingsService,
   ) {}
+
+  @Interval(864_000_00 / 2)
+  async setProductsRating() {
+    try {
+      const productIds = await this.productsService.getProductsIds();
+
+      productIds.forEach(async ({ prod_id }) => {
+        try {
+          const [rating] = await this.ratingService.getAvg(prod_id);
+
+          const avg = Math.ceil(Number(rating["AVG(rating)"] ?? 0));
+
+          await this.productsService.updateRating(prod_id, avg);
+        } catch (error) {}
+      });
+    } catch (error) {}
+  }
 
   @Interval(864_000_00) // 24h
   async setDailySale() {

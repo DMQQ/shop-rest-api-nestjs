@@ -51,6 +51,7 @@ export class UsersController {
       const token = this.userService.createToken({
         email: result.email,
         id: result.id,
+        role: result.user_type,
       });
 
       return response.send({
