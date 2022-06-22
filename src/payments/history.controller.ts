@@ -35,6 +35,7 @@ export class HistoryController {
 
       response.send({
         clientSecret: paymentIntent.client_secret,
+        total,
       });
     } catch (error) {
       console.log(error);
