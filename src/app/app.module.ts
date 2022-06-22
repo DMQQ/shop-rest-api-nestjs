@@ -15,18 +15,27 @@ import { WatchlistModule } from "../watchlist/watchlist.module";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { AuctionsModule } from "../auctions/auctions.module";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as "mysql" | "postgres",
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      synchronize: true,
-      entities: ["dist/**/*.entity{.ts,.js}"],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ".env",
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService): any => ({
+        type: configService.get("CONNECTION"),
+        host: configService.get("HOST"),
+        port: +configService.get("PORT"),
+        username: configService.get("NAME"),
+        password: configService.get("PASS"),
+        database: configService.get("DATABASE"),
+        entities: ["dist/**/*.entity{.ts,.js}"],
+        synchronize: true,
+      }),
+      inject: [ConfigService],
     }),
     UsersModule,
     HistoryModule,

@@ -12,15 +12,19 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(rawOrdersMiddleware());
   swaggerConfig(app);
-  await app.listen(3000, URL, () =>
-    console.log(
-      `\n
+  if (process.env.NODE_ENV === "development") {
+    await app.listen(3000, URL, () =>
+      console.log(
+        `\n
        [Application]: Server runs on http://${URL}:3000 \n
        [Documentation]: Documentation runs on http://${URL}:3000/docs \n
        [GraphQL]: GraphQL web client runs on http://${URL}:3000/graphql \n
       `,
-    ),
-  );
+      ),
+    );
+  } else {
+    await app.listen(3000);
+  }
 }
 bootstrap();
 
