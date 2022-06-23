@@ -73,6 +73,6 @@ export class ProductsEntity {
   tags: string;
 
   @Field(() => Int, { nullable: true, defaultValue: 0 })
-  @Column({ type: "tinyint", default: 0 })
+  @Column({ type: "int", default: 0 })
   rating: number;
 }

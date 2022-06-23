@@ -33,6 +33,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
         password: configService.get("PASS"),
         database: configService.get("DATABASE"),
         entities: ["dist/**/*.entity{.ts,.js}"],
+
         synchronize: true,
       }),
       inject: [ConfigService],
