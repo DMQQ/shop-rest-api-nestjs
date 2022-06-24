@@ -21,3 +21,21 @@ export class WatchlistEntity {
   @JoinColumn({ name: "user_id" })
   user_id: number;
 }
+
+@ObjectType()
+export class WatchlistRemoveType {
+  @Field(() => Int)
+  affected: number;
+
+  @Field(() => Int)
+  prod_id: number;
+}
+
+@ObjectType()
+export class WatchlistCheck {
+  @Field(() => Int)
+  prod_id: number;
+
+  @Field(() => Boolean)
+  isIn: boolean;
+}

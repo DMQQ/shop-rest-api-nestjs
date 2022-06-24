@@ -17,13 +17,13 @@ export class WatchlistController {
 
   @Get()
   getUsersWatchlist(@User() user_id: number) {
-    return this.watchlistService.getUsers(user_id);
+    return this.watchlistService.getWatchlistREST(user_id);
   }
 
   @Delete("/:prod_id")
   async deleteFromWatchlist(@User() user_id: number, @Param("prod_id") prod_id: number) {
     try {
-      const res = await this.watchlistService.removeWatchlistProduct(user_id, prod_id);
+      const res = await this.watchlistService.remove(user_id, prod_id);
 
       if (res.affected > 0) {
         return {
@@ -46,7 +46,7 @@ export class WatchlistController {
   @Post()
   async addProductWatchlist(@User() id: number, @Body("prod_id", ParseIntPipe) prod_id: number) {
     try {
-      await this.watchlistService.addWatchlistProduct(id, prod_id);
+      await this.watchlistService.save(id, prod_id);
 
       return {
         statusCode: 201,

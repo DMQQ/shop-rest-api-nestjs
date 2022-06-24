@@ -30,7 +30,7 @@ export class WatchlistService {
       .getMany();
   }
 
-  async getUsers(user_id: number, skip: number = 0) {
+  async getWatchlistREST(user_id: number, skip: number = 0) {
     return this.watchRepository
       .createQueryBuilder("w")
       .leftJoinAndSelect("w.prod_id", "prod")
@@ -39,18 +39,18 @@ export class WatchlistService {
       .take(5)
       .skip(skip)
       .getManyAndCount()
-      .then(([results, N]) => ({
-        hasMore: skip + 5 < N,
-        results: results.map(({ prod_id }) => ({
+      .then(([watchlist, am]) => [
+        watchlist.map(({ prod_id }) => ({
           prod_id: prod_id.prod_id,
           price: prod_id.price,
           title: prod_id.title,
           img_id: prod_id.img_id,
         })),
-      }));
+        am,
+      ]);
   }
 
-  async addWatchlistProduct(user_id: number, prod_id: any) {
+  async save(user_id: number, prod_id: any) {
     return this.watchRepository
       .findOne({
         user_id,
@@ -62,7 +62,7 @@ export class WatchlistService {
       });
   }
 
-  removeWatchlistProduct(user_id: number, prod_id: any): Promise<DeleteResult> {
+  remove(user_id: number, prod_id: any): Promise<DeleteResult> {
     return this.watchRepository.delete({
       user_id,
       prod_id,

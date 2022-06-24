@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { NotificationsService } from "../notifications/notifications.service";
 import { ProductsService } from "./products.service";
-import { Interval } from "@nestjs/schedule";
+import { Cron, Interval } from "@nestjs/schedule";
 import { RatingsService } from "../ratings/ratings.service";
 
 @Injectable()
@@ -12,7 +12,7 @@ export class SaleSchedule {
     private readonly ratingService: RatingsService,
   ) {}
 
-  @Interval(864_000_00 / 2)
+  @Cron("* * 1 * * *")
   async setProductsRating() {
     try {
       const productIds = await this.productsService.getProductsIds();
@@ -29,20 +29,32 @@ export class SaleSchedule {
     } catch (error) {}
   }
 
-  @Interval(864_000_00) // 24h
+  @Cron("* * 1 * * *")
   async setDailySale() {
     try {
+      // set current product price to amount before sale
+      const current = (await this.productsService.getDailySaleProduct()).results;
+
+      const oldPrice = Number(current.price * 1.2);
+
+      await this.productsService.updatePrice(current.prod_id, oldPrice);
+
+      // get product ids that are going to be on sale
       const ids = await this.productsService.getProductsIds();
       const N = ids.length;
 
-      const random = ids[Math.trunc(Math.random() * N)].prod_id;
+      let randomId = ids[Math.trunc(Math.random() * N)].prod_id;
 
-      await this.productsService.setDailySaleProduct(random);
+      while (randomId === current.prod_id) {
+        randomId = ids[Math.trunc(Math.random() * N)].prod_id;
+      }
 
-      const { price } = await this.productsService.getById(random);
+      await this.productsService.setDailySaleProduct(randomId);
+
+      const { price } = await this.productsService.getById(randomId);
 
       const discount = Number((price * 0.8).toFixed(2));
-      await this.productsService.applyDiscount(random, discount);
+      await this.productsService.applyDiscount(randomId, discount);
 
       await this.notifiService.dailySale();
     } catch (error) {

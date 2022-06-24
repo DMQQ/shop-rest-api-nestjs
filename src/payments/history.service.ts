@@ -60,21 +60,15 @@ export class HistoryService {
       .getOneOrFail();
   }
 
-  async purchase(props: PurchaseProps, callback?: () => Promise<void>): Promise<void> {
+  async purchase(props: PurchaseProps, callback?: () => Promise<any>): Promise<any> {
     const runner = this.conn.createQueryRunner();
 
-    // await runner.connect();
-
     await runner.startTransaction();
-
-    console.log("start transaction");
 
     try {
       await runner.manager.delete(CartEntity, { user_id: props.user_id });
 
       const payment_id = randomUUID();
-
-      console.log("Payment ID: " + payment_id);
 
       await runner.manager.insert(PaymentEntity, {
         client_secret: props.client_secret,
@@ -100,12 +94,8 @@ export class HistoryService {
 
       await callback?.();
 
-      console.log("end transaction");
-
       await runner.commitTransaction();
     } catch (error) {
-      // TODO: if transaction failed, retry,refund or inform user
-      console.warn(error);
       await runner.rollbackTransaction();
     } finally {
       await runner.release();

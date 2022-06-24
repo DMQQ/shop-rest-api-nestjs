@@ -61,7 +61,7 @@ export class UsersController {
         status: "verified",
       });
     } catch (error) {
-      throw new NotFoundException(`Account with ${email} email hasnt't been found`);
+      throw new NotFoundException(`Invalid email or password, try again`);
     }
   }
 
@@ -71,7 +71,11 @@ export class UsersController {
     description: "Account created successfully",
     type: ApiRegisterResponseOk,
   })
-  @ApiResponse({ status: 400, description: "Account exists or something went wrong" })
+  @ApiResponse({
+    status: 400,
+    description: "Account with {email} already exists",
+    type: ApiLoginResponseBad,
+  })
   @Post("register")
   async register(@Body() { email, password }: UserDto, @Res() response: Response) {
     const res = await this.userService.findMatch(email);
@@ -82,24 +86,20 @@ export class UsersController {
 
     const hashed = await this.userService.createHashedPassword(password);
 
-    if (hashed) {
-      const result = await this.userService.createUser(email, hashed);
+    const result = await this.userService.createUser(email, hashed);
 
-      const token = this.userService.createToken({
-        email,
-        id: result.raw.insertId,
-      });
+    const token = this.userService.createToken({
+      email,
+      id: result.raw.insertId,
+    });
 
-      this.userService.sendConfirmationEmail(email, token).then(() => {
-        console.log("email sent");
-      });
+    this.userService.sendConfirmationEmail(email, token);
 
-      response.status(201).send({
-        status: 201,
-        activated: false,
-        user_id: result.raw.insertId,
-      });
-    }
+    response.status(201).send({
+      status: 201,
+      activated: false,
+      user_id: result.raw.insertId,
+    });
   }
 
   @Post("token")

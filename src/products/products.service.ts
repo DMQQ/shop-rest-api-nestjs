@@ -190,4 +190,8 @@ export class ProductsService {
   updateRating(prod_id: number, rating: number) {
     return this.productsRepository.update({ prod_id }, { rating });
   }
+
+  updatePrice(prod_id: number, price: number) {
+    return this.productsRepository.update({ prod_id }, { price });
+  }
 }
