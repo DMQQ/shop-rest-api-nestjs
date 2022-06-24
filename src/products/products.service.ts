@@ -82,28 +82,8 @@ export class ProductsService {
     });
   }
 
-  pushSearchHistory(user_id: number, prod_id: any) {
-    this.searchRepository
-      .findOne({
-        where: {
-          prod_id,
-          user_id,
-        },
-      })
-      .then((match) => {
-        typeof match === "undefined"
-          ? this.searchRepository.insert({
-              prod_id,
-              user_id,
-            })
-          : this.searchRepository.update(
-              {
-                user_id,
-                prod_id,
-              },
-              {},
-            );
-      });
+  async pushSearchHistory(user_id: number, prod_id: any) {
+    await this.searchRepository.save({ user_id, prod_id });
   }
 
   getSearchHistory(user_id: number): Promise<SearchHistoryEntity[]> {

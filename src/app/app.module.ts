@@ -16,6 +16,7 @@ import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { AuctionsModule } from "../auctions/auctions.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { LandingModule } from "../landing/landing.module";
 
 @Module({
   imports: [
@@ -48,6 +49,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
     WatchlistModule,
     AuctionsModule,
 
+    LandingModule,
+
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
@@ -66,6 +69,7 @@ export class AppModule implements NestModule {
         "/auth/confirm-account",
         "/upload/images=:img",
         "/payments/webhook",
+        { method: RequestMethod.GET, path: "/" },
         { method: RequestMethod.GET, path: "/graphql" },
       )
       .forRoutes("*");

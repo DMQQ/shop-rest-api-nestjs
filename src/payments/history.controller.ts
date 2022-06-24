@@ -42,8 +42,6 @@ export class HistoryController {
     }
   }
 
-  // fix history entity, it's badly designed
-
   @Post("/webhook")
   async handleEvent(
     @Headers("stripe-signature") signature: string,

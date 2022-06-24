@@ -13,9 +13,6 @@ import { CartEntity } from "../cart/cart.entity";
 export class HistoryService {
   private stripe: Stripe;
   constructor(
-    @InjectRepository(HistoryEntity)
-    private historyRepository: Repository<HistoryEntity>,
-
     @InjectRepository(PaymentEntity) private paymentRepository: Repository<PaymentEntity>,
 
     @InjectConnection() private conn: Connection,
@@ -24,6 +21,8 @@ export class HistoryService {
       apiVersion: "2020-08-27",
       typescript: true,
     });
+
+    console.log(process.env.STRIPE_TEST_SECRET);
   }
 
   createIntent<T extends {} = {}>(total: number, metadata?: T) {
