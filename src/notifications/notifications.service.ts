@@ -18,7 +18,7 @@ export class NotificationsService {
     return this.findUsersToken(id).then(async (res) => {
       await this.expo.sendPushNotificationsAsync([
         {
-          to: res.token,
+          to: res?.token,
           ...message,
         },
       ]);

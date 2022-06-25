@@ -37,7 +37,6 @@ export class CartController {
   }
 
   @Post()
-  @UseFilters(HttpExceptionFilter)
   async addToCart(@Body("prod_id", ParseIntPipe) prod_id: number, @User() user_id: number) {
     try {
       const list = await this.cartService.findSameProductInCart(user_id, prod_id);
@@ -45,7 +44,7 @@ export class CartController {
       if (typeof list === "undefined") {
         const { raw } = await this.cartService.addToCart(user_id, prod_id);
 
-        const product = await this.cartService.getSingleCartProduct(prod_id, user_id);
+        const product = await this.cartService.getOne(prod_id, user_id);
 
         return !!raw.affectedRows
           ? { statusCode: 201, message: "Added", product }
@@ -53,7 +52,7 @@ export class CartController {
       }
       const result = await this.cartService.incrementAmmount(user_id, prod_id);
 
-      const product = await this.cartService.getSingleCartProduct(prod_id, user_id);
+      const product = await this.cartService.getOne(prod_id, user_id);
 
       return !!result.affected && { statusCode: 201, message: "Added", product };
     } catch (error) {

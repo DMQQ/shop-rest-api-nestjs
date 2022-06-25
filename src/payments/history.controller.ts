@@ -26,7 +26,7 @@ export class HistoryController {
   @Post("/create-payment-intent")
   async createPayment(@Res() response: Response, @User() user: number) {
     try {
-      const [total, prod_id] = await this.cartService.getCartTotal(user);
+      const [total, prod_id] = await this.cartService.getTotal(user);
 
       const paymentIntent = await this.historyService.createIntent(total, {
         prod_id: JSON.stringify({ prod_id }),
@@ -38,7 +38,7 @@ export class HistoryController {
         total,
       });
     } catch (error) {
-      console.log(error);
+      throw new BadRequestException(error.message);
     }
   }
 

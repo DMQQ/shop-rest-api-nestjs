@@ -12,7 +12,7 @@ export class SaleSchedule {
     private readonly ratingService: RatingsService,
   ) {}
 
-  @Cron("* * 1 * * *")
+  @Cron("0 0 0 * * *")
   async setProductsRating() {
     try {
       const productIds = await this.productsService.getProductsIds();
@@ -29,9 +29,11 @@ export class SaleSchedule {
     } catch (error) {}
   }
 
-  @Cron("* * 1 * * *")
+  @Cron("0 0 0 * * *")
   async setDailySale() {
     try {
+      console.log("---cron---");
+
       // set current product price to amount before sale
       const current = (await this.productsService.getDailySaleProduct()).results;
 

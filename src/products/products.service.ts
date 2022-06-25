@@ -180,7 +180,7 @@ export class ProductsService {
   }
 
   setDailySaleProduct(id: any): Promise<InsertResult> {
-    return this.saleRepository.insert({ prod_id: id, type: "test" });
+    return this.saleRepository.insert({ prod_id: id, type: "test", amount: 100 });
   }
 
   applyDiscount(prod_id: number, discount: number): Promise<UpdateResult> {
