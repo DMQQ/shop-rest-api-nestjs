@@ -7,8 +7,10 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseInterceptors,
 } from "@nestjs/common";
 import User from "../utils/decorators/User";
+import { PagingInterceptor } from "../utils/functions/PagingInterceptor";
 import { WatchlistService } from "./watchlist.service";
 
 @Controller("watchlist")
@@ -16,6 +18,7 @@ export class WatchlistController {
   constructor(private watchlistService: WatchlistService) {}
 
   @Get()
+  @UseInterceptors(PagingInterceptor)
   getUsersWatchlist(@User() user_id: number) {
     return this.watchlistService.getWatchlistREST(user_id);
   }

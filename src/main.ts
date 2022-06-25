@@ -23,7 +23,7 @@ async function bootstrap() {
       ),
     );
   } else {
-    await app.listen(3000);
+    await app.listen(process.env.APP_PORT);
   }
 }
 bootstrap();
