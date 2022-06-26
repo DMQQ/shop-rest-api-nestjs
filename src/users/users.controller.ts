@@ -45,7 +45,7 @@ export class UsersController {
       if (!isValid) {
         return response.status(400).send({
           status: 400,
-          message: "Invalid password",
+          message: "Invalid email or password",
         });
       }
       const token = this.userService.createToken({

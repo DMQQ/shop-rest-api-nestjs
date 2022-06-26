@@ -7,13 +7,10 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UseFilters,
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
-
 import { BAD, OK } from "../utils/constants/codes";
 import User from "../utils/decorators/User";
-import { HttpExceptionFilter } from "../utils/filters/HttpExceptionFilter";
 
 function response(affected: boolean) {
   return { statusCode: !!affected ? OK : BAD, message: !!affected ? "Deleted" : "Failed" };
