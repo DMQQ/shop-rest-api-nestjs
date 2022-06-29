@@ -25,8 +25,61 @@ export class AuctionsService {
     });
   }
 
+  getActiveAuctions() {
+    return this.auctionRepository.find({
+      where: { active: true },
+      relations: ["product"],
+    });
+  }
+
+  getAuctionWinner(auction_id: string) {
+    return this.connection.query(
+      "SELECT email from users where users.id = (SELECT winner from auction where auction_id = ?)",
+      [auction_id],
+    );
+  }
+
+  getAuctionSeller(auction_id: string) {
+    return this.connection.query(
+      "SELECT email from users where users.id = (SELECT seller from auction where auction_id = ?)",
+      [auction_id],
+    );
+  }
+
+  getAuctionHighest(auction_id: string) {
+    return this.connection.query("SELECT MAX(amount) FROM bids WHERE auction_id = ?", [auction_id]);
+  }
+
+  async endAuctionTransaction(auction_id: string) {
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.startTransaction();
+
+    try {
+      const [highestBid] = await queryRunner.manager.query(
+        "SELECT Max(amount),user from bids WHERE bids.auction_id = ?",
+        [auction_id],
+      );
+
+      await queryRunner.manager.update(
+        Auction,
+        { auction_id },
+        {
+          active: false,
+          winner: highestBid.user,
+        },
+      );
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      console.warn(error);
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   // skip,take doesnt work
-  getAuctions({ user, skip = 0, take = 5 }: AuctionParams) {
+  getAuctions({ user, skip = 0, take = 5, active }: AuctionParams) {
     return this.auctionRepository.find({
       relations: ["product", "product.img_id", "bids"],
       where: {

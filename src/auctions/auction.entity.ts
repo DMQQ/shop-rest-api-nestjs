@@ -28,7 +28,7 @@ export class Auction {
 
   @Field(() => String)
   @Column({ type: "varchar", nullable: false })
-  date_end: Date;
+  date_end: string;
 
   @Field(() => Boolean, { nullable: false })
   @Column({ type: "boolean" })
@@ -42,6 +42,12 @@ export class Auction {
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id, { nullable: false })
   @JoinColumn({ name: "product" })
   product: ProductsEntity[];
+
+  @Column({ type: "int", nullable: true })
+  winner: number;
+
+  @Column({ type: "boolean", default: false })
+  isPaid: boolean;
 
   @Field(() => [Bids], { nullable: false, defaultValue: [] })
   @ManyToMany(() => Bids, (type) => type.auction_id, { onDelete: "CASCADE" })

@@ -1,5 +1,7 @@
 # Backend server for <a href="https://github.com/DMQQ/shop-mobile-react-native" target="_blank">Mobile shop app</a>
 
+url: <a href="http://srv11.mikr.us:20220/">Backend</a>
+
 ## **Tech stack**:
 
 - **MySQL** database
@@ -10,10 +12,10 @@
 - **jsonwebtoken** user authentication
 - **sendgrid** mailing
 - **stripe** payments
-- **graphql/apollo** graphql query
+- **graphql/apollo** graphQL query
 - **expo-server-sdk** mobile notifications
 - **class-transformer, class-validator** input validation
-- **nodejs** runtime
+- **nodejs**
 
 ## **Set enviroment variables**
 
@@ -21,6 +23,18 @@
 - SENDGRID_KEY
 - EMAIL (for sendgrid)
 - STRIPE_WEBHOOK_KEY
+- JWTTOKEN
+- APP_PORT
+
+#### **Database connection env**
+
+- CONNECTION (mysql)
+- HOST
+- NAME (user)
+- DATABASE (database name)
+- PORT
+- SYNCHRONIZE
+- PASS (user password)
 
 ## Run test payments on local device
 
@@ -42,22 +56,6 @@ CREATE DATABASE shop;
 ipconfig
 ```
 
-### Replace ormconfig.json with your settings
-
-```JSON
-{
-  "type": "mysql",
-  "host": "localhost",
-  "port": 3306,
-  "username": "",
-  "password": "",
-  "database": "",
-  "entities": ["dist/**/*.entity{.ts,.js}"],
-  "synchronize": true
-}
-
-```
-
 ### Run
 
 ```bash
@@ -67,9 +65,3 @@ npm start
 [comment]: <> (popraw)
 
 ### About app
-
-User can create account with email and password, verify account by link sent on provided email
-
-User can manage his account credentials like phone number, name, surname or address
-
-Authenticated user can upload product photos, and retrive them
