@@ -7,13 +7,10 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UseFilters,
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
-
 import { BAD, OK } from "../utils/constants/codes";
 import User from "../utils/decorators/User";
-import { HttpExceptionFilter } from "../utils/filters/HttpExceptionFilter";
 
 function response(affected: boolean) {
   return { statusCode: !!affected ? OK : BAD, message: !!affected ? "Deleted" : "Failed" };
@@ -37,7 +34,6 @@ export class CartController {
   }
 
   @Post()
-  @UseFilters(HttpExceptionFilter)
   async addToCart(@Body("prod_id", ParseIntPipe) prod_id: number, @User() user_id: number) {
     try {
       const list = await this.cartService.findSameProductInCart(user_id, prod_id);
@@ -45,7 +41,7 @@ export class CartController {
       if (typeof list === "undefined") {
         const { raw } = await this.cartService.addToCart(user_id, prod_id);
 
-        const product = await this.cartService.getSingleCartProduct(prod_id, user_id);
+        const product = await this.cartService.getOne(prod_id, user_id);
 
         return !!raw.affectedRows
           ? { statusCode: 201, message: "Added", product }
@@ -53,7 +49,7 @@ export class CartController {
       }
       const result = await this.cartService.incrementAmmount(user_id, prod_id);
 
-      const product = await this.cartService.getSingleCartProduct(prod_id, user_id);
+      const product = await this.cartService.getOne(prod_id, user_id);
 
       return !!result.affected && { statusCode: 201, message: "Added", product };
     } catch (error) {

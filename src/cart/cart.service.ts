@@ -20,7 +20,7 @@ export class CartService {
     });
   }
 
-  async getSingleCartProduct(prod_id: number, user_id: number) {
+  async getOne(prod_id: number, user_id: number) {
     return this.cartRepository
       .findOne({
         relations: ["prod_id", "prod_id.img_id"],
@@ -44,7 +44,7 @@ export class CartService {
     return this.cartRepository.insert({ user_id, prod_id });
   }
 
-  async getCartTotal(user_id: number): Promise<[number, number[]]> {
+  async getTotal(user_id: number): Promise<[number, number[]]> {
     const cart = await this.cartRepository.find({
       where: { user_id },
       relations: ["prod_id"],

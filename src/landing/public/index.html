@@ -4,9 +4,102 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <link rel="stylesheet" href="./style.css" />
+    <title>Shop overview</title>
   </head>
-  <body>
-    Landing
+  <body class="dark-mode">
+    <main class="wrapper">
+      <header class="header">
+        <span class="header__logo">SHOP</span>
+        <nav class="header__nav">
+          <ul class="header__list">
+            <li class="list__element">
+              <a href="#" class="header__link">Home</a>
+            </li>
+            <li class="list__element">
+              <a href="#" class="header__link">About</a>
+            </li>
+            <li class="list__element">
+              <a href="#" class="header__link">Contact</a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <article class="landing">
+        <section class="landing__box landing__box--left">
+          <h1 class="landing__title">Welcome.</h1>
+          <p class="landing__desc">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae, mollitia pariatur
+            amet fuga odio recusandae reprehenderit. Est ut reiciendis quasi distinctio eveniet non
+            incidunt vel commodi, natus rerum aut blanditiis?
+          </p>
+          <div class="center">
+            <a
+              target="_blank"
+              referrerpolicy="nofollow"
+              href="https://exp-shell-app-assets.s3.us-west-1.amazonaws.com/android/%40dmq/mobile-67860c911bb74593b0e3851bf0c4a68c-signed.apk"
+              class="landing__link"
+            >
+              Download the app
+            </a>
+          </div>
+        </section>
+        <section class="landing__box landing__box--right">
+          <div class="landing__grid">
+            <img
+              src="placeholder-image.png"
+              alt=""
+              loading="lazy"
+              class="landing__img pos-1"
+              data-url="https://raw.githubusercontent.com/DMQQ/shop-mobile/main/preview/home.jpg"
+            />
+            <img
+              src="placeholder-image.png"
+              alt=""
+              loading="lazy"
+              class="landing__img pos-2"
+              data-url="https://raw.githubusercontent.com/DMQQ/shop-mobile/main/preview/cart.jpg"
+            />
+            <img
+              src="placeholder-image.png"
+              alt=""
+              loading="lazy"
+              class="landing__img pos-3"
+              data-url="https://raw.githubusercontent.com/DMQQ/shop-mobile/main/preview/cart.jpg"
+            />
+          </div>
+        </section>
+      </article>
+
+      <article class="block hidden">
+        <section class="block__section">
+          <h2 class="block__title">Home Screen</h2>
+          <p class="block__content">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem at perspiciatis
+            debitis! Dolorum sapiente aliquid tempora, praesentium unde pariatur molestiae
+            distinctio minus, nobis saepe veniam eos consequuntur deserunt reiciendis earum.
+          </p>
+        </section>
+        <section class="block__section landing__box--right">
+          <div class="landing__grid">
+            <img
+              src="placeholder-image.png"
+              alt=""
+              loading="lazy"
+              class="landing__img"
+              data-url="https://raw.githubusercontent.com/DMQQ/shop-mobile/main/preview/cart.jpg"
+            />
+            <img
+              src="placeholder-image.png"
+              alt=""
+              loading="lazy"
+              class="landing__img"
+              data-url="https://raw.githubusercontent.com/DMQQ/shop-mobile/main/preview/cart.jpg"
+            />
+          </div>
+        </section>
+      </article>
+    </main>
+    <script src="./app.js"></script>
   </body>
 </html>
