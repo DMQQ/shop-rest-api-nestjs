@@ -58,14 +58,14 @@ export class AuctionsService {
     );
   }
 
-  getAuctionSeller(auction_id: string) {
+  getAuctionSeller(auction_id: string): Promise<[{ email: string }]> {
     return this.connection.query(
       "SELECT email from users where users.id = (SELECT seller from auction where auction_id = ?)",
       [auction_id],
     );
   }
 
-  getAuctionHighest(auction_id: string) {
+  getAuctionHighest(auction_id: string): Promise<[{ amount: string; user: number }]> {
     return this.connection.query(
       "SELECT MAX(amount) as amount,user FROM bids WHERE auction_id = ?",
       [auction_id],
@@ -82,6 +82,9 @@ export class AuctionsService {
       relations: ["product", "product.img_id", "bids"],
       where: {
         ...(!!user && { seller: user }),
+      },
+      order: {
+        date_end: "DESC",
       },
       skip: skip,
       take: take,

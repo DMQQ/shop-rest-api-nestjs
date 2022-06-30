@@ -27,18 +27,12 @@ export class AuctionsSchedule {
 
     activeAuctions.forEach(async (auction) => {
       if (!hasPassed(auction.date_end as string)) {
-        // await this.auctionService.endAuctionTransaction(auction.auction_id);
-
-        let [total] = await this.auctionService.getAuctionHighest(
-          "02ba56d8-ee30-47b4-9dc5-fd8970dfa13c",
-        );
-        total = +total.amount;
+        let [total] = (await this.auctionService.getAuctionHighest(auction.auction_id)) as any;
+        total = +total.amount as number;
 
         await this.auctionService.endAuction(auction.auction_id, total.user);
 
-        const [winner] = await this.auctionService.getAuctionWinner(
-          "02ba56d8-ee30-47b4-9dc5-fd8970dfa13c",
-        );
+        const [winner] = await this.auctionService.getAuctionWinner(auction.auction_id);
 
         const [seller] = await this.auctionService.getAuctionSeller(auction.auction_id);
 
