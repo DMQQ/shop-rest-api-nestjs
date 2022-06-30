@@ -27,28 +27,27 @@ export class AuctionsSchedule {
 
     activeAuctions.forEach(async (auction) => {
       if (!hasPassed(auction.date_end as string)) {
-        await this.auctionService.endAuctionTransaction(auction.auction_id);
+        // await this.auctionService.endAuctionTransaction(auction.auction_id);
+
+        let [total] = await this.auctionService.getAuctionHighest(
+          "02ba56d8-ee30-47b4-9dc5-fd8970dfa13c",
+        );
+        total = +total.amount;
+
+        await this.auctionService.endAuction(auction.auction_id, total.user);
 
         const [winner] = await this.auctionService.getAuctionWinner(
           "02ba56d8-ee30-47b4-9dc5-fd8970dfa13c",
         );
 
-        const [total] = await this.auctionService.getAuctionHighest(
-          "02ba56d8-ee30-47b4-9dc5-fd8970dfa13c",
-        );
-
         const [seller] = await this.auctionService.getAuctionSeller(auction.auction_id);
 
-        await this.mailService.notifyAuctionEndToSeller(
-          seller.email,
-          (auction.product as any).title,
-          +total["MAX(amount)"],
-        );
+        await this.mailService.notifyAuctionEndToSeller(seller.email, auction.product.title, total);
 
         await this.mailService.notifyAuctionEnd(
           winner.email,
           auction.auction_id,
-          (auction.product as any).title,
+          auction.product.title,
         );
       }
     });

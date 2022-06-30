@@ -26,6 +26,16 @@ export class AuctionResolver {
     return this.auctionService.getAuctions({ user, skip, take, active });
   }
 
+  @Query(() => [Auction])
+  async wonAuctions(@User() user: number) {
+    return this.auctionService.getWonAuction(user);
+  }
+
+  @Query(() => [Auction])
+  async pendingAuctions(@User() user: number) {
+    return this.auctionService.getPendingAuctions(user);
+  }
+
   @Query(() => Auction)
   async auction(@Args("auction_id", { nullable: false, type: () => ID }) auction_id: string) {
     return this.auctionService.getAuction(auction_id);

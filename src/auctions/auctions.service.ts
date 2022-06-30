@@ -25,6 +25,25 @@ export class AuctionsService {
     });
   }
 
+  getPendingAuctions(user_id: number) {
+    return this.auctionRepository.find({
+      relations: ["product", "product.img_id", "bids"],
+      where: {
+        seller: user_id,
+        active: true,
+      },
+    });
+  }
+
+  getWonAuction(user_id: number) {
+    return this.auctionRepository.find({
+      relations: ["product", "product.img_id", "bids"],
+      where: {
+        winner: user_id,
+      },
+    });
+  }
+
   getActiveAuctions() {
     return this.auctionRepository.find({
       where: { active: true },
@@ -47,35 +66,14 @@ export class AuctionsService {
   }
 
   getAuctionHighest(auction_id: string) {
-    return this.connection.query("SELECT MAX(amount) FROM bids WHERE auction_id = ?", [auction_id]);
+    return this.connection.query(
+      "SELECT MAX(amount) as amount,user FROM bids WHERE auction_id = ?",
+      [auction_id],
+    );
   }
 
-  async endAuctionTransaction(auction_id: string) {
-    const queryRunner = this.connection.createQueryRunner();
-
-    await queryRunner.startTransaction();
-
-    try {
-      const [highestBid] = await queryRunner.manager.query(
-        "SELECT Max(amount),user from bids WHERE bids.auction_id = ?",
-        [auction_id],
-      );
-
-      await queryRunner.manager.update(
-        Auction,
-        { auction_id },
-        {
-          active: false,
-          winner: highestBid.user,
-        },
-      );
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      console.warn(error);
-      await queryRunner.rollbackTransaction();
-    } finally {
-      await queryRunner.release();
-    }
+  endAuction(auction_id: string, winner: number) {
+    return this.auctionRepository.update({ auction_id }, { active: false, winner });
   }
 
   // skip,take doesnt work

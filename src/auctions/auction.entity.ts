@@ -41,11 +41,12 @@ export class Auction {
   @Field(() => ProductsEntity, { nullable: false })
   @ManyToOne(() => ProductsEntity, (type) => type.prod_id, { nullable: false })
   @JoinColumn({ name: "product" })
-  product: ProductsEntity[];
+  product: ProductsEntity;
 
   @Column({ type: "int", nullable: true })
   winner: number;
 
+  @Field(() => Boolean)
   @Column({ type: "boolean", default: false })
   isPaid: boolean;
 
