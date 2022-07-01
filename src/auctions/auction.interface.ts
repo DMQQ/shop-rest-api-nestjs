@@ -20,7 +20,7 @@ export interface AuctionParams {
   user?: number;
   skip?: number;
   take?: number;
-
+  title?: string;
   active?: boolean;
 
   //order?: "ASC" | "DESC";

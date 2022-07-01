@@ -4,6 +4,8 @@ import {
   Controller,
   Get,
   NotFoundException,
+  Param,
+  ParseEnumPipe,
   Post,
   Put,
   Res,
@@ -20,6 +22,11 @@ import {
   ApiLoginResponseOk,
   ApiRegisterResponseOk,
 } from "./user.swagger";
+
+enum CredentialsReset {
+  email = "email",
+  password = "password",
+}
 
 @ApiTags("auth")
 @Controller("auth")
@@ -162,4 +169,12 @@ export class UsersController {
   getUserCredentials(@User() id: number) {
     return this.userService.getCredentials(id);
   }
+
+  @Post("/:type/reset")
+  changeAuthCredentials(
+    @Param("type", new ParseEnumPipe(CredentialsReset)) type: CredentialsReset,
+  ) {}
+
+  @Post("/:type/reset/confirm")
+  confirmChange(@Param("type", new ParseEnumPipe(CredentialsReset)) type: CredentialsReset) {}
 }

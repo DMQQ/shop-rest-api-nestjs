@@ -115,7 +115,7 @@ export class AuctionCreateResponse {
   @Field(() => String)
   date_end: string;
 
-  @Field(() => Int)
+  @Field(() => ProductsEntity)
   product: number;
 }
 
@@ -138,4 +138,25 @@ export class BidCreate {
 
   @Field(() => Int)
   amount: number;
+}
+
+@ObjectType()
+export class AuctionUpdate {
+  @Field(() => Boolean)
+  active: boolean;
+
+  @Field(() => String)
+  date_end: string;
+
+  @Field(() => Int)
+  product: number;
+}
+
+@InputType()
+export class AuctionUpdateInput {
+  @Field(() => Boolean)
+  active: boolean;
+
+  @Field(() => String)
+  date_end: string;
 }

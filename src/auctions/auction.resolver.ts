@@ -5,6 +5,8 @@ import {
   Auction,
   AuctionCreate,
   AuctionCreateResponse,
+  AuctionUpdate,
+  AuctionUpdateInput,
   BidCreate,
   BidCreateResponse,
   Bids,
@@ -20,10 +22,11 @@ export class AuctionResolver {
     @Args("user", { nullable: true, type: () => Int }) user: number,
     @Args("skip", { nullable: true, type: () => Int, defaultValue: 0 }) skip: number,
     @Args("take", { nullable: true, type: () => Int, defaultValue: 5 }) take: number,
-    @Args("active", { nullable: true, type: () => Boolean }) active: boolean,
+    @Args("active", { nullable: true, type: () => Boolean }) active = true,
+    @Args("title", { type: () => String, nullable: true }) title: string,
     // @Args("order", { nullable: true, type: () => Sort }) order: keyof typeof Sort,
   ) {
-    return this.auctionService.getAuctions({ user, skip, take, active });
+    return this.auctionService.getAuctions({ user, skip, take, active, title });
   }
 
   @Query(() => [Auction])
@@ -69,14 +72,26 @@ export class AuctionResolver {
 
   @Mutation(() => AuctionCreateResponse)
   async createAuction(
-    @Args("auction", { nullable: false }) auction: AuctionCreate,
+    @Args("auction", { nullable: false }) input: AuctionCreate,
     @User() seller: number,
   ) {
-    const insertResult = await this.auctionService.createAuction({ ...auction, seller });
+    const insertResult = await this.auctionService.createAuction({ ...input, seller });
+
+    const auction = await this.auctionService.getAuction(insertResult.generatedMaps[0].auction_id);
 
     return {
       ...auction,
       ...insertResult.generatedMaps[0],
     };
+  }
+
+  @Mutation(() => AuctionUpdate)
+  async updateAuction(
+    @Args("auction_id", { nullable: false, type: () => ID }) auction_id: string,
+    @Args("auction", { nullable: false }) auction: AuctionUpdateInput,
+  ) {
+    await this.auctionService.updateAuction(auction_id, auction);
+
+    return auction;
   }
 }

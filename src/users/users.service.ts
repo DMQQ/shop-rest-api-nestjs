@@ -87,4 +87,14 @@ export class UsersService {
       select: ["address", "email", "name", "surname", "phone_number"],
     });
   }
+
+  createConfirmPIN() {
+    let pin = "";
+
+    while (pin.length <= 6) {
+      pin += Math.floor(Math.random() * 10);
+    }
+
+    return pin;
+  }
 }

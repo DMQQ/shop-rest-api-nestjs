@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Cron, Timeout } from "@nestjs/schedule";
+import { Cron } from "@nestjs/schedule";
 import { Mailer } from "../utils/Mail/Mailer";
 import { AuctionsService } from "./auctions.service";
 
@@ -27,22 +27,29 @@ export class AuctionsSchedule {
 
     activeAuctions.forEach(async (auction) => {
       if (!hasPassed(auction.date_end as string)) {
-        let [total] = (await this.auctionService.getAuctionHighest(auction.auction_id)) as any;
-        total = +total.amount as number;
+        try {
+          let [highest] = await this.auctionService.getAuctionHighest(auction.auction_id);
 
-        await this.auctionService.endAuction(auction.auction_id, total.user);
+          await this.auctionService.endAuction(auction.auction_id, highest.user);
 
-        const [winner] = await this.auctionService.getAuctionWinner(auction.auction_id);
+          const [winner] = await this.auctionService.getAuctionWinner(auction.auction_id);
 
-        const [seller] = await this.auctionService.getAuctionSeller(auction.auction_id);
+          const [seller] = await this.auctionService.getAuctionSeller(auction.auction_id);
 
-        await this.mailService.notifyAuctionEndToSeller(seller.email, auction.product.title, total);
+          await this.mailService.notifyAuctionEndToSeller(
+            seller.email,
+            auction.product.title,
+            +highest.amount,
+          );
 
-        await this.mailService.notifyAuctionEnd(
-          winner.email,
-          auction.auction_id,
-          auction.product.title,
-        );
+          await this.mailService.notifyAuctionEnd(
+            winner.email,
+            auction.auction_id,
+            auction.product.title,
+          );
+        } catch (error) {
+          console.warn(error);
+        }
       }
     });
   }

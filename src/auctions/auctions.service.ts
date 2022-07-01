@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
-import { Connection, Repository } from "typeorm";
+import { Connection, Like, Repository } from "typeorm";
 import { Auction, Bids } from "./auction.entity";
 import { AuctionProps, BidProps, AuctionParams } from "./auction.interface";
 
@@ -77,11 +77,13 @@ export class AuctionsService {
   }
 
   // skip,take doesnt work
-  getAuctions({ user, skip = 0, take = 5, active }: AuctionParams) {
+  getAuctions({ user, skip = 0, take = 5, active, title }: AuctionParams) {
     return this.auctionRepository.find({
       relations: ["product", "product.img_id", "bids"],
       where: {
         ...(!!user && { seller: user }),
+        ...(!!active && { active }),
+        ...(!!title && { product: { title: Like(`%${title}%`) } }),
       },
       order: {
         date_end: "DESC",
@@ -106,6 +108,14 @@ export class AuctionsService {
     return this.auctionRepository.insert(props);
   }
 
+  isSeller(auction_id: string) {
+    return this.auctionRepository.findOne({
+      where: {
+        auction_id,
+      },
+    });
+  }
+
   /**
    * Returns result if request succeded or throws an error if provided bid amount is lower than highest auction bid  */
   async addBid(props: BidProps) {
@@ -117,6 +127,11 @@ export class AuctionsService {
     });
 
     const amount = highest?.amount !== undefined ? +highest.amount : 0;
+
+    /*   const seller = await this.isSeller(props.auction_id);
+
+    if (seller.seller === props.user) throw new Error("You cannot bid on your own auction");
+ */
 
     if (props.amount > amount) {
       const { generatedMaps } = await this.bidsRepository.insert(props);
@@ -131,5 +146,9 @@ export class AuctionsService {
     }
 
     throw new Error("Price too low");
+  }
+
+  updateAuction(auction_id: string, props: Partial<Omit<AuctionProps, "product" | "seller">>) {
+    return this.auctionRepository.update({ auction_id }, props);
   }
 }

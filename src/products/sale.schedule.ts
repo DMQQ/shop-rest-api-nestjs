@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { NotificationsService } from "../notifications/notifications.service";
 import { ProductsService } from "./products.service";
-import { Cron, Interval } from "@nestjs/schedule";
+import { Cron } from "@nestjs/schedule";
 import { RatingsService } from "../ratings/ratings.service";
 
 @Injectable()
@@ -11,7 +11,6 @@ export class SaleSchedule {
     private readonly notifiService: NotificationsService,
     private readonly ratingService: RatingsService,
   ) {}
-
 
   @Cron("0 0 0 * * *", { timeZone: "Europe/Warsaw" })
   async setProductsRating() {
@@ -30,20 +29,15 @@ export class SaleSchedule {
     } catch (error) {}
   }
 
-
   @Cron("0 0 0 * * *", { timeZone: "Europe/Warsaw" })
   async setDailySale() {
     try {
-      console.log("---cron---");
-
-      // set current product price to amount before sale
       const current = (await this.productsService.getDailySaleProduct()).results;
 
-      const oldPrice = Number(current.price * 1.2);
+      const oldPrice = Number(current.price * 1.25);
 
       await this.productsService.updatePrice(current.prod_id, oldPrice);
 
-      // get product ids that are going to be on sale
       const ids = await this.productsService.getProductsIds();
       const N = ids.length;
 
