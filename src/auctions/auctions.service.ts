@@ -12,6 +12,20 @@ export class AuctionsService {
     @InjectConnection() private connection: Connection,
   ) {}
 
+  hasNotPassed(date: string): boolean {
+    const current = new Date().toLocaleDateString();
+
+    const [day, month, year] = current.split(".");
+
+    const [day2, month2, year2] = date.split(".");
+
+    return (
+      year2 > year ||
+      (year2 === year && month2 > month) ||
+      (year2 === year && month2 === month && day2 > day)
+    );
+  }
+
   getBids(auction_id: string, { skip = 0, take = 5 }) {
     return this.bidsRepository.find({
       where: {

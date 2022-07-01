@@ -24,9 +24,11 @@ export class RatingsService {
     return this.ratingsRepository.find();
   }
 
-  getUsersReviews(id: number): Promise<RatingsEntity[]> {
+  getUsersReviews(user_id: number, skip: number = 0): Promise<RatingsEntity[]> {
     return this.ratingsRepository.find({
-      where: { user_id: id },
+      where: { user_id },
+      skip,
+      take: 5,
     });
   }
 

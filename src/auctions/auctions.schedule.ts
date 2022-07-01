@@ -3,20 +3,6 @@ import { Cron } from "@nestjs/schedule";
 import { Mailer } from "../utils/Mail/Mailer";
 import { AuctionsService } from "./auctions.service";
 
-function hasPassed(date: string): boolean {
-  const current = new Date().toLocaleDateString();
-
-  const [day, month, year] = current.split(".");
-
-  const [day2, month2, year2] = date.split(".");
-
-  return (
-    year2 > year ||
-    (year2 === year && month2 > month) ||
-    (year2 === year && month2 === month && day2 > day)
-  );
-}
-
 @Injectable()
 export class AuctionsSchedule {
   constructor(private auctionService: AuctionsService, private mailService: Mailer) {}
@@ -26,7 +12,7 @@ export class AuctionsSchedule {
     let activeAuctions = await this.auctionService.getActiveAuctions();
 
     activeAuctions.forEach(async (auction) => {
-      if (!hasPassed(auction.date_end as string)) {
+      if (!this.auctionService.hasNotPassed(auction.date_end as string)) {
         try {
           let [highest] = await this.auctionService.getAuctionHighest(auction.auction_id);
 
