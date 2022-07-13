@@ -48,7 +48,9 @@ export class FilesController {
   getUploadedFile(@Param("img") img: string, @Res() res: Response) {
     if (typeof img === "undefined") return res.status(HttpStatus.NOT_ACCEPTABLE);
     const file = createReadStream(join(process.cwd(), `./images/${img}`)).on("error", (err) => {
-      res.status(404).send({ error: "Image not found", statusCode: 404, message: [] });
+      res
+        .status(404)
+        .send({ error: "Image not found", statusCode: 404, message: ["Image not found"] });
     });
 
     return file.pipe(res);

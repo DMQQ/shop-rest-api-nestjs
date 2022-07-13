@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, Like, InsertResult, UpdateResult } from "typeorm";
+import { Repository, Like, InsertResult, UpdateResult, MoreThan } from "typeorm";
 import { ProductsEntity } from "./Entities/products.entity";
 import { SaleEntity } from "./Entities/sale.entity";
 import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
@@ -34,7 +34,7 @@ export class ProductsService {
     });
   }
 
-  async getAll(skip: number = 0) {
+  getAll(skip: number = 0) {
     return this.productsRepository.findAndCount({
       select: ["prod_id", "price", "img_id", "title"],
       relations: ["img_id"],
@@ -74,14 +74,6 @@ export class ProductsService {
     return this.productsRepository.insert(props);
   }
 
-  getByTitleOrDesc(input: string): Promise<ProductsEntity[]> {
-    return this.productsRepository.find({
-      select: ["prod_id", "price", "img_id", "title"],
-      relations: ["img_id"],
-      where: [{ title: Like(`%${input}%`) }, { description: Like(`%${input}%`) }],
-    });
-  }
-
   async pushSearchHistory(user_id: number, prod_id: any) {
     await this.searchRepository.save({ user_id, prod_id });
   }
@@ -92,7 +84,7 @@ export class ProductsService {
       take: 20,
     });
   }
-  async getSearchHistoryProduct(user_id: number, skip: number): Promise<any[]> {
+  async getSearchHistoryProduct(user_id: number, skip: number) {
     return this.searchRepository
       .createQueryBuilder("search")
       .leftJoinAndSelect("search.prod_id", "products")
@@ -108,7 +100,7 @@ export class ProductsService {
             prod_id: prod_id.prod_id,
             price: +prod_id.price,
             title: prod_id.title,
-            img_id: prod_id.img_id,
+            img_id: [prod_id.img_id?.[0]],
           })),
 
           ammount,
@@ -124,7 +116,7 @@ export class ProductsService {
     });
   }
 
-  async getProductSuggestions(text: string = "", params: any, skip: number = 0) {
+  async getSearchedProducts(text: string = "", params: any, skip: number = 0) {
     return this.productsRepository
       .findAndCount({
         select: ["prod_id", "img_id", "title", "price"],
@@ -193,5 +185,17 @@ export class ProductsService {
 
   updatePrice(prod_id: number, price: number) {
     return this.productsRepository.update({ prod_id }, { price });
+  }
+
+  getGoodRatedProducts(skip: number) {
+    return this.productsRepository.findAndCount({
+      select: ["price", "prod_id", "title", "img_id"],
+      relations: ["img_id"],
+      where: {
+        rating: MoreThan(3),
+      },
+      skip,
+      take: TAKE,
+    });
   }
 }

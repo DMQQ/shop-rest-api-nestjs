@@ -7,10 +7,7 @@ import {
   Post,
   Query,
   Res,
-  HttpStatus,
   ParseIntPipe,
-  Inject,
-  forwardRef,
   BadRequestException,
   NotFoundException,
   UseInterceptors,
@@ -21,47 +18,32 @@ import { ProductsService } from "./products.service";
 import { Response } from "express";
 import { CREATED } from "../utils/constants/codes";
 import { FAILED_CREATE, SUCCESS_CREATE } from "../utils/constants/responses";
-import { RatingsService } from "../ratings/ratings.service";
 import User from "../utils/decorators/User";
 import { PagingInterceptor } from "../utils/functions/PagingInterceptor";
 import { RoleGuard } from "../utils/guards/RoleGuard";
 import { UserEnum } from "../users/users.entity";
+import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { ProductsEntity } from "./Entities/products.entity";
+import { OneImageInterceptor } from "./products.interceptor";
+import { ParamsDto } from "./dto/ParamsDto";
 
+@ApiTags("Products")
 @Controller("products")
 export class ProductsController {
-  constructor(
-    private productsService: ProductsService,
-    @Inject(forwardRef(() => RatingsService))
-    private ratingsService: RatingsService,
-  ) {}
+  constructor(private productsService: ProductsService) {}
 
   @Get()
+  @ApiOkResponse({ type: ProductsEntity })
+  @UseInterceptors(OneImageInterceptor)
   @UseInterceptors(PagingInterceptor)
   async getAllProducts(@Query("skip") skip: number) {
     return this.productsService.getAll(skip);
   }
 
   @Get("categories")
+  @ApiOkResponse({ type: [String], description: "Array of categories" })
   getCategories() {
     return this.productsService.getCategories();
-  }
-
-  @Get("search=:text")
-  async getBySearchTitleOrDescription(
-    @Param("text") text: string,
-    @User() user_id: number,
-    @Res() response: Response,
-  ) {
-    return this.productsService.getByTitleOrDesc(text).then((result) => {
-      if (typeof result !== "undefined") {
-        if (result.length > 0) {
-          const [one] = result as any;
-          this.productsService.pushSearchHistory(user_id, one.prod_id);
-        }
-        return response.status(HttpStatus.OK).send(result);
-      }
-      response.status(HttpStatus.OK).send([]);
-    });
   }
 
   @Get("search-history")
@@ -73,33 +55,29 @@ export class ProductsController {
   @UseInterceptors(PagingInterceptor)
   async getSearchedProducts(
     @User() user_id: number,
-    @Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number,
+    @Query("skip", ParseIntPipe) skip: number = 0,
   ) {
     return this.productsService.getSearchHistoryProduct(user_id, skip);
   }
 
   @Get("/category")
+  @UseInterceptors(OneImageInterceptor)
   @UseInterceptors(PagingInterceptor)
   getProductsByCategory(@Query("q") category: string, @Query("skip") skip: number) {
     return this.productsService.getByCategory(category, skip);
   }
 
   @Get("/good-rated")
+  @UseInterceptors(OneImageInterceptor)
   @UseInterceptors(PagingInterceptor)
-  async getMostSearched(@Query("skip", new DefaultValuePipe(0), ParseIntPipe) skip: number) {
-    return this.ratingsService.findRatedMoreThanThree(skip);
+  async getMostSearched(@Query("skip", ParseIntPipe) skip: number = 0) {
+    return this.productsService.getGoodRatedProducts(skip);
   }
 
   @UseInterceptors(PagingInterceptor)
-  @Get("/suggestions")
-  async getProductSuggestions(@Query("q") query = "", @Query() params: any) {
-    const validParams = {};
-    const validKeys = ["category", "price", "title", "manufacturer"];
-
-    for (const [key, value] of Object.entries(params)) {
-      if (validKeys.includes(key)) validParams[key] = value;
-    }
-    return this.productsService.getProductSuggestions(query, validParams, params?.skip || 0);
+  @Get("/search")
+  async searchProducts(@Query() { q: query = "", ...params }: ParamsDto) {
+    return this.productsService.getSearchedProducts(query, params, params?.skip || 0);
   }
 
   @Get("/:id")
@@ -107,13 +85,12 @@ export class ProductsController {
     try {
       const result = await this.productsService.getById(id);
 
-      if (typeof result !== "undefined") {
-        this.productsService.pushSearchHistory(user_id, result.prod_id as any);
-      }
+      if (typeof result !== "undefined")
+        this.productsService.pushSearchHistory(user_id, result.prod_id);
 
       return result;
     } catch (error) {
-      throw new NotFoundException(`Couldn't find post with id: ${id}`);
+      throw new NotFoundException(`Couldn't find product with id: ${id}`);
     }
   }
 

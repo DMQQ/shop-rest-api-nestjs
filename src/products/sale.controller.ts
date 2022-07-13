@@ -1,4 +1,5 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, UseInterceptors } from "@nestjs/common";
+import { PagingInterceptor } from "../utils/functions/PagingInterceptor";
 import { ProductsService } from "./products.service";
 
 @Controller("sales")
@@ -6,17 +7,14 @@ export class SaleController {
   constructor(private productsService: ProductsService) {}
 
   @Get()
+  @UseInterceptors(PagingInterceptor)
   getSales() {
-    return {
-      hasMore: false,
-      results: new Array(10)
-        .fill({
-          id: 0,
-          date: new Date(),
-          image: "",
-        })
-        .map((props, index) => ({ ...props, id: index })),
-    };
+    return new Array(5)
+      .fill({
+        date: new Date(),
+        image: "",
+      })
+      .map((props, index) => ({ ...props, id: index }));
   }
 
   @Get("/daily")

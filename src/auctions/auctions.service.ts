@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
 import { Connection, Like, Repository } from "typeorm";
+import { ProductsEntity } from "../products/Entities/products.entity";
 import { Auction, Bids } from "./auction.entity";
 import { AuctionProps, BidProps, AuctionParams } from "./auction.interface";
 
@@ -160,6 +161,16 @@ export class AuctionsService {
     }
 
     throw new Error("Price too low");
+  }
+
+  isProductOwner(prod_id: number, user_id: number) {
+    return this.connection.manager.findOne(ProductsEntity, {
+      select: ["vendor", "prod_id"],
+      where: {
+        prod_id,
+        user_id,
+      },
+    });
   }
 
   updateAuction(auction_id: string, props: Partial<Omit<AuctionProps, "product" | "seller">>) {

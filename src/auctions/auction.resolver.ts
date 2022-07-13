@@ -1,4 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Args, ID, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import User from "../utils/decorators/User";
 import {
@@ -72,9 +72,15 @@ export class AuctionResolver {
 
   @Mutation(() => AuctionCreateResponse)
   async createAuction(
-    @Args("auction", { nullable: false }) input: AuctionCreate,
+    @Args("auction", { nullable: false, type: () => AuctionCreate }) input: AuctionCreate,
     @User() seller: number,
   ) {
+    const isProductOwner = await this.auctionService.isProductOwner(input.product, seller);
+
+    if (!isProductOwner) {
+      throw new ForbiddenException("You are not the owner of this product");
+    }
+
     const insertResult = await this.auctionService.createAuction({ ...input, seller });
 
     const auction = await this.auctionService.getAuction(insertResult.generatedMaps[0].auction_id);
