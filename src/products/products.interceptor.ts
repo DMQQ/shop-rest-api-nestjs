@@ -1,6 +1,6 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from "@nestjs/common";
 import { map } from "rxjs";
-import { ProductsEntity } from "./Entities/products.entity";
+import { ProductsEntity } from "./entities/products.entity";
 
 @Injectable()
 export class OneImageInterceptor implements NestInterceptor {

@@ -1,15 +1,15 @@
 import { Resolver, Query, Args, Int, ResolveField, Parent } from "@nestjs/graphql";
-import { ProductsEntity } from "./Entities/products.entity";
-import { ProductsService } from "./products.service";
-import { RatingsEntity } from "../ratings/ratings.entity";
-import { UploadEntity } from "../upload/upload.entity";
-import { RatingsService } from "../ratings/ratings.service";
+import { ProductsEntity } from "../entities/products.entity";
+import { ProductsService } from "../services/products.service";
+import { RatingsEntity } from "../../ratings/ratings.entity";
+import { UploadEntity } from "../../upload/upload.entity";
+import { RatingsService } from "../../ratings/ratings.service";
 import { NotFoundException } from "@nestjs/common";
-import User from "../utils/decorators/User";
+import User from "../../utils/decorators/User";
 
 @Resolver(() => ProductsEntity)
 export class ProductsResolver {
-  constructor(private productsService: ProductsService, private ratingService: RatingsService) {}
+  constructor(private productsService: ProductsService) {}
 
   @Query(() => [ProductsEntity])
   products(
@@ -43,14 +43,9 @@ export class ProductsResolver {
   }
 
   @Query(() => ProductsEntity)
-  async sale() {
-    return this.productsService.getDailySaleProduct().then((r) => r.results);
-  }
-
-  @Query(() => ProductsEntity)
   async product(@Args("prod_id", { type: () => Int }) prod_id: number, @User() user_id: number) {
     try {
-      this.productsService.pushSearchHistory(user_id, prod_id as any);
+      this.productsService.saveSearchedProduct(user_id, prod_id as any);
 
       const product = await this.productsService.getById(prod_id);
 

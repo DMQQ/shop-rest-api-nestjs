@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { ProductsEntity } from "../products/Entities/products.entity";
+import { ProductsEntity } from "../products/entities/products.entity";
 import { UsersEntity } from "../users/users.entity";
 
 import { Field, Int, ObjectType } from "@nestjs/graphql";

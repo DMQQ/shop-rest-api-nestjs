@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Get,
   Param,
   Post,
@@ -13,19 +12,19 @@ import {
   UseInterceptors,
   UseGuards,
 } from "@nestjs/common";
-import { ProductsDto } from "./dto/products.dto";
-import { ProductsService } from "./products.service";
+import { ProductsDto } from "../dto/products.dto";
+import { ProductsService } from "../services/products.service";
 import { Response } from "express";
-import { CREATED } from "../utils/constants/codes";
-import { FAILED_CREATE, SUCCESS_CREATE } from "../utils/constants/responses";
-import User from "../utils/decorators/User";
-import { PagingInterceptor } from "../utils/functions/PagingInterceptor";
-import { RoleGuard } from "../utils/guards/RoleGuard";
-import { UserEnum } from "../users/users.entity";
+import { CREATED } from "../../utils/constants/codes";
+import { FAILED_CREATE, SUCCESS_CREATE } from "../../utils/constants/responses";
+import User from "../../utils/decorators/User";
+import { PagingInterceptor } from "../../utils/functions/PagingInterceptor";
+import { RoleGuard } from "../../utils/guards/RoleGuard";
+import { UserEnum } from "../../users/users.entity";
 import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { ProductsEntity } from "./Entities/products.entity";
-import { OneImageInterceptor } from "./products.interceptor";
-import { ParamsDto } from "./dto/ParamsDto";
+import { ProductsEntity } from "../entities/products.entity";
+import { OneImageInterceptor } from "../products.interceptor";
+import { ParamsDto } from "../dto/ParamsDto";
 
 @ApiTags("Products")
 @Controller("products")
@@ -86,7 +85,7 @@ export class ProductsController {
       const result = await this.productsService.getById(id);
 
       if (typeof result !== "undefined")
-        this.productsService.pushSearchHistory(user_id, result.prod_id);
+        this.productsService.saveSearchedProduct(user_id, result.prod_id);
 
       return result;
     } catch (error) {

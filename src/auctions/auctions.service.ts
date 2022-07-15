@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
 import { Connection, Like, Repository } from "typeorm";
-import { ProductsEntity } from "../products/Entities/products.entity";
+import { ProductsEntity } from "../products/entities/products.entity";
 import { Auction, Bids } from "./auction.entity";
 import { AuctionProps, BidProps, AuctionParams } from "./auction.interface";
 

@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Res,
+  UsePipes,
 } from "@nestjs/common";
 import { CredentialsType, UsersService } from "./users.service";
 import { Response } from "express";
@@ -22,6 +23,7 @@ import {
   ApiLoginResponseOk,
   ApiRegisterResponseOk,
 } from "./user.swagger";
+import { CredentialsPipe } from "./pipes/credentials.pipe";
 
 enum CredentialsReset {
   email = "email",
@@ -137,6 +139,7 @@ export class UsersController {
   }
 
   @Put("/credentials")
+  //@UsePipes(new CredentialsPipe(["address", "name", "surname"]))
   async updateCredentials(
     @Body() value: CredentialsType,
     @User() id: number,
@@ -159,7 +162,6 @@ export class UsersController {
           message: "updated",
         });
       }
-      throw new BadRequestException();
     } catch (error) {
       throw new BadRequestException("Something went wrong");
     }

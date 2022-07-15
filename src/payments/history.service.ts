@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
-import { ProductsEntity } from "../products/Entities/products.entity";
+import { ProductsEntity } from "../products/entities/products.entity";
 import { Connection, In, Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 import { Stripe } from "stripe";
@@ -60,7 +60,7 @@ export class HistoryService {
       .getOneOrFail();
   }
 
-  async purchase(props: PurchaseProps, callback?: () => Promise<any>): Promise<any> {
+  async purchase(props: PurchaseProps, callback?: () => Promise<any>): Promise<void> {
     const runner = this.conn.createQueryRunner();
 
     await runner.startTransaction();

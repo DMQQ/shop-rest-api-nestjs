@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, Like, InsertResult, UpdateResult, MoreThan } from "typeorm";
-import { ProductsEntity } from "./Entities/products.entity";
-import { SaleEntity } from "./Entities/sale.entity";
-import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
+import { ProductsEntity } from "../entities/products.entity";
+import { SaleEntity } from "../entities/sale.entity";
+import { SearchHistoryEntity } from "../entities/searchHistory.entity";
 
 const TAKE = 5;
 
@@ -19,9 +19,6 @@ export class ProductsService {
 
     @InjectRepository(SearchHistoryEntity)
     private searchRepository: Repository<SearchHistoryEntity>,
-
-    @InjectRepository(SaleEntity)
-    private saleRepository: Repository<SaleEntity>,
   ) {}
 
   async getAllQL(skip = 0, params: ParamsProps) {
@@ -74,7 +71,7 @@ export class ProductsService {
     return this.productsRepository.insert(props);
   }
 
-  async pushSearchHistory(user_id: number, prod_id: any) {
+  async saveSearchedProduct(user_id: number, prod_id: any) {
     await this.searchRepository.save({ user_id, prod_id });
   }
 
@@ -146,33 +143,10 @@ export class ProductsService {
       });
   }
 
-  async getDailySaleProduct(): Promise<{
-    hasMore: boolean;
-    results: ProductsEntity;
-  }> {
-    return this.saleRepository
-      .find({
-        relations: ["prod_id", "prod_id.img_id"],
-        order: {
-          date: "DESC",
-        },
-        take: 1,
-      })
-      .then(([res]) => {
-        if (typeof res !== "undefined") {
-          return { hasMore: false, results: res.prod_id };
-        }
-      });
-  }
-
   getProductsIds(): Promise<{ prod_id: number }[]> {
     return this.productsRepository.find({
       select: ["prod_id"],
     });
-  }
-
-  setDailySaleProduct(id: any): Promise<InsertResult> {
-    return this.saleRepository.insert({ prod_id: id, type: "test", amount: 100 });
   }
 
   applyDiscount(prod_id: number, discount: number): Promise<UpdateResult> {

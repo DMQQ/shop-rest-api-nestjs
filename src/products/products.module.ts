@@ -1,16 +1,18 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ProductsController } from "./products.controller";
-import { ProductsEntity } from "./Entities/products.entity";
-import { ProductsService } from "./products.service";
-import { SearchHistoryEntity } from "./Entities/searchHistory.entity";
-import { MostSearchedEntity } from "./Entities/mostSearched.entity";
+import { ProductsController } from "./controllers/products.controller";
+import { ProductsEntity } from "./entities/products.entity";
+import { ProductsService } from "./services/products.service";
+import { SearchHistoryEntity } from "./entities/searchHistory.entity";
+import { MostSearchedEntity } from "./entities/mostSearched.entity";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { RatingsModule } from "../ratings/ratings.module";
-import { SaleEntity } from "./Entities/sale.entity";
-import { SaleSchedule } from "./sale.schedule";
-import { SaleController } from "./sale.controller";
-import { ProductsResolver } from "./products.resolver";
+import { SaleEntity } from "./entities/sale.entity";
+import { SaleSchedule } from "./services/sale.schedule";
+import { SaleController } from "./controllers/sale.controller";
+import { ProductsResolver } from "./resolvers/products.resolver";
+import { SaleService } from "./services/sale.service";
+import { SaleResolver } from "./resolvers/sale.resolver";
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { ProductsResolver } from "./products.resolver";
     NotificationsModule,
     RatingsModule,
   ],
-  providers: [ProductsService, SaleSchedule, ProductsResolver],
+  providers: [ProductsService, SaleSchedule, ProductsResolver, SaleService, SaleResolver],
   controllers: [ProductsController, SaleController],
 })
 export class ProductsModule {}

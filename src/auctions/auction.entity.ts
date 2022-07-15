@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
 } from "typeorm";
-import { ProductsEntity } from "../products/Entities/products.entity";
+import { ProductsEntity } from "../products/entities/products.entity";
 
 @ObjectType()
 @Entity("auction")
