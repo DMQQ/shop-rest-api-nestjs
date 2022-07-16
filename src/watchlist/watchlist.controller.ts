@@ -51,13 +51,19 @@ export class WatchlistController {
     try {
       await this.watchlistService.save(id, prod_id);
 
+      const product = await this.watchlistService.getWatchlistProductById(prod_id);
+
       return {
         statusCode: 201,
         message: "Product added to watchlist",
+        product: product,
       };
     } catch (error) {
+      console.log(error);
       throw new BadRequestException({
+        statusCode: 400,
         message: "Something went wrong",
+        error: "Product is already in watchlist",
       });
     }
   }

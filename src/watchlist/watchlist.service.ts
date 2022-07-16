@@ -74,6 +74,21 @@ export class WatchlistService {
     return this.watchRepository.delete({ prod_id, user_id });
   }
 
+  getWatchlistProductById(prod_id: number) {
+    return this.watchRepository
+      .createQueryBuilder("w")
+      .leftJoinAndSelect("w.prod_id", "product")
+      .leftJoinAndSelect("product.img_id", "images")
+      .where("w.prod_id = :prod_id", { prod_id })
+      .getOne()
+      .then(({ prod_id: { title, price, prod_id, img_id } }) => ({
+        title,
+        price,
+        prod_id,
+        img_id: [img_id?.[0]],
+      }));
+  }
+
   checkIfProdIsIn(user_id: number, prod_id: any) {
     return this.watchRepository.findOne({ user_id, prod_id });
   }
