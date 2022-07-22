@@ -31,14 +31,14 @@ export class CartService {
 
   async getCart(user_id: number, skip = 0) {
     return this.cartRepository
-      .find({
+      .findAndCount({
         select: ["prod_id", "ammount", "prod_id", "cart_id"],
         relations: ["prod_id", "prod_id.img_id"],
         where: { user_id },
         skip,
         take: 5,
       })
-      .then((result) => result.map(singleCartProduct));
+      .then(([result, am]) => [result.map(singleCartProduct), am]);
   }
   addToCart(user_id: number, prod_id: any): Promise<InsertResult> {
     return this.cartRepository.insert({ user_id, prod_id });

@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   ParseEnumPipe,
+  Patch,
   Post,
   Put,
   Res,
@@ -138,7 +139,7 @@ export class UsersController {
     });
   }
 
-  @Put("/credentials")
+  @Patch("/credentials")
   //@UsePipes(new CredentialsPipe(["address", "name", "surname"]))
   async updateCredentials(
     @Body() value: CredentialsType,

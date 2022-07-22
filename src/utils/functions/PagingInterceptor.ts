@@ -18,7 +18,7 @@ export class PagingInterceptor<T> implements NestInterceptor<T, Response<T>> {
     return next.handle().pipe(
       map(([results, amount]: any) => ({
         amount,
-        hasMore: +args?.query?.skip + 5 < amount,
+        hasMore: (+args?.query?.skip || 0) + 5 < amount,
         results,
       })),
     );

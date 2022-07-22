@@ -7,10 +7,12 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UseInterceptors,
 } from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { BAD, OK } from "../utils/constants/codes";
 import User from "../utils/decorators/User";
+import { PagingInterceptor } from "../utils/functions/PagingInterceptor";
 
 function response(affected: boolean) {
   return { statusCode: !!affected ? OK : BAD, message: !!affected ? "Deleted" : "Failed" };
@@ -21,7 +23,8 @@ export class CartController {
   constructor(private cartService: CartService) {}
 
   @Get()
-  async getCart(@User() user_id: number, @Query("skip") skip: number) {
+  @UseInterceptors(PagingInterceptor)
+  async getCart(@User() user_id: number, @Query("skip") skip: number = 0) {
     return this.cartService.getCart(user_id, skip);
   }
 
