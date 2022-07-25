@@ -95,4 +95,8 @@ export class CartService {
   isInCart(user_id: number, prod_id: any) {
     return this.cartRepository.findOne({ user_id, prod_id });
   }
+
+  removeAll(user_id: number) {
+    return this.cartRepository.delete({ user_id });
+  }
 }

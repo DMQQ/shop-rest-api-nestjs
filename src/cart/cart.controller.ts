@@ -2,8 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
+  ParseBoolPipe,
   ParseIntPipe,
   Post,
   Query,
@@ -61,8 +63,20 @@ export class CartController {
   }
 
   @Delete()
-  async removeFromCart(@Query("id", ParseIntPipe) cart_id: number) {
+  async removeFromCart(
+    @Query("id", ParseIntPipe) cart_id: number,
+    @User() user_id: number,
+    @Query("removeAll", new DefaultValuePipe(false), ParseBoolPipe) removeAll?: boolean,
+  ) {
     try {
+      if (removeAll) {
+        await this.cartService.removeAll(user_id);
+        return {
+          statusCode: 200,
+          message: "Removed all",
+        };
+      }
+
       const result = await this.cartService.findOneProductInCart(cart_id);
 
       if ((result?.ammount || 0) > 1) {
