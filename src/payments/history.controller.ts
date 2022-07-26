@@ -68,9 +68,11 @@ export class HistoryController {
         total_price: amount,
       };
 
-      await this.historyService.purchase(props, async () => {
+      await this.historyService.purchase(props);
+
+      try {
         await this.notifyService.purchaseNotification(user_id);
-      });
+      } catch {}
 
       response.send({
         finished: true,

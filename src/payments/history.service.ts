@@ -60,7 +60,7 @@ export class HistoryService {
       .getOneOrFail();
   }
 
-  async purchase(props: PurchaseProps, callback?: () => Promise<any>): Promise<void> {
+  async purchase(props: PurchaseProps): Promise<void> {
     const runner = this.conn.createQueryRunner();
 
     await runner.startTransaction();
@@ -91,8 +91,6 @@ export class HistoryService {
         },
         { quantity: () => "quantity - 1" },
       );
-
-      await callback?.();
 
       await runner.commitTransaction();
     } catch (error) {
