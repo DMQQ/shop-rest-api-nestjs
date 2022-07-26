@@ -47,21 +47,17 @@
 
         if (token) {
           try {
-            const response = await fetch(
-              "http://192.168.0.25:3000/auth/confirm-account",
-              {
-                method: "POST",
-                body: JSON.stringify({ token }),
-                headers: {
-                  "Content-type": "application/json",
-                },
+            const response = await fetch("/auth/confirm-account", {
+              method: "POST",
+              body: JSON.stringify({ token }),
+              headers: {
+                "Content-type": "application/json",
               },
-            );
+            });
             const data = await response.json();
 
             if (data.message === "success") {
-              document.querySelector(".result").textContent =
-                "Account Activated";
+              document.querySelector(".result").textContent = "Account Activated";
               document.querySelector(".confirm").remove();
             }
           } catch (error) {
