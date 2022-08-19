@@ -21,9 +21,9 @@ export class AuctionsService {
     const [day2, month2, year2] = date.split(".");
 
     return (
-      year2 > year ||
-      (year2 === year && month2 > month) ||
-      (year2 === year && month2 === month && day2 > day)
+      +year2 > +year ||
+      (+year2 === +year && +month2 > +month) ||
+      (+year2 === +year && +month2 === +month && +day2 > +day)
     );
   }
 

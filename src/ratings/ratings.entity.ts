@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { Field, InputType, Int, ObjectType } from "@nestjs/graphql";
 import { ProductsEntity } from "../products/entities/products.entity";
 
 @ObjectType()
@@ -28,4 +28,23 @@ export class RatingsEntity {
   @Field()
   @Column({ type: "varchar" })
   description: string;
+}
+
+@InputType()
+export class CreateRatingsInput {
+  @Field(() => Int)
+  @Column({ type: "int" })
+  rating: number;
+
+  @Field()
+  @Column({ type: "varchar" })
+  title: string;
+
+  @Field()
+  @Column({ type: "varchar" })
+  description: string;
+
+  @Field(() => Int)
+  @Column({ type: "int" })
+  prod_id: number;
 }

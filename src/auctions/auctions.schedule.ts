@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, Interval } from "@nestjs/schedule";
 import { Mailer } from "../utils/Mail/Mailer";
 import { AuctionsService } from "./auctions.service";
 
