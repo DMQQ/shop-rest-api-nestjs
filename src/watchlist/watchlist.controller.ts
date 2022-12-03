@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseInterceptors,
 } from "@nestjs/common";
 import User from "../utils/decorators/User";
@@ -19,8 +20,8 @@ export class WatchlistController {
 
   @Get()
   @UseInterceptors(PagingInterceptor)
-  getUsersWatchlist(@User() user_id: number) {
-    return this.watchlistService.getWatchlistREST(user_id);
+  getUsersWatchlist(@User() user_id: number, @Query("skip") skip: number = 0) {
+    return this.watchlistService.getWatchlistREST(user_id, skip);
   }
 
   @Delete("/:prod_id")
