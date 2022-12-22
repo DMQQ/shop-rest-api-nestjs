@@ -3,7 +3,6 @@ import { ProductsEntity } from "../entities/products.entity";
 import { ProductsService } from "../services/products.service";
 import { RatingsEntity } from "../../ratings/ratings.entity";
 import { UploadEntity } from "../../upload/upload.entity";
-import { RatingsService } from "../../ratings/ratings.service";
 import { NotFoundException } from "@nestjs/common";
 import User from "../../utils/decorators/User";
 

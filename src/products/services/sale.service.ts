@@ -44,7 +44,6 @@ export class SaleService {
         "sale.amount",
       ])
       .orderBy("sale.date", "DESC")
-      .limit(1)
       .getOne()
       .then(({ prod_id, ...rest }) => ({ ...rest, ...prod_id, quantity: rest.amount }));
   }

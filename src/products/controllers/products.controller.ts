@@ -35,7 +35,7 @@ export class ProductsController {
   @ApiOkResponse({ type: ProductsEntity })
   @UseInterceptors(OneImageInterceptor)
   @UseInterceptors(PagingInterceptor)
-  async getAllProducts(@Query("skip") skip: number) {
+  getAllProducts(@Query("skip") skip: number) {
     return this.productsService.getAll(skip);
   }
 
