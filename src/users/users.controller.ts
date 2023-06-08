@@ -64,7 +64,10 @@ export class UsersController {
         role: result.user_type,
       });
 
+      console.log(result.user_type);
+
       return response.send({
+        role: result.user_type,
         token,
         name: result.email,
         user_id: result.id,

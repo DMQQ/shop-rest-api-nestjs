@@ -21,8 +21,6 @@ export class HistoryService {
       apiVersion: "2020-08-27",
       typescript: true,
     });
-
-    console.log(process.env.STRIPE_TEST_SECRET);
   }
 
   createIntent<T extends {} = {}>(total: number, metadata?: T) {
@@ -66,6 +64,12 @@ export class HistoryService {
     await runner.startTransaction();
 
     try {
+      const dbProducts = await runner.manager.find(ProductsEntity, {
+        where: { prod_id: In(props.products) },
+      });
+
+      if (dbProducts.some((prod) => prod.quantity === 0)) throw new Error("Product out of stock");
+
       await runner.manager.delete(CartEntity, { user_id: props.user_id });
 
       const payment_id = randomUUID();

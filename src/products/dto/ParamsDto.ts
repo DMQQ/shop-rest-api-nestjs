@@ -1,26 +1,69 @@
 import { IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { Type, Transform } from "class-transformer";
 
 export class ParamsDto {
-  @IsOptional()
-  @IsString()
-  title: string;
-
+  @Type(() => String)
   @IsString()
   @IsOptional()
-  category: string;
+  q?: string;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  price: number;
+  @IsPositive()
+  skip?: number;
 
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  take?: number;
+
+  @Type(() => String)
   @IsString()
   @IsOptional()
-  manufacturer: string;
+  sort?: string;
 
-  @IsOptional()
-  skip: number;
-
+  @Type(() => String)
   @IsString()
   @IsOptional()
-  q: string;
+  order?: string;
+
+  @Type(() => String)
+  @IsString()
+  @IsOptional()
+  category?: string;
+
+  @Type(() => String)
+  @IsString()
+  @IsOptional()
+  manufactor?: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  minPrice?: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  maxPrice?: number;
+
+  @Type(() => String)
+  @IsString()
+  @IsOptional()
+  vendor?: string;
+
+  @Type(() => String)
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  rating?: number;
 }

@@ -43,8 +43,6 @@
       document.querySelector(".confirm").addEventListener("click", async () => {
         const [, token] = document.URL.split("=");
 
-        console.log(token);
-
         if (token) {
           try {
             const response = await fetch("/auth/confirm-account", {
@@ -60,9 +58,7 @@
               document.querySelector(".result").textContent = "Account Activated";
               document.querySelector(".confirm").remove();
             }
-          } catch (error) {
-            console.log(error);
-          }
+          } catch (error) {}
         }
       });
     </script>

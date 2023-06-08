@@ -5,6 +5,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -81,11 +83,31 @@ export class ProductsEntity {
   @UpdateDateColumn({ insert: true, name: "date_add" })
   date_add: Date;
 
-  @Column({ type: "varchar" })
-  tags: string;
+  @ManyToMany(() => TagsEntity, (tag) => tag.id)
+  @JoinTable({ name: "product_tags" })
+  tags: TagsEntity[];
 
   @ApiProperty({ minimum: 0, maximum: 5, description: "Product's rating", default: 0 })
   @Field(() => Int, { nullable: true, defaultValue: 0 })
   @Column({ type: "int", default: 0 })
   rating: number;
+}
+
+@ObjectType()
+@Entity("tags")
+export class TagsEntity {
+  @ApiProperty()
+  @Field(() => Int)
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ApiProperty()
+  @Field()
+  @Column({ type: "varchar", length: "60" })
+  tag: string;
+
+  @ApiProperty()
+  @Field(() => String, { nullable: true })
+  @Column({ type: "varchar" })
+  icon: string;
 }

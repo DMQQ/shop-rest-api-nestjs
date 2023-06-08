@@ -60,7 +60,6 @@ export class WatchlistController {
         product: product,
       };
     } catch (error) {
-      console.log(error);
       throw new BadRequestException({
         statusCode: 400,
         message: "Something went wrong",

@@ -1,9 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, Like, InsertResult, UpdateResult, MoreThan } from "typeorm";
+import {
+  Repository,
+  Like,
+  InsertResult,
+  UpdateResult,
+  MoreThan,
+  Between,
+  MoreThanOrEqual,
+} from "typeorm";
 import { ProductsEntity } from "../entities/products.entity";
 import { SaleEntity } from "../entities/sale.entity";
 import { SearchHistoryEntity } from "../entities/searchHistory.entity";
+import { ParamsDto } from "../dto/ParamsDto";
 
 const TAKE = 5;
 
@@ -113,22 +122,30 @@ export class ProductsService {
     });
   }
 
-  async getSearchedProducts(text: string = "", params: any, skip: number = 0) {
+  async getSearchedProducts(props: ParamsDto) {
     return this.productsRepository
       .findAndCount({
         select: ["prod_id", "img_id", "title", "price"],
         relations: ["img_id"],
-        skip,
+        skip: +props.skip || 0,
+        take: +props.take || TAKE,
+
         order: {
-          ...(params.title && { title: params.title }),
-          ...(params.price && { price: params.price }),
+          price: props.order === "price" ? "ASC" : "DESC",
+          title: props.order === "title" ? "ASC" : "DESC",
         },
         where: {
-          title: Like(`%${text}%`),
-          ...(params.category && { category: params.category }),
-          ...(params.manufacturer && { manufacturer: params.manufacturer }),
+          ...(props.category && { category: props.category }),
+          ...((props.minPrice || props.maxPrice) && {
+            price: Between(+props.minPrice || 0, +props.maxPrice || 100000),
+          }),
+
+          ...(props.q && { title: Like(`%${props.q}%`) }),
+          ...(props.vendor && { vendor: props.vendor }),
+          ...(props.rating && { rating: MoreThanOrEqual(+props.rating) }),
+          ...(props.description && { description: Like(`%${props.description}%`) }),
+          ...(props.manufactor && { manufacturer: Like(`%${props.manufactor}%`) }),
         },
-        take: TAKE,
       })
       .then(([response, amount]) => {
         return [

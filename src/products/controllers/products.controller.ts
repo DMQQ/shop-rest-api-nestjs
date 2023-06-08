@@ -75,8 +75,8 @@ export class ProductsController {
 
   @UseInterceptors(PagingInterceptor)
   @Get("/search")
-  async searchProducts(@Query() { q: query = "", ...params }: ParamsDto) {
-    return this.productsService.getSearchedProducts(query, params, params?.skip || 0);
+  async searchProducts(@Query() query: ParamsDto) {
+    return this.productsService.getSearchedProducts(query);
   }
 
   @Get("/:id")
@@ -100,13 +100,17 @@ export class ProductsController {
     @Res() response: Response,
     @User() vendor: number,
   ) {
-    const { raw } = await this.productsService.createProduct({ ...props, vendor });
-    if (raw.affectedRows > 0) {
-      return response.status(CREATED).send({
-        message: SUCCESS_CREATE,
-        StatusCode: CREATED,
-        id: raw.insertId,
-      });
+    try {
+      const { raw } = await this.productsService.createProduct({ ...props, vendor });
+      if (raw.affectedRows > 0) {
+        return response.status(CREATED).send({
+          message: SUCCESS_CREATE,
+          StatusCode: CREATED,
+          id: raw.insertId,
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
     throw new BadRequestException(FAILED_CREATE);
   }
