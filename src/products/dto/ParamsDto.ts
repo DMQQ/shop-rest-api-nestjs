@@ -10,7 +10,6 @@ export class ParamsDto {
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  @IsPositive()
   skip?: number;
 
   @Type(() => Number)
