@@ -68,7 +68,10 @@ export class HistoryService {
         where: { prod_id: In(props.products) },
       });
 
-      if (dbProducts.some((prod) => prod.quantity === 0)) throw new Error("Product out of stock");
+      if (dbProducts.some((prod) => prod.quantity === 0)) {
+        // Refund stripe
+        throw new Error("Product out of stock");
+      }
 
       await runner.manager.delete(CartEntity, { user_id: props.user_id });
 

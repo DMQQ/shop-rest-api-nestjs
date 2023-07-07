@@ -51,7 +51,7 @@ export class CartResolver {
     const samelist = await this.cartService.findSameProductInCart(id, prod_id);
 
     if (typeof samelist === "undefined") {
-      const { raw } = await this.cartService.addToCart(id, prod_id);
+      const { raw } = await this.cartService.addProduct(id, prod_id);
 
       return {
         prod_id,

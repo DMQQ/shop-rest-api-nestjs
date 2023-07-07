@@ -42,6 +42,7 @@ export class SaleService {
         "image.id",
         "image.name",
         "sale.amount",
+        "product.rating",
       ])
       .orderBy("sale.date", "DESC")
       .getOne()

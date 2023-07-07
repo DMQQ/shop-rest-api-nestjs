@@ -1,0 +1,47 @@
+$primary: #0f172a;
+$primary-light: #16233f;
+$secondary: #8408d4;
+$active: #36a8f5;
+
+$padding-sm: 0.25rem;
+$padding-md: 0.5rem;
+$padding-xl: 1rem;
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  padding: 0;
+}
+
+body {
+  background-color: $primary;
+}
+
+.block {
+  width: 100%;
+  display: flex;
+  min-height: 100vh;
+  &__left {
+    flex: 1;
+    background: #fff;
+  }
+
+  &__right {
+    flex: 1;
+  }
+
+  &__title {
+  }
+
+  &__desc {
+  }
+
+  &__image {
+  }
+
+  &__images-container {
+  }
+}

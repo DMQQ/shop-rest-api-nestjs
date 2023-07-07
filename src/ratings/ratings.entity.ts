@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, InputType, Int, ObjectType } from "@nestjs/graphql";
 import { ProductsEntity } from "../products/entities/products.entity";
 
@@ -28,6 +35,18 @@ export class RatingsEntity {
   @Field()
   @Column({ type: "varchar" })
   description: string;
+
+  @Field(() => Boolean)
+  @Column({ type: "boolean" })
+  isVerified: boolean;
+
+  @Field(() => Boolean)
+  @Column({ type: "boolean" })
+  isConfirmedPurchase: boolean;
+
+  @Field(() => String)
+  @CreateDateColumn({ name: "created_at" })
+  created_at: string;
 }
 
 @InputType()

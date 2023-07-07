@@ -40,7 +40,7 @@ export class CartService {
       })
       .then(([result, am]) => [result.map(singleCartProduct), am]);
   }
-  addToCart(user_id: number, prod_id: any): Promise<InsertResult> {
+  addProduct(user_id: number, prod_id: any): Promise<InsertResult> {
     return this.cartRepository.insert({ user_id, prod_id });
   }
 

@@ -71,6 +71,7 @@ export class AppModule implements NestModule {
         "/payments/webhook",
         { method: RequestMethod.GET, path: "/" },
         { method: RequestMethod.GET, path: "/graphql" },
+        { method: RequestMethod.GET, path: "/landing" },
       )
       .forRoutes("*");
   }

@@ -44,7 +44,7 @@ export class CartController {
       const list = await this.cartService.findSameProductInCart(user_id, prod_id);
 
       if (typeof list === "undefined") {
-        const { raw } = await this.cartService.addToCart(user_id, prod_id);
+        const { raw } = await this.cartService.addProduct(user_id, prod_id);
 
         const product = await this.cartService.getOne(prod_id, user_id);
 
