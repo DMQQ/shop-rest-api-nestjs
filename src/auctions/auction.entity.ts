@@ -27,7 +27,7 @@ export class Auction {
   date_start: Date;
 
   @Field(() => String)
-  @Column({ nullable: false, type: "datetime" })
+  @Column({ nullable: false, type: "varchar" })
   date_end: string;
 
   @Field(() => Boolean, { nullable: false })
