@@ -3,14 +3,13 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   NotFoundException,
   Param,
   ParseEnumPipe,
   Patch,
   Post,
-  Put,
   Res,
-  UsePipes,
 } from "@nestjs/common";
 import { CredentialsType, UsersService } from "./users.service";
 import { Response } from "express";
@@ -24,7 +23,6 @@ import {
   ApiLoginResponseOk,
   ApiRegisterResponseOk,
 } from "./user.swagger";
-import { CredentialsPipe } from "./pipes/credentials.pipe";
 
 enum CredentialsReset {
   email = "email",
@@ -40,21 +38,21 @@ export class UsersController {
   @ApiResponse({ status: 200, description: "Logged in successfully", type: ApiLoginResponseOk })
   @ApiResponse({ status: 400, description: "Something went wrong", type: ApiLoginResponseBad })
   @Post("login")
-  async login(@Body() { email, password }: UserDto, @Res() response: Response) {
+  async login(@Body() { email, password }: UserDto) {
     try {
       const result = await this.userService.findMatchOrFail(email);
 
       if (typeof result !== "undefined" && !result.activated) {
-        return response.status(400).send({
-          statusCode: 400,
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
           message: "Account not activated",
         });
       }
       const isValid = await this.userService.comparePasswords(result.password, password);
 
       if (!isValid) {
-        return response.status(400).send({
-          status: 400,
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
           message: "Invalid email or password",
         });
       }
@@ -64,15 +62,13 @@ export class UsersController {
         role: result.user_type,
       });
 
-      console.log(result.user_type);
-
-      return response.send({
+      return {
         role: result.user_type,
         token,
         name: result.email,
         user_id: result.id,
         status: "verified",
-      });
+      };
     } catch (error) {
       throw new NotFoundException(`Invalid email or password, try again`);
     }
@@ -90,7 +86,7 @@ export class UsersController {
     type: ApiLoginResponseBad,
   })
   @Post("register")
-  async register(@Body() { email, password }: UserDto, @Res() response: Response) {
+  async register(@Body() { email, password }: UserDto) {
     const res = await this.userService.findMatch(email);
 
     if (typeof res !== "undefined") {
@@ -108,11 +104,11 @@ export class UsersController {
 
     this.userService.sendConfirmationEmail(email, token);
 
-    response.status(201).send({
+    return {
       status: 201,
       activated: false,
       user_id: result.raw.insertId,
-    });
+    };
   }
 
   @Post("token")

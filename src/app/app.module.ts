@@ -69,6 +69,7 @@ export class AppModule implements NestModule {
         "/auth/confirm-account",
         "/upload/images=:img",
         "/payments/webhook",
+
         { method: RequestMethod.GET, path: "/" },
         { method: RequestMethod.GET, path: "/graphql" },
         { method: RequestMethod.GET, path: "/landing" },

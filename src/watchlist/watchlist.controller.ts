@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -21,20 +22,25 @@ export class WatchlistController {
   @Get()
   @UseInterceptors(PagingInterceptor)
   getUsersWatchlist(@User() user_id: number, @Query("skip") skip: number = 0) {
-    return this.watchlistService.getWatchlistREST(user_id, skip);
+    return this.watchlistService.getAllREST(user_id, skip);
   }
 
   @Delete("/:prod_id")
-  async deleteFromWatchlist(@User() user_id: number, @Param("prod_id") prod_id: number) {
+  async removeWatchlistItem(@User() user_id: number, @Param("prod_id") prod_id: number) {
     try {
       const res = await this.watchlistService.remove(user_id, prod_id);
 
-      if (res.affected > 0) {
-        return {
-          statusCode: 200,
-          message: "Removed",
-        };
-      }
+      if (!res)
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: "Something went wrong",
+          error: "Could not remove product from watchlist",
+        });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: "Removed",
+      };
     } catch (error) {
       throw new BadRequestException();
     }
@@ -42,26 +48,29 @@ export class WatchlistController {
 
   @Post("check")
   async checkProduct(@User() user_id: number, @Body("prod_id") prod_id: number) {
-    return this.watchlistService.checkIfProdIsIn(user_id, prod_id).then((res) => ({
+    const res = await this.watchlistService.isIn(user_id, prod_id);
+
+    return {
       isIn: typeof res !== "undefined",
-    }));
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Post()
   async addProductWatchlist(@User() id: number, @Body("prod_id", ParseIntPipe) prod_id: number) {
     try {
-      await this.watchlistService.save(id, prod_id);
+      await this.watchlistService.saveOne(id, prod_id);
 
-      const product = await this.watchlistService.getWatchlistProductById(prod_id);
+      const product = await this.watchlistService.getOneById(prod_id);
 
       return {
-        statusCode: 201,
-        message: "Product added to watchlist",
+        statusCode: HttpStatus.CREATED,
+        message: "Added to watchlist",
         product: product,
       };
     } catch (error) {
       throw new BadRequestException({
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: "Something went wrong",
         error: "Product is already in watchlist",
       });

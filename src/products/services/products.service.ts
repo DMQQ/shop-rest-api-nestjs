@@ -80,6 +80,10 @@ export class ProductsService {
     return this.productsRepository.insert(props);
   }
 
+  async updateProduct(prod_id: number, props: any) {
+    return this.productsRepository.update({ prod_id }, props);
+  }
+
   async saveSearchedProduct(user_id: number, prod_id: any) {
     await this.searchRepository.save({ user_id, prod_id });
   }

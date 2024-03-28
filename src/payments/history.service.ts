@@ -68,7 +68,7 @@ export class HistoryService {
         where: { prod_id: In(props.products) },
       });
 
-      if (dbProducts.some((prod) => prod.quantity === 0)) {
+      if (dbProducts.some((prod) => prod.quantity <= 0)) {
         // Refund stripe
         throw new Error("Product out of stock");
       }

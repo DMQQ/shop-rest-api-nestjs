@@ -14,7 +14,7 @@ export class WatchlistResolver {
     @Args("skip", { nullable: true, type: () => Int }) skip: number,
     @User() id: number,
   ) {
-    return this.watchlistService.getWatchlist(id, skip);
+    return this.watchlistService.getAll(id, skip);
   }
 
   @Query(() => WatchlistCheck)
@@ -22,7 +22,7 @@ export class WatchlistResolver {
     @Args("prod_id", { type: () => Int }) prod_id: number,
     @User() id: number,
   ) {
-    const result = await this.watchlistService.checkIfProdIsIn(id, prod_id);
+    const result = await this.watchlistService.isIn(id, prod_id);
 
     return {
       prod_id,
@@ -55,11 +55,9 @@ export class WatchlistResolver {
     @User() id: number,
   ) {
     try {
-      const { generatedMaps } = await this.watchlistService.save(id, prod_id);
+      const insert = await this.watchlistService.saveOne(id, prod_id);
 
-      if (generatedMaps.length < 1) throw new BadRequestException();
-
-      return await this.watchlistService.getOne(generatedMaps[0].id);
+      return await this.watchlistService.getOne(insert.id);
     } catch (error) {
       throw new BadRequestException({
         message: error,

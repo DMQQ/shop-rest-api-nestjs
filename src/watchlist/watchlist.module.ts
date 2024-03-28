@@ -9,5 +9,6 @@ import { WatchlistService } from "./watchlist.service";
   imports: [TypeOrmModule.forFeature([WatchlistEntity])],
   controllers: [WatchlistController],
   providers: [WatchlistService, WatchlistResolver],
+  exports: [WatchlistService],
 })
 export class WatchlistModule {}

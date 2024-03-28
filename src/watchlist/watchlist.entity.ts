@@ -3,6 +3,7 @@ import { ProductsEntity } from "../products/entities/products.entity";
 import { UsersEntity } from "../users/users.entity";
 
 import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { NotificationsEntity } from "../notifications/notifications.entity";
 
 @ObjectType()
 @Entity("watchlist")
@@ -17,7 +18,7 @@ export class WatchlistEntity {
   prod_id: ProductsEntity;
 
   @Field(() => Int)
-  @ManyToOne(() => UsersEntity, (t) => t.id)
+  @ManyToOne(() => NotificationsEntity, (t) => t.user_id)
   @JoinColumn({ name: "user_id" })
   user_id: number;
 }

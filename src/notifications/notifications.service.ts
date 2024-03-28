@@ -63,6 +63,10 @@ export class NotificationsService {
       });
   }
 
+  async notifySome(messages: ExpoPushMessage[]) {
+    return this.expo.sendPushNotificationsAsync(messages);
+  }
+
   async purchaseNotification(user_id: number) {
     const { token } = await this.getUserToken(user_id);
 

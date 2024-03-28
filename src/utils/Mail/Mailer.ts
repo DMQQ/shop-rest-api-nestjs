@@ -16,11 +16,8 @@ export class Mailer {
 
   private async init() {
     try {
-      console.log(process.env.SENDGRID_KEY)
       setApiKey(process.env.SENDGRID_KEY);
-    } catch (error) {
-      console.warn(error);
-    }
+    } catch (error) {}
   }
 
   sendMail(message: EmailTemplate): Promise<any> {

@@ -13,12 +13,14 @@ import { SaleController } from "./controllers/sale.controller";
 import { ProductsResolver } from "./resolvers/products.resolver";
 import { SaleService } from "./services/sale.service";
 import { SaleResolver } from "./resolvers/sale.resolver";
+import { WatchlistModule } from "../watchlist/watchlist.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ProductsEntity, SearchHistoryEntity, MostSearchedEntity, SaleEntity]),
     NotificationsModule,
     RatingsModule,
+    WatchlistModule,
   ],
   providers: [ProductsService, SaleSchedule, ProductsResolver, SaleService, SaleResolver],
   controllers: [ProductsController, SaleController],

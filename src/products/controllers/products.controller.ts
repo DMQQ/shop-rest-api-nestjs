@@ -11,6 +11,7 @@ import {
   NotFoundException,
   UseInterceptors,
   UseGuards,
+  Put,
 } from "@nestjs/common";
 import { ProductsDto } from "../dto/products.dto";
 import { ProductsService } from "../services/products.service";
@@ -25,11 +26,18 @@ import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { ProductsEntity } from "../entities/products.entity";
 import { OneImageInterceptor } from "../products.interceptor";
 import { ParamsDto } from "../dto/ParamsDto";
+import { WatchlistService } from "../../watchlist/watchlist.service";
+import { NotificationsService } from "../../notifications/notifications.service";
 
 @ApiTags("Products")
 @Controller("products")
 export class ProductsController {
-  constructor(private productsService: ProductsService) {}
+  constructor(
+    private productsService: ProductsService,
+    private watchlistService: WatchlistService,
+
+    private notificationsService: NotificationsService,
+  ) {}
 
   @Get()
   @ApiOkResponse({ type: ProductsEntity })
@@ -91,6 +99,44 @@ export class ProductsController {
     } catch (error) {
       throw new NotFoundException(`Couldn't find product with id: ${id}`);
     }
+  }
+
+  @Put("/:id")
+  @UseGuards(new RoleGuard(UserEnum.developer))
+  async updateProduct(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() props: any,
+    @Res() response: Response,
+  ) {
+    try {
+      const update = await this.productsService.updateProduct(id, props);
+
+      if (update.affected <= 0) throw new BadRequestException(FAILED_CREATE);
+
+      const users = await this.watchlistService.getWatchlistWithNotifications(id);
+
+      await this.notificationsService.notifySome(
+        users.map(({ product_title, user_token }) => ({
+          title: "Hi! A product you are watching has been updated",
+          body: `Product: "${product_title}" has been updated. Check it out!`,
+          to: user_token,
+          data: {
+            type: "product_update",
+            prod_id: id,
+            product_title,
+          },
+        })),
+      );
+
+      return response.status(CREATED).send({
+        message: "Product updated",
+        statusCode: CREATED,
+        id,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    throw new BadRequestException(FAILED_CREATE);
   }
 
   @Post()

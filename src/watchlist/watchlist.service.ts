@@ -19,7 +19,7 @@ export class WatchlistService {
     });
   }
 
-  getWatchlist(user_id: number, skip = 0) {
+  getAll(user_id: number, skip = 0) {
     return this.watchRepository
       .createQueryBuilder("w")
       .leftJoinAndSelect("w.prod_id", "prod")
@@ -30,7 +30,7 @@ export class WatchlistService {
       .getMany();
   }
 
-  async getWatchlistREST(user_id: number, skip: number = 0) {
+  async getAllREST(user_id: number, skip: number = 0) {
     return this.watchRepository
       .createQueryBuilder("w")
       .leftJoinAndSelect("w.prod_id", "prod")
@@ -50,23 +50,17 @@ export class WatchlistService {
       ]);
   }
 
-  async save(user_id: number, prod_id: any) {
-    return this.watchRepository
-      .findOne({
-        user_id,
-        prod_id,
-      })
-      .then((r) => {
-        if (typeof r === "undefined") return this.watchRepository.insert({ user_id, prod_id });
-        return Promise.reject("Product is already in watchlist");
-      });
+  async saveOne(user_id: number, prod_id: any) {
+    return this.watchRepository.save({ user_id, prod_id });
   }
 
-  remove(user_id: number, prod_id: any): Promise<DeleteResult> {
-    return this.watchRepository.delete({
+  async remove(user_id: number, prod_id: any): Promise<boolean> {
+    const result = await this.watchRepository.delete({
       user_id,
       prod_id,
     });
+
+    return result.affected > 0;
   }
 
   removeById(prod_id: number, user_id: number) {
@@ -74,7 +68,7 @@ export class WatchlistService {
     return this.watchRepository.delete({ prod_id, user_id });
   }
 
-  getWatchlistProductById(prod_id: number) {
+  async getOneById(prod_id: number) {
     return this.watchRepository
       .createQueryBuilder("w")
       .leftJoinAndSelect("w.prod_id", "product")
@@ -89,7 +83,22 @@ export class WatchlistService {
       }));
   }
 
-  checkIfProdIsIn(user_id: number, prod_id: any) {
+  isIn(user_id: number, prod_id: any) {
     return this.watchRepository.findOne({ user_id, prod_id });
+  }
+
+  getWatchlistWithNotifications(prod_id: number): Promise<
+    {
+      user_token: string;
+      product_title: string;
+    }[]
+  > {
+    return this.watchRepository
+      .createQueryBuilder("w")
+      .leftJoinAndSelect("w.user_id", "user")
+      .leftJoinAndSelect("w.prod_id", "product")
+      .where("w.prod_id = :prod_id", { prod_id })
+      .select(["user.token", "product.title"])
+      .getRawMany();
   }
 }
