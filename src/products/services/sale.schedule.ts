@@ -51,12 +51,12 @@ export class SaleSchedule {
 
       await this.saleService.setDailySaleProduct(randomId, 100);
 
-      const { price } = await this.productsService.getById(randomId);
+      const { price, prod_id, title } = await this.productsService.getById(randomId);
 
       const discount = Number((price * 0.8).toFixed(2));
       await this.productsService.applyDiscount(randomId, discount);
 
-      await this.notifiService.dailySale();
+      await this.notifiService.dailySale(prod_id, title);
     } catch (error) {
       console.warn(error);
     }

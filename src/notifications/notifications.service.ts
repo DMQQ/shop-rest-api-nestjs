@@ -84,13 +84,18 @@ export class NotificationsService {
     }
   }
 
-  async dailySale() {
+  async dailySale(id: number, product_title: string) {
     this.getTokens().then((tokens) => {
       this.expo.sendPushNotificationsAsync(
         tokens.map(({ token }) => ({
           to: token,
           title: "Daily discount just hit, check it out",
-          body: "20% off on a daily product",
+          body: "20% off",
+          data: {
+            type: "daily_sale",
+            prod_id: id,
+            product_title: product_title,
+          },
         })),
       );
     });
