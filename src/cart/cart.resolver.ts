@@ -1,4 +1,4 @@
-import { Resolver } from "@nestjs/graphql";
+import { Float, Resolver } from "@nestjs/graphql";
 import { AddCart, CartEntity, IsInCart } from "./cart.entity";
 
 import { Query, Mutation, Args, Int } from "@nestjs/graphql";
@@ -12,6 +12,11 @@ export class CartResolver {
   @Query(() => [CartEntity], { nullable: true })
   getUserCart(@User() id: number) {
     return this.cartService.getUsersCartQL(id);
+  }
+
+  @Query(() => Float)
+  async cartTotal(@User() id: number) {
+    return this.cartService.getCartTotal(id);
   }
 
   @Query(() => IsInCart)

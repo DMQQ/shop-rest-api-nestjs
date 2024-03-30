@@ -30,6 +30,11 @@ export class CartController {
     return this.cartService.getCart(user_id, skip);
   }
 
+  @Get("/total")
+  async getCartTotal(@User() user_id: number) {
+    return this.cartService.getCartTotal(user_id);
+  }
+
   @Get("/check")
   async checkIsIn(@Query("prod_id") prod_id: number, @User() id: number) {
     const cart = await this.cartService.isInCart(id, prod_id);

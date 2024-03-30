@@ -29,6 +29,15 @@ export class CartService {
       .then(singleCartProduct);
   }
 
+  async getCartTotal(user_id: number) {
+    return this.cartRepository
+      .createQueryBuilder("cart")
+      .select("SUM(cart.ammount * prod.price)", "total")
+      .leftJoin("cart.prod_id", "prod")
+      .where("cart.user_id = :user_id", { user_id })
+      .getRawOne();
+  }
+
   async getCart(user_id: number, skip = 0) {
     return this.cartRepository
       .findAndCount({

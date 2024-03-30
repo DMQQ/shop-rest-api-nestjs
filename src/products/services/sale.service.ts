@@ -34,6 +34,7 @@ export class SaleService {
       .createQueryBuilder("sale")
       .leftJoinAndSelect("sale.prod_id", "product")
       .leftJoinAndSelect("product.img_id", "image")
+      .leftJoinAndSelect("product.rating_id", "ratings")
       .select([
         "sale.date",
         "product.prod_id",
@@ -43,9 +44,15 @@ export class SaleService {
         "image.name",
         "sale.amount",
         "product.rating",
+        "ratings.rating_id",
       ])
       .orderBy("sale.date", "DESC")
       .getOne()
-      .then(({ prod_id, ...rest }) => ({ ...rest, ...prod_id, quantity: rest.amount }));
+      .then(({ prod_id, ...rest }) => ({
+        ...rest,
+        ...prod_id,
+        quantity: rest.amount,
+        reviewsCount: prod_id.rating_id.length,
+      }));
   }
 }
