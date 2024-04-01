@@ -4,5 +4,5 @@ export const singleCartProduct = (result: any) => ({
   ammount: result.ammount,
   title: result.prod_id.title,
   price: result.prod_id.price,
-  img_id: [result.prod_id.img_id[0]],
+  images: [result.prod_id.images[0]],
 });

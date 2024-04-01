@@ -32,7 +32,7 @@ export class ProductsService {
 
   async getAllQL(skip = 0, params: ParamsProps) {
     return this.productsRepository.find({
-      relations: ["img_id", "rating_id", "vendor"],
+      relations: ["images", "ratings", "vendor"],
       skip,
       take: TAKE,
 
@@ -42,8 +42,8 @@ export class ProductsService {
 
   getAll(skip: number = 0) {
     return this.productsRepository.findAndCount({
-      select: ["prod_id", "price", "img_id", "title"],
-      relations: ["img_id"],
+      select: ["prod_id", "price", "images", "title"],
+      relations: ["images"],
       order: { prod_id: "DESC" },
       skip,
       take: TAKE,
@@ -61,9 +61,9 @@ export class ProductsService {
 
   async getByCategory(category: string, skip = 0) {
     return this.productsRepository.findAndCount({
-      select: ["prod_id", "price", "img_id", "title"],
+      select: ["prod_id", "price", "images", "title"],
       where: { category },
-      relations: ["img_id"],
+      relations: ["images"],
       skip,
       take: TAKE,
     });
@@ -71,7 +71,7 @@ export class ProductsService {
 
   async getById(id: number) {
     return this.productsRepository.findOneOrFail({
-      relations: ["img_id", "rating_id", "vendor"],
+      relations: ["images", "ratings", "vendor"],
       where: { prod_id: id },
     });
   }
@@ -98,7 +98,7 @@ export class ProductsService {
     return this.searchRepository
       .createQueryBuilder("search")
       .leftJoinAndSelect("search.prod_id", "products")
-      .leftJoinAndSelect("products.img_id", "images")
+      .leftJoinAndSelect("products.images", "images")
       .where("search.user_id = :user_id", { user_id })
       .take(TAKE)
       .skip(skip)
@@ -110,7 +110,7 @@ export class ProductsService {
             prod_id: prod_id.prod_id,
             price: +prod_id.price,
             title: prod_id.title,
-            img_id: [prod_id.img_id?.[0]],
+            images: [prod_id.images?.[0]],
           })),
 
           ammount,
@@ -120,8 +120,8 @@ export class ProductsService {
 
   async getProductSuggestionsQL(text: string) {
     return this.productsRepository.find({
-      select: ["prod_id", "img_id", "title", "price"],
-      relations: ["img_id"],
+      select: ["prod_id", "images", "title", "price"],
+      relations: ["images"],
       where: { title: Like(`%${text}%`) },
     });
   }
@@ -129,8 +129,8 @@ export class ProductsService {
   async getSearchedProducts(props: ParamsDto) {
     return this.productsRepository
       .findAndCount({
-        select: ["prod_id", "img_id", "title", "price"],
-        relations: ["img_id"],
+        select: ["prod_id", "images", "title", "price"],
+        relations: ["images"],
         skip: +props.skip || 0,
         take: +props.take || TAKE,
 
@@ -156,7 +156,7 @@ export class ProductsService {
           response.map((product) => ({
             title: product.title,
             prod_id: product.prod_id,
-            image: product?.img_id[0]?.name,
+            image: product?.images[0]?.name,
             price: +product.price,
           })),
           amount,
@@ -184,8 +184,8 @@ export class ProductsService {
 
   getGoodRatedProducts(skip: number) {
     return this.productsRepository.findAndCount({
-      select: ["price", "prod_id", "title", "img_id"],
-      relations: ["img_id"],
+      select: ["price", "prod_id", "title", "images"],
+      relations: ["images"],
       where: {
         rating: MoreThan(3),
       },

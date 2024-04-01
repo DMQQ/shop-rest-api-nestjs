@@ -43,7 +43,7 @@ export class HistoryService {
     return this.paymentRepository.find({
       where: { user_id },
       order: { date: "DESC" },
-      relations: ["products", "products.prod_id", "products.prod_id.img_id"],
+      relations: ["products", "products.prod_id", "products.prod_id.images"],
       skip,
       take: 5,
     });

@@ -16,14 +16,14 @@ export class CartService {
       where: {
         user_id,
       },
-      relations: ["prod_id", "prod_id.img_id"],
+      relations: ["prod_id", "prod_id.images"],
     });
   }
 
   async getOne(prod_id: number, user_id: number) {
     return this.cartRepository
       .findOne({
-        relations: ["prod_id", "prod_id.img_id"],
+        relations: ["prod_id", "prod_id.images"],
         where: { prod_id, user_id },
       })
       .then(singleCartProduct);
@@ -42,7 +42,7 @@ export class CartService {
     return this.cartRepository
       .findAndCount({
         select: ["prod_id", "ammount", "prod_id", "cart_id"],
-        relations: ["prod_id", "prod_id.img_id"],
+        relations: ["prod_id", "prod_id.images"],
         where: { user_id },
         skip,
         take: 5,

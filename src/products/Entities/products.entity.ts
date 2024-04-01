@@ -52,16 +52,16 @@ export class ProductsEntity {
   @ApiProperty({ description: "Product's images", default: [] })
   @Field(() => [UploadEntity], { defaultValue: [] })
   @OneToMany(() => UploadEntity, (img) => img.prod_id, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "img_id" })
-  img_id: UploadEntity[];
+  @JoinColumn({ name: "images" })
+  images: UploadEntity[];
 
   @ApiProperty({ description: "Product's ratings", default: [] })
   @Field(() => [RatingsEntity], { defaultValue: [] })
   @OneToMany(() => RatingsEntity, (rating) => rating.prod_id, {
     onDelete: "CASCADE",
   })
-  @JoinColumn({ name: "rating_id" })
-  rating_id: RatingsEntity[];
+  @JoinColumn({ name: "ratings" })
+  ratings: RatingsEntity[];
 
   @ApiProperty({ description: "Seller of the product" })
   @Field(() => UsersEntity)

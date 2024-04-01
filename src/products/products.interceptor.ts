@@ -7,9 +7,9 @@ export class OneImageInterceptor implements NestInterceptor {
   intercept(_: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(
       map(([results, amount]: [ProductsEntity[], number]) => [
-        results.map(({ img_id, ...rest }) => ({
+        results.map(({ images, ...rest }) => ({
           ...rest,
-          img_id: [img_id?.[0]],
+          images: [images?.[0]],
         })),
         amount,
       ]),

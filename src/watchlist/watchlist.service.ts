@@ -15,7 +15,7 @@ export class WatchlistService {
       where: {
         id: watchlist_id,
       },
-      relations: ["prod_id", "prod_id.img_id"],
+      relations: ["prod_id", "prod_id.images"],
     });
   }
 
@@ -23,7 +23,7 @@ export class WatchlistService {
     return this.watchRepository
       .createQueryBuilder("w")
       .leftJoinAndSelect("w.prod_id", "prod")
-      .leftJoinAndSelect("prod.img_id", "images")
+      .leftJoinAndSelect("prod.images", "images")
       .where("w.user_id = :user_id", { user_id })
       .take(5)
       .skip(skip)
@@ -34,7 +34,7 @@ export class WatchlistService {
     return this.watchRepository
       .createQueryBuilder("w")
       .leftJoinAndSelect("w.prod_id", "prod")
-      .leftJoinAndSelect("prod.img_id", "images")
+      .leftJoinAndSelect("prod.images", "images")
       .where("w.user_id = :user_id", { user_id })
       .take(5)
       .skip(skip)
@@ -44,7 +44,7 @@ export class WatchlistService {
           prod_id: prod_id.prod_id,
           price: prod_id.price,
           title: prod_id.title,
-          img_id: prod_id.img_id,
+          images: prod_id.images,
         })),
         am,
       ]);
@@ -72,14 +72,14 @@ export class WatchlistService {
     return this.watchRepository
       .createQueryBuilder("w")
       .leftJoinAndSelect("w.prod_id", "product")
-      .leftJoinAndSelect("product.img_id", "images")
+      .leftJoinAndSelect("product.images", "images")
       .where("w.prod_id = :prod_id", { prod_id })
       .getOne()
-      .then(({ prod_id: { title, price, prod_id, img_id } }) => ({
+      .then(({ prod_id: { title, price, prod_id, images } }) => ({
         title,
         price,
         prod_id,
-        img_id: [img_id?.[0]],
+        images: [images?.[0]],
       }));
   }
 

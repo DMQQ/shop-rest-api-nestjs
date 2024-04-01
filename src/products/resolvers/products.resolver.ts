@@ -23,22 +23,22 @@ export class ProductsResolver {
     return this.productsService.getProductSuggestionsQL(name);
   }
 
-  @ResolveField("img_id", () => [UploadEntity])
+  @ResolveField("images", () => [UploadEntity])
   async images(
     @Parent() product: ProductsEntity,
     @Args("take", { type: () => Int, nullable: true }) take: number = 10,
     @Args("skip", { type: () => Int, nullable: true }) skip: number = 0,
   ) {
-    return product?.img_id?.splice(skip, take).sort((img1, img2) => img1.id - img2.id);
+    return product?.images?.splice(skip, take).sort((img1, img2) => img1.id - img2.id);
   }
 
-  @ResolveField("rating_id", () => [RatingsEntity])
+  @ResolveField("ratings", () => [RatingsEntity])
   async ratings(
     @Parent() parent: ProductsEntity,
     @Args("take", { type: () => Int, nullable: true }) take: number = 2,
     @Args("skip", { type: () => Int, nullable: true }) skip: number = 0,
   ) {
-    return parent?.rating_id?.splice(skip, take) ?? [];
+    return parent?.ratings?.splice(skip, take) ?? [];
   }
 
   @Query(() => ProductsEntity)

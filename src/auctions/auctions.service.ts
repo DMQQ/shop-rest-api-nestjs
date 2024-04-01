@@ -42,7 +42,7 @@ export class AuctionsService {
 
   getPendingAuctions(user_id: number) {
     return this.auctionRepository.find({
-      relations: ["product", "product.img_id", "bids"],
+      relations: ["product", "product.images", "bids"],
       where: {
         seller: user_id,
         active: true,
@@ -52,7 +52,7 @@ export class AuctionsService {
 
   getWonAuction(user_id: number) {
     return this.auctionRepository.find({
-      relations: ["product", "product.img_id", "bids"],
+      relations: ["product", "product.images", "bids"],
       where: {
         winner: user_id,
       },
@@ -94,7 +94,7 @@ export class AuctionsService {
   // skip,take doesnt work
   getAuctions({ user, skip = 0, take = 5, active, title }: AuctionParams) {
     return this.auctionRepository.find({
-      relations: ["product", "product.img_id", "bids"],
+      relations: ["product", "product.images", "bids"],
       where: {
         ...(!!user && { seller: user }),
         ...(!!active && { active }),
@@ -112,7 +112,7 @@ export class AuctionsService {
     return this.auctionRepository
       .createQueryBuilder("au")
       .leftJoinAndSelect("au.product", "prod")
-      .leftJoinAndSelect("prod.img_id", "img")
+      .leftJoinAndSelect("prod.images", "img")
       .leftJoinAndSelect("au.bids", "bids")
       .where("au.auction_id = :auction_id", { auction_id })
       .orderBy("bids.amount", "DESC")

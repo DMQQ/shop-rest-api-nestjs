@@ -36,7 +36,7 @@ export class RatingsResolver {
 
       return {
         ...rating,
-        rating_id: insert.generatedMaps[0].rating_id,
+        rating_id: insert.generatedMaps[0].ratings,
       };
     } catch (error) {
       throw new BadRequestException("You must purchase product before reviewing");

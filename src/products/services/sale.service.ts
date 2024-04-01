@@ -16,7 +16,7 @@ export class SaleService {
   async getDailySaleProduct() {
     return this.saleRepository
       .find({
-        relations: ["prod_id", "prod_id.img_id"],
+        relations: ["prod_id", "prod_id.images"],
         order: {
           date: "DESC",
         },
@@ -33,8 +33,8 @@ export class SaleService {
     return this.saleRepository
       .createQueryBuilder("sale")
       .leftJoinAndSelect("sale.prod_id", "product")
-      .leftJoinAndSelect("product.img_id", "image")
-      .leftJoinAndSelect("product.rating_id", "ratings")
+      .leftJoinAndSelect("product.images", "image")
+      .leftJoinAndSelect("product.ratings", "ratings")
       .select([
         "sale.date",
         "product.prod_id",
@@ -44,7 +44,7 @@ export class SaleService {
         "image.name",
         "sale.amount",
         "product.rating",
-        "ratings.rating_id",
+        "ratings",
       ])
       .orderBy("sale.date", "DESC")
       .getOne()
@@ -52,7 +52,7 @@ export class SaleService {
         ...rest,
         ...prod_id,
         quantity: rest.amount,
-        reviewsCount: prod_id.rating_id.length,
+        reviewsCount: prod_id.ratings.length,
       }));
   }
 }
