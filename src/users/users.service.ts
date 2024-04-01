@@ -34,7 +34,7 @@ export class UsersService {
   }
 
   findMatchOrFail(email: string) {
-    return this.userRepository.findOneOrFail({
+    return this.userRepository.findOne({
       where: {
         email,
       },
@@ -52,10 +52,10 @@ export class UsersService {
   }
 
   async comparePasswords(hashed: string, password: string): Promise<boolean> {
-    return await compare(password, hashed);
+    return compare(password, hashed);
   }
   async createHashedPassword(password: string): Promise<string> {
-    return hash(password, 10).then((hash: string) => hash);
+    return hash(password, 10);
   }
 
   createToken<T extends { email?: string; id: number }>(body: T): string {

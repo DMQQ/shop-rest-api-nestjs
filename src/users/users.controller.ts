@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   NotFoundException,
   Param,
@@ -34,44 +36,47 @@ enum CredentialsReset {
 export class UsersController {
   constructor(private userService: UsersService) {}
 
+  @HttpCode(200)
   @ApiBody({ type: ApiAuthBody })
   @ApiResponse({ status: 200, description: "Logged in successfully", type: ApiLoginResponseOk })
   @ApiResponse({ status: 400, description: "Something went wrong", type: ApiLoginResponseBad })
   @Post("login")
   async login(@Body() { email, password }: UserDto) {
-    try {
-      const result = await this.userService.findMatchOrFail(email);
+    const result = await this.userService.findMatchOrFail(email);
 
-      if (typeof result !== "undefined" && !result.activated) {
-        throw new BadRequestException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: "Account not activated",
-        });
-      }
-      const isValid = await this.userService.comparePasswords(result.password, password);
-
-      if (!isValid) {
-        throw new BadRequestException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: "Invalid email or password",
-        });
-      }
-      const token = this.userService.createToken({
-        email: result.email,
-        id: result.id,
-        role: result.user_type,
+    if (typeof result === "undefined")
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: "Account not found",
       });
 
-      return {
-        role: result.user_type,
-        token,
-        name: result.email,
-        user_id: result.id,
-        status: "verified",
-      };
-    } catch (error) {
-      throw new NotFoundException(`Invalid email or password, try again`);
+    if (typeof result !== "undefined" && !result.activated) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Account not activated",
+      });
     }
+    const isValid = await this.userService.comparePasswords(result.password, password);
+
+    if (!isValid) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Invalid email or password",
+      });
+    }
+    const token = this.userService.createToken({
+      email: result.email,
+      id: result.id,
+      role: result.user_type,
+    });
+
+    return {
+      role: result.user_type,
+      token,
+      name: result.email,
+      user_id: result.id,
+      status: "verified",
+    };
   }
 
   @ApiBody({ type: ApiAuthBody })
@@ -90,7 +95,8 @@ export class UsersController {
     const res = await this.userService.findMatch(email);
 
     if (typeof res !== "undefined") {
-      throw new BadRequestException(`Account with ${email} already exists`);
+      // throw new BadRequestException(`Account with ${email} already exists`);
+      throw new ConflictException(`Account with ${email} already exists`);
     }
 
     const hashed = await this.userService.createHashedPassword(password);
@@ -108,6 +114,7 @@ export class UsersController {
       status: 201,
       activated: false,
       user_id: result.raw.insertId,
+      ...(process.env.NODE_ENV === "test" && { token }),
     };
   }
 
@@ -122,6 +129,7 @@ export class UsersController {
     response.sendFile(path.join(process.cwd(), "./src/users/View/index.html"));
   }
 
+  @HttpCode(200)
   @Post("/confirm-account")
   confirmEmail(@Body("token") token: string, @Res() response: Response) {
     return this.userService.verifyToken<{ id: number }>(token, async (err, decoded) => {

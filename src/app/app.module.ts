@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { TypeOrmModule, TypeOrmModuleAsyncOptions } from "@nestjs/typeorm";
 import { CartModule } from "../cart/cart.module";
 import { HistoryModule } from "../payments/history.module";
 import { NotificationsModule } from "../notifications/notifications.module";
@@ -26,17 +26,18 @@ import { LandingModule } from "../landing/landing.module";
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService): any => ({
-        type: configService.get("CONNECTION"),
-        host: configService.get("HOST"),
-        port: +configService.get("PORT"),
-        username: configService.get("NAME"),
-        password: configService.get("PASS"),
-        database: configService.get("DATABASE"),
-        entities: ["dist/**/*.entity{.ts,.js}"],
-
-        synchronize: true,
-      }),
+      useFactory: (configService: ConfigService) =>
+        ({
+          type: configService.get("CONNECTION") || "mysql",
+          host: configService.get("HOST") || "localhost",
+          port: +configService.get("PORT") || 3306,
+          username: configService.get("NAME"),
+          password: configService.get("PASS"),
+          database: process.env.NODE_ENV === "test" ? "shop_test" : configService.get("DATABASE"),
+          entities: [__dirname + "/../**/*.entity{.ts,.js}"],
+          synchronize: true,
+          dropSchema: process.env.NODE_ENV === "test",
+        } as TypeOrmModuleAsyncOptions),
       inject: [ConfigService],
     }),
     UsersModule,
