@@ -40,3 +40,9 @@ lerna-debug.log*
 
 .env*
 sendgrid.env
+
+
+shop_backup_20.03.sql
+
+
+*.sql
