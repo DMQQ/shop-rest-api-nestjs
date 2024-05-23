@@ -30,7 +30,7 @@ export class NotificationsService {
   }
 
   findUsersToken(user_id: number): Promise<NotificationsEntity> {
-    return this.notifyRepository.findOne({ user_id });
+    return this.notifyRepository.findOne({ where: { user_id } });
   }
 
   getTokens(): Promise<NotificationsEntity[]> {

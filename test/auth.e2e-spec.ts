@@ -6,6 +6,7 @@ import { APP_PIPE } from "@nestjs/core";
 
 describe("AuthModule (e2e)", () => {
   let app: INestApplication;
+  let auth_token: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -132,6 +133,8 @@ describe("AuthModule (e2e)", () => {
         expect(res.body.name).toBe(activated_account.email);
         expect(res.body.user_id).toBeDefined();
         expect(res.body.status).toBe("verified");
+
+        auth_token = res.body.token;
       });
   });
 
@@ -144,34 +147,36 @@ describe("AuthModule (e2e)", () => {
 
   const patch_account = {
     address: "1234 Main St",
-    phone_number: "1234567890",
+    phone_number: "+48123456789",
     name: "John Doe",
     surname: "Doe",
   };
 
-  // these requires token to be sent in headers
-  // it("Creates account credentials", () => {
-  //   return request(app.getHttpServer())
-  //     .patch("/auth/credentials")
-  //     .send(patch_account)
-  //     .expect(HttpStatus.OK)
-  //     .expect((res) => {
-  //       expect(res.body.statusCode).toBe(HttpStatus.OK);
-  //       expect(res.body.message).toBe("success");
-  //     });
-  // });
+  //these requires token to be sent in headers, to be fixed later
+  it("Creates account credentials", () => {
+    return request(app.getHttpServer())
+      .patch("/auth/credentials")
+      .set("token", auth_token)
+      .send(patch_account)
+      .expect(HttpStatus.OK)
+      .expect((res) => {
+        expect(res.body.statusCode).toBe(HttpStatus.OK);
+        expect(res.body.message).toBe("updated");
+      });
+  });
 
-  // it("Get account credentials", () => {
-  //   return request(app.getHttpServer())
-  //     .get("/auth/credentials")
-  //     .expect(HttpStatus.OK)
-  //     .expect((res) => {
-  //       expect(res.body.address).toBe(patch_account.address);
-  //       expect(res.body.phone_number).toBe(patch_account.phone_number);
-  //       expect(res.body.name).toBe(patch_account.name);
-  //       expect(res.body.surname).toBe(patch_account.surname);
-  //     });
-  // });
+  it("Get account credentials", () => {
+    return request(app.getHttpServer())
+      .get("/auth/credentials")
+      .set("token", auth_token)
+      .expect(HttpStatus.OK)
+      .expect((res) => {
+        expect(res.body.address).toBe(patch_account.address);
+        //  expect(res.body.phone_number).toBe(patch_account.phone_number);
+        expect(res.body.name).toBe(patch_account.name);
+        expect(res.body.surname).toBe(patch_account.surname);
+      });
+  });
 
   afterAll(async () => {
     await app.close();

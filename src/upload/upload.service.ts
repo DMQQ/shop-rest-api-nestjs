@@ -15,6 +15,6 @@ export class UploadService {
   }
 
   getImagesToProducts(prod_id: number): Promise<UploadEntity[]> {
-    return this.uploadRepository.find({ prod_id });
+    return this.uploadRepository.find({ where: { prod_id } });
   }
 }

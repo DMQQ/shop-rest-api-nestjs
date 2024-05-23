@@ -57,7 +57,6 @@ export class RatingsController {
         code: 201,
       });
     } catch (error) {
-      console.log(error);
       throw new BadRequestException("You must purchase product before reviewing");
     }
   }

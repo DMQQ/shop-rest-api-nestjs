@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConnection, InjectRepository } from "@nestjs/typeorm";
+import { InjectConnection, InjectDataSource, InjectRepository } from "@nestjs/typeorm";
 import { ProductsEntity } from "../products/entities/products.entity";
-import { Connection, In, Repository } from "typeorm";
+import { Connection, DataSource, In, Repository } from "typeorm";
 import { HistoryEntity } from "./history.entity";
 import { Stripe } from "stripe";
 import { PurchaseProps } from "./history.interface";
@@ -15,10 +15,11 @@ export class HistoryService {
   constructor(
     @InjectRepository(PaymentEntity) private paymentRepository: Repository<PaymentEntity>,
 
-    @InjectConnection() private conn: Connection,
+    @InjectDataSource() private conn: DataSource,
   ) {
     this.stripe = new Stripe(process.env.STRIPE_TEST_SECRET!, {
-      apiVersion: "2020-08-27",
+      //  apiVersion: "2020-08-27",
+
       typescript: true,
     });
   }
@@ -70,6 +71,8 @@ export class HistoryService {
 
       if (dbProducts.some((prod) => prod.quantity <= 0)) {
         // Refund stripe
+
+        await runner.rollbackTransaction();
         throw new Error("Product out of stock");
       }
 

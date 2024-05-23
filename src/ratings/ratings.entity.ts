@@ -8,6 +8,19 @@ import {
 } from "typeorm";
 import { Field, InputType, Int, ObjectType } from "@nestjs/graphql";
 import { ProductsEntity } from "../products/entities/products.entity";
+import { UsersEntity } from "../users/users.entity";
+
+@ObjectType()
+class Creator {
+  @Field(() => Int)
+  id: number;
+
+  @Field()
+  name: string;
+
+  @Field()
+  email: string;
+}
 
 @ObjectType()
 @Entity("ratings")
@@ -47,6 +60,11 @@ export class RatingsEntity {
   @Field(() => String)
   @CreateDateColumn({ name: "created_at" })
   created_at: string;
+
+  @Field(() => Creator, { nullable: true })
+  @ManyToOne(() => UsersEntity, (type) => type.id)
+  @JoinColumn({ name: "user_id" })
+  creator: Creator;
 }
 
 @InputType()

@@ -17,6 +17,7 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { AuctionsModule } from "../auctions/auctions.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { LandingModule } from "../landing/landing.module";
+import { AcceptMiddleware } from "./middleware/content-type.middleware";
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { LandingModule } from "../landing/landing.module";
           entities: [__dirname + "/../**/*.entity{.ts,.js}"],
           synchronize: true,
           dropSchema: process.env.NODE_ENV === "test",
-        } as TypeOrmModuleAsyncOptions),
+        }) as TypeOrmModuleAsyncOptions,
       inject: [ConfigService],
     }),
     UsersModule,
@@ -60,8 +61,11 @@ import { LandingModule } from "../landing/landing.module";
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    ///  consumer.apply(AcceptMiddleware).forRoutes("*");
+
     consumer
       .apply(AppMiddleware)
+
       .exclude(
         "/auth/login",
         "/auth/register",

@@ -163,12 +163,12 @@ export class AuctionsService {
     throw new Error("Price too low");
   }
 
-  isProductOwner(prod_id: number, user_id: number) {
+  isProductOwner(prod_id: number, user_id: any) {
     return this.connection.manager.findOne(ProductsEntity, {
       select: ["vendor", "prod_id"],
       where: {
         prod_id,
-        user_id,
+        vendor: user_id,
       },
     });
   }

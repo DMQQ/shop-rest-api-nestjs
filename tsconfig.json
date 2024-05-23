@@ -3,7 +3,7 @@
     "module": "commonjs",
     "declaration": true,
     "alwaysStrict": true,
-    //   "strict": true,
+    "strict": false,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,

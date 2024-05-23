@@ -71,7 +71,7 @@ export class ProductsService {
 
   async getById(id: number) {
     return this.productsRepository.findOneOrFail({
-      relations: ["images", "ratings", "vendor"],
+      relations: ["images", "ratings", "vendor", "ratings.creator"],
       where: { prod_id: id },
     });
   }

@@ -83,7 +83,10 @@ export class UsersService {
   }
 
   getCredentials(id: number) {
-    return this.userRepository.findOne(id, {
+    return this.userRepository.findOne({
+      where: {
+        id,
+      },
       select: ["address", "email", "name", "surname", "phone_number"],
     });
   }

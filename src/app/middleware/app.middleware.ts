@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable, NestMiddleware } from "@nestjs/common";
-import { Response, NextFunction } from "express";
+import { FastifyReply } from "fastify";
+import { NextFunction } from "express";
 import { RequestExtend } from "../../@types/types";
 import { UsersService } from "../../users/users.service";
 
@@ -13,7 +14,7 @@ interface IDecodedUser {
 export class AppMiddleware implements NestMiddleware {
   constructor(private usersService: UsersService) {}
 
-  use(req: RequestExtend, res: Response, next: NextFunction) {
+  use(req: RequestExtend, res: FastifyReply, next: NextFunction) {
     const token = req.headers["token"];
 
     if (typeof token === "string") {

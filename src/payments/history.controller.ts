@@ -78,7 +78,8 @@ export class HistoryController {
         finished: true,
       });
     } else {
-      console.log("Unhandled event: ", event.type)
+      console.log("Unhandled event: ", event.type);
+
       response.send({
         received: true,
       });

@@ -35,6 +35,7 @@ export class SaleService {
       .leftJoinAndSelect("sale.prod_id", "product")
       .leftJoinAndSelect("product.images", "image")
       .leftJoinAndSelect("product.ratings", "ratings")
+      .leftJoinAndSelect("ratings.creator", "creator")
       .select([
         "sale.date",
         "product.prod_id",
@@ -45,6 +46,9 @@ export class SaleService {
         "sale.amount",
         "product.rating",
         "ratings",
+        "creator.name",
+        "creator.email",
+        "creator.id",
       ])
       .orderBy("sale.date", "DESC")
       .getOne()

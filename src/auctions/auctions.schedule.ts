@@ -5,9 +5,12 @@ import { AuctionsService } from "./auctions.service";
 
 @Injectable()
 export class AuctionsSchedule {
-  constructor(private auctionService: AuctionsService, private mailService: Mailer) {}
+  constructor(
+    private auctionService: AuctionsService,
+    private mailService: Mailer,
+  ) {}
 
-  @Cron("0 0 0 * *", { timeZone: "Europe/Warsaw" })
+  //   @Cron("0 0 0 * *", { timeZone: "Europe/Warsaw" })
   async auctionsSchedule() {
     let activeAuctions = await this.auctionService.getActiveAuctions();
 

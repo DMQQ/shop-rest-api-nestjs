@@ -8,7 +8,10 @@ import { BadRequestException } from "@nestjs/common";
 
 @Resolver(() => RatingsEntity)
 export class RatingsResolver {
-  constructor(private ratingsService: RatingsService, private historyService: HistoryService) {}
+  constructor(
+    private ratingsService: RatingsService,
+    private historyService: HistoryService,
+  ) {}
 
   @Query(() => [RatingsEntity])
   ratings(@User() id: number, @Args("skip", { type: () => Int, nullable: true }) skip: number) {
@@ -39,7 +42,18 @@ export class RatingsResolver {
         rating_id: insert.generatedMaps[0].ratings,
       };
     } catch (error) {
-      throw new BadRequestException("You must purchase product before reviewing");
+      console.log(error);
+      if (error.message === "You must purchase product before reviewing") {
+        throw new BadRequestException({
+          statusCode: 400,
+          message: "You must purchase product before reviewing",
+        });
+      } else {
+        throw new BadRequestException({
+          statusCode: 400,
+          message: "You can't post more than one review per product",
+        });
+      }
     }
   }
 }

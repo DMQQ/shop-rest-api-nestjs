@@ -14,7 +14,7 @@ export class SaleSchedule {
     private readonly saleService: SaleService,
   ) {}
 
-  @Cron("0 0 0 * * *", { timeZone: "Europe/Warsaw" })
+  // @Cron("0 0 0 * * *", { timeZone: "Europe/Warsaw" })
   async setProductsRating() {
     try {
       const productIds = await this.productsService.getProductsIds();
@@ -31,7 +31,7 @@ export class SaleSchedule {
     } catch (error) {}
   }
 
-  @Cron("0 0 0 * * *", { timeZone: "Europe/Warsaw" })
+  // @Cron("0 0 0 * * *", { timeZone: "Europe/Warsaw" })
   async setDailySale() {
     try {
       const current = (await this.saleService.getDailySaleProduct()).results;

@@ -44,7 +44,7 @@ export class UsersController {
   async login(@Body() { email, password }: UserDto) {
     const result = await this.userService.findMatchOrFail(email);
 
-    if (typeof result === "undefined")
+    if (typeof result === "undefined" || !result)
       throw new NotFoundException({
         statusCode: HttpStatus.NOT_FOUND,
         message: "Account not found",

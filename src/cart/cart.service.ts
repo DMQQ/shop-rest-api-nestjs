@@ -20,7 +20,7 @@ export class CartService {
     });
   }
 
-  async getOne(prod_id: number, user_id: number) {
+  async getOne(prod_id: any, user_id: number) {
     return this.cartRepository
       .findOne({
         relations: ["prod_id", "prod_id.images"],
@@ -94,7 +94,7 @@ export class CartService {
   }
 
   findOneProductInCart(cart_id: number): Promise<CartEntity | undefined> {
-    return this.cartRepository.findOne({ cart_id });
+    return this.cartRepository.findOne({ where: { cart_id } });
   }
 
   removeAllRelatedToUser(user_id: number): Promise<DeleteResult> {
@@ -102,7 +102,7 @@ export class CartService {
   }
 
   isInCart(user_id: number, prod_id: any) {
-    return this.cartRepository.findOne({ user_id, prod_id });
+    return this.cartRepository.findOne({ where: { user_id, prod_id } });
   }
 
   removeAll(user_id: number) {

@@ -84,7 +84,7 @@ export class WatchlistService {
   }
 
   isIn(user_id: number, prod_id: any) {
-    return this.watchRepository.findOne({ user_id, prod_id });
+    return this.watchRepository.findOne({ where: { user_id, prod_id } });
   }
 
   getWatchlistWithNotifications(prod_id: number): Promise<
