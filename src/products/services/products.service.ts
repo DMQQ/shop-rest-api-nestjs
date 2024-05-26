@@ -10,9 +10,9 @@ import {
   MoreThanOrEqual,
 } from "typeorm";
 import { ProductsEntity } from "../entities/products.entity";
-import { SaleEntity } from "../entities/sale.entity";
 import { SearchHistoryEntity } from "../entities/searchHistory.entity";
 import { ParamsDto } from "../dto/ParamsDto";
+import { ProductsDto } from "../dto/products.dto";
 
 const TAKE = 5;
 
@@ -76,8 +76,14 @@ export class ProductsService {
     });
   }
 
-  createProduct(props: any): Promise<InsertResult> {
-    return this.productsRepository.insert(props);
+  createProduct(props: ProductsDto & { vendor: number }): Promise<InsertResult> {
+    return this.productsRepository.insert({
+      ...props,
+      manufacturer: props.manufactor || "Unknown",
+      rating: 0,
+      tags: [],
+      vendor: props.vendor as any,
+    });
   }
 
   async updateProduct(prod_id: number, props: any) {
@@ -85,7 +91,12 @@ export class ProductsService {
   }
 
   async saveSearchedProduct(user_id: number, prod_id: any) {
-    await this.searchRepository.save({ user_id, prod_id });
+    return await this.searchRepository.query(
+      `INSERT INTO search_history(user_id, prod_id)
+       VALUES(?, ?) ON DUPLICATE KEY UPDATE date = NOW()
+      `,
+      [user_id, prod_id],
+    );
   }
 
   getSearchHistory(user_id: number): Promise<SearchHistoryEntity[]> {

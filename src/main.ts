@@ -5,6 +5,8 @@ import { rawOrdersMiddleware } from "./utils/functions/buffer.middleware";
 import { swaggerConfig } from "./utils/swaggerConfig";
 import { FastifyAdapter } from "@nestjs/platform-fastify";
 
+import * as bodyParser from "body-parser";
+
 const URL = process.env.URL || "192.168.0.25";
 
 async function bootstrap() {
@@ -12,9 +14,14 @@ async function bootstrap() {
     AppModule,
     //   new FastifyAdapter()
   );
+
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.use(rawOrdersMiddleware());
+
+  // app.use(bodyParser.json({ limit: "50mb" }));
+  // app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+
   swaggerConfig(app);
   if (process.env.NODE_ENV === "development") {
     await app.listen(3000, URL, () =>
